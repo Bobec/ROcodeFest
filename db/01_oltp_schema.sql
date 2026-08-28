@@ -339,6 +339,23 @@ CREATE TABLE forum_categories (
   CONSTRAINT uq_forum_categories_code UNIQUE (code)
 );
 
+-- Seeded, like team_categories and forum_allowed_mime_types: a lookup
+-- table with no rows is a foreign key nothing can satisfy, and
+-- forum_posts.category_id is NOT NULL. The forum page named these four
+-- in its own markup and this table was empty, so no post it composed
+-- could ever have become a row.
+--
+-- 'announcements' is the fifth because the page has a separate
+-- announcements strip. It is a category like the others -- what makes
+-- it different is who may post to it, which is a question for the API,
+-- not for this table.
+INSERT INTO forum_categories (code, label, sort_order) VALUES
+  ('announcements', 'Announcements', 0),
+  ('general',       'All general',   1),
+  ('robotics',      'Robotics',      2),
+  ('programming',   'Programming',   3),
+  ('design',        'Design',        4);
+
 CREATE TABLE forum_posts (
   post_id            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   category_id        SMALLINT NOT NULL REFERENCES forum_categories(category_id),

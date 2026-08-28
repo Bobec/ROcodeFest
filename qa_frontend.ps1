@@ -127,7 +127,11 @@ Check "S" "S1 every page asks the SERVER who is signed in" `
 # So every mention of the endpoint has to be a call, not just one of
 # them. This is the shape of vacuity the SQL suites guard against: an
 # assertion that is satisfied without the thing it names being true.
-$callPattern = "fetch\(\s*'/auth/me'"
+#
+# The callee is any identifier, not the literal word "fetch": forum.html
+# goes through a small api() wrapper of its own, and that is still a
+# call. The defect this catches is a paren with NOTHING in front of it,
+# which is the only thing the missing word left behind.
 $mangled  = @()
 $allRefs  = 0
 $realCalls = 0
@@ -135,15 +139,15 @@ foreach ($p in ($src.Keys | Sort-Object)) {
     # Only QUOTED occurrences: the endpoint is named in prose in a few
     # comments, and a comment is not a broken call.
     $all  = ([regex]::Matches($src[$p], "'/auth/me'")).Count
-    $real = ([regex]::Matches($src[$p], $callPattern)).Count
+    $real = ([regex]::Matches($src[$p], "[A-Za-z_\$][A-Za-z0-9_\$]*\(\s*'/auth/me'")).Count
     $allRefs   += $all
     $realCalls += $real
     if ($all -gt $real) { $mangled += ("{0} ({1})" -f $p, ($all - $real)) }
 }
 $mangledDetail = if ($mangled.Count -eq 0) { "all $realCalls references are calls" }
                  else { "not a call: " + ($mangled -join ', ') }
-Check "S" "S1 every mention of /auth/me is an actual fetch call" `
-    "a call missing its fetch still parses, and still passes the check above on a sibling call" `
+Check "S" "S1 every mention of /auth/me is an actual call" `
+    "a call missing its callee still parses, and still passes the check above on a sibling call" `
     ($mangled.Count -eq 0) `
     $mangledDetail
 
@@ -187,7 +191,22 @@ Check "S" "S3 every sign-out ends the session on the server" `
     "$($callLogout.Count) of $($signOutPages.Count) call /auth/logout"
 
 # --- signing in -------------------------------------------------------
-$signInPages = $src.Keys | Where-Object { $src[$_] -match "login-btn|register-form|judge-form" } | Sort-Object
+# This list used to name three form ids, and there are five forms that
+# create an account: join.html registers a member, partner.html and
+# speaker.html each register a partner. So S4 and S5 -- the checks that
+# say every registration goes through the server and every one asks for
+# a password -- were passing while looking at three fifths of the
+# subject. Two of the pages they skipped had no password field at all
+# when this work started.
+#
+# Found by adding a password field to speaker.html and noticing the
+# count did not move. Detection is by what the page DOES now (a form
+# element plus a post to /auth) rather than by a list of ids, so a sixth
+# registration form is covered the day it is written.
+$signInPages = $src.Keys | Where-Object {
+    $src[$_] -match "login-btn|register-form|judge-form" -or
+    ($src[$_] -match "<form" -and $src[$_] -match "/auth/(login|register)")
+} | Sort-Object
 $viaApi = @($signInPages | Where-Object { $src[$_] -match "/auth/(login|register)" })
 
 Pre "S" "S4 the pages carry sign-in and registration forms" ($signInPages.Count -gt 0) `
@@ -208,11 +227,30 @@ Check "S" "S5 every sign-in and registration form asks for a password" `
 # =====================================================================
 # K — the localStorage contract
 # =====================================================================
-# Pages share state only through localStorage, so a key that one page
-# reads and no page writes is a feature wired to nothing. Keys built by
-# concatenation are counted too: an early version of this check missed
-# them and reported three false findings.
+# This group used to ask "do the keys the pages share agree with each
+# other", and its precondition was "there are more than five keys". Both
+# have been overtaken: pages do not share state through localStorage any
+# more. Teams, clubs, join requests, memberships, submissions, appeals
+# and scores are rows, and the browser reads them from the server.
+#
+# So the question is now the opposite one -- what is LEFT -- and there is
+# exactly one answer that is allowed. The dead-read check below is kept
+# because it is still the right check for whatever remains, and because
+# it caught two real keys during this migration.
+#
+# Keys built by concatenation are counted too: an early version of this
+# missed them and reported three false findings.
 # ---------------------------------------------------------------------
+
+# The one key that stays in the browser, and why.
+#
+# rocodefest_rules_seen records whether this visitor has seen the
+# current regulations, which drives a dot on the nav. It is a per-browser
+# preference, not festival data: it is worth nothing to anyone else, it
+# should not follow an account onto a shared computer, and the rules are
+# public -- so signed-out visitors need the badge too, and they have no
+# account to hang it on.
+$ALLOWED_KEYS = @('rocodefest_rules_seen')
 $keys = @{}
 foreach ($name in $src.Keys) {
     foreach ($m in [regex]::Matches($src[$name], "localStorage\.(getItem|setItem|removeItem)\s*\(\s*['""](rocodefest_[a-z_]*)['""]")) {
@@ -238,13 +276,13 @@ $deadReads = $keys.Keys | Where-Object {
     $keys[$_].get -gt 0 -and $keys[$_].set -eq 0 -and $prefixesWritten -notcontains $_
 } | Sort-Object
 
-Pre "K" "K1 the pages share state through localStorage at all" ($keys.Count -gt 5) `
-    "$($keys.Count) distinct keys, and $($dynamicWrites.Count) writes with a computed key"
+Pre "K" "K1 there is any localStorage use left to check" ($keys.Count -gt 0) `
+    "$($keys.Count) distinct key(s), and $($dynamicWrites.Count) write(s) with a computed key"
 
 if ($deadReads.Count -eq 0) {
     Check "K" "K1 every key that is read is written by some page" `
         "a key nothing writes is a feature wired to nothing" $true `
-        "all $($keys.Count) keys have a writer"
+        "all $($keys.Count) key(s) have a writer"
 } else {
     Gap "K" "K1-GAP a key that is read and never written" `
         "where would this data come from?" `
@@ -254,6 +292,25 @@ if ($deadReads.Count -eq 0) {
          "separately and excluded, because an earlier version of this check reported three of them as " +
          "findings and all three were wrong.")
 }
+
+# --- K2: nothing but the documented exception lives in the browser ----
+# The point of the migration, stated as a check rather than left to a
+# commit message. A new key added by a later page is a page deciding to
+# keep festival data where only one browser can see it -- which is what
+# every finding in this group came from: a club that could not see its
+# members' submissions, a judge whose scores nobody could read, a join
+# request no club ever received.
+$unexpected = @($keys.Keys | Where-Object { $ALLOWED_KEYS -notcontains $_ }) | Sort-Object
+$prefixLeft = @($prefixesWritten + @()) | Where-Object { $ALLOWED_KEYS -notcontains $_ } | Sort-Object -Unique
+
+Check "K" "K2 only the documented exception is kept in the browser" `
+    "festival data in localStorage is data only one browser can see, which is where this group's findings all came from" `
+    ($unexpected.Count -eq 0 -and $prefixLeft.Count -eq 0) `
+    $(if ($unexpected.Count -eq 0 -and $prefixLeft.Count -eq 0) {
+        "only " + ($ALLOWED_KEYS -join ", ") + " -- a per-browser preference, and the rules are public so signed-out visitors need it too"
+      } else {
+        "not on the allowed list: " + (($unexpected + $prefixLeft) -join ", ")
+      })
 
 
 # =====================================================================

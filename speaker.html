@@ -336,6 +336,18 @@
         <span class="error" id="err-speaker-email">Please enter a valid email.</span>
       </div>
 
+      <!--
+        A speaker is a partner whose partner_type is 'speaker' -- the
+        enum has had that value all along. So this creates an account,
+        like the partner form does, and an account needs a password.
+        There was none here, and accounts.password_hash is NOT NULL.
+      -->
+      <div class="field">
+        <label for="speaker-password">Password *</label>
+        <input type="password" id="speaker-password" required placeholder="Cel puțin 8 caractere" autocomplete="new-password">
+        <span class="error" id="err-speaker-password">Parola trebuie să aibă cel puțin 8 caractere.</span>
+      </div>
+
       <div class="field">
         <label for="problem-area">What problem would you bring to teams? *</label>
         <textarea id="problem-area" rows="3" required placeholder="Briefly describe the real-world challenge you'd like teams to work on"></textarea>
@@ -461,27 +473,62 @@ document.addEventListener('DOMContentLoaded', function(){
     var problemArea = fields['problem-area'].el.value.trim();
     var stagePreference = document.getElementById('stage-preference').value;
 
-    var existing = [];
-    try {
-      existing = JSON.parse(localStorage.getItem('rocodefest_speakers') || '[]');
-    } catch(err) { existing = []; }
+    var password = document.getElementById('speaker-password').value;
+    var pwErr = document.getElementById('err-speaker-password');
+    if(password.length < 8){
+      pwErr.classList.add('show');
+      document.getElementById('speaker-password').classList.add('invalid');
+      return;
+    }
+    pwErr.classList.remove('show');
+    document.getElementById('speaker-password').classList.remove('invalid');
 
-    existing.push({
-      speakerName: speakerName,
-      companyName: companyName,
-      jobTitle: jobTitle,
-      email: email,
-      problemArea: problemArea,
-      stagePreference: stagePreference,
-      date: new Date().toISOString()
-    });
+    // A speaker is a partner whose partner_type is 'speaker'. The
+    // application used to be pushed into this browser's own array, so
+    // nobody at the festival ever received one -- the form worked
+    // perfectly and reached no one.
+    //
+    // The job title, the problem and the preferred stage have no
+    // columns of their own; they go into partners.message, which is
+    // what it is for. Inventing three columns for one form would be
+    // the wrong direction.
+    var message =
+      (jobTitle ? 'Funcție: ' + jobTitle + '\n' : '') +
+      'Problema propusă: ' + problemArea + '\n' +
+      'Etapa preferată: ' + stagePreference;
 
-    localStorage.setItem('rocodefest_speakers', JSON.stringify(existing));
+    var submitBtn = form.querySelector('button[type="submit"]');
+    if(submitBtn) submitBtn.disabled = true;
+    var emailErr = fields['speaker-email'].err;
 
-    document.getElementById('success-heading').textContent = 'Thanks, ' + speakerName + '!';
-    document.getElementById('success-detail').textContent = 'Your speaker application from ' + companyName + ' has been received. We\'ll follow up at ' + email + '.';
-    form.classList.add('hide');
-    document.getElementById('success-panel').classList.add('show');
+    fetch('/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        role: 'partner', email: email, password: password,
+        orgName: companyName, contactName: speakerName,
+        partnerType: 'speaker', message: message
+      })
+    })
+      .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, data: d }; }); })
+      .then(function(res){
+        if(!res.ok){
+          emailErr.textContent = res.data.error || 'Înscrierea nu a reușit.';
+          emailErr.classList.add('show');
+          if(submitBtn) submitBtn.disabled = false;
+          return;
+        }
+        document.getElementById('success-heading').textContent = 'Thanks, ' + speakerName + '!';
+        document.getElementById('success-detail').textContent = 'Your speaker application from ' + companyName + ' has been received. We\'ll follow up at ' + email + '.';
+        form.classList.add('hide');
+        document.getElementById('success-panel').classList.add('show');
+      })
+      .catch(function(){
+        emailErr.textContent = 'Serverul nu răspunde. Încearcă din nou.';
+        emailErr.classList.add('show');
+        if(submitBtn) submitBtn.disabled = false;
+      });
   });
 });
 
