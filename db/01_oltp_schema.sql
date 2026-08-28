@@ -115,11 +115,35 @@ CREATE TABLE accounts (
   CONSTRAINT uq_accounts_email UNIQUE (email)
 );
 
+-- ---------------------------------------------------------------------
+-- avatar_data_uri, on all four subtype tables
+-- ---------------------------------------------------------------------
+-- An image in a database column is rarely the right answer, and it is the
+-- right answer here: this project has no object storage, and
+-- forum_attachments.storage_key already points at one that does not
+-- exist. A festival's avatars are small and few.
+--
+-- The two CHECKs are what keep that true. The size limit -- roughly 150 KB
+-- once base64 is accounted for -- is a generous portrait and far too small
+-- to be useful as file hosting. The shape check refuses anything that is
+-- not an image data URI, so the column cannot quietly become a place to
+-- put arbitrary text.
+--
+-- Per subtype rather than on accounts: a club's picture and a judge's are
+-- the same idea about different things, and accounts holds only what every
+-- role shares.
+--
+-- Before this, the picture lived in localStorage as
+-- rocodefest_avatar_<name> -- so the same account had an avatar on one
+-- computer and none on another, and nobody else ever saw it.
 CREATE TABLE members (
   account_id  BIGINT PRIMARY KEY REFERENCES accounts(account_id) ON DELETE CASCADE,
   full_name   VARCHAR(150) NOT NULL,
   city        VARCHAR(120),
   bio         TEXT,
+  avatar_data_uri TEXT,
+  CONSTRAINT ck_members_avatar_size  CHECK (avatar_data_uri IS NULL OR length(avatar_data_uri) <= 200000),
+  CONSTRAINT ck_members_avatar_shape CHECK (avatar_data_uri IS NULL OR avatar_data_uri ~ '^data:image/(png|jpeg|gif|webp);base64,'),
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -136,6 +160,10 @@ CREATE TABLE clubs (
   -- and collided whenever local demo data was reset.
   founding_number  INT GENERATED ALWAYS AS IDENTITY,
   notes            TEXT,
+  -- see the note above CREATE TABLE members for why this is a column
+  avatar_data_uri  TEXT,
+  CONSTRAINT ck_clubs_avatar_size  CHECK (avatar_data_uri IS NULL OR length(avatar_data_uri) <= 200000),
+  CONSTRAINT ck_clubs_avatar_shape CHECK (avatar_data_uri IS NULL OR avatar_data_uri ~ '^data:image/(png|jpeg|gif|webp);base64,'),
   created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
   CONSTRAINT uq_clubs_name UNIQUE (club_name),
   CONSTRAINT uq_clubs_founding_number UNIQUE (founding_number)
@@ -146,6 +174,10 @@ CREATE TABLE judges (
   full_name   VARCHAR(150) NOT NULL,
   expertise   VARCHAR(200),
   bio         TEXT,
+  -- see the note above CREATE TABLE members for why this is a column
+  avatar_data_uri TEXT,
+  CONSTRAINT ck_judges_avatar_size  CHECK (avatar_data_uri IS NULL OR length(avatar_data_uri) <= 200000),
+  CONSTRAINT ck_judges_avatar_shape CHECK (avatar_data_uri IS NULL OR avatar_data_uri ~ '^data:image/(png|jpeg|gif|webp);base64,'),
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -155,6 +187,10 @@ CREATE TABLE partners (
   contact_name  VARCHAR(150) NOT NULL,
   partner_type  partner_type NOT NULL, -- distinguishes Partner vs Speaker (and future types)
   message       TEXT,
+  -- see the note above CREATE TABLE members for why this is a column
+  avatar_data_uri TEXT,
+  CONSTRAINT ck_partners_avatar_size  CHECK (avatar_data_uri IS NULL OR length(avatar_data_uri) <= 200000),
+  CONSTRAINT ck_partners_avatar_shape CHECK (avatar_data_uri IS NULL OR avatar_data_uri ~ '^data:image/(png|jpeg|gif|webp);base64,'),
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

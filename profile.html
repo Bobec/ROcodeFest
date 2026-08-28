@@ -432,13 +432,10 @@
 </script>
 <script>
 (function(){
-  var loginLink = document.getElementById('nav-login-link');
-  if(!loginLink) return;
-  var hasSession = false;
-  ['rocodefest_session','rocodefest_member_session','rocodefest_partner_session'].forEach(function(key){
-    try { if(JSON.parse(localStorage.getItem(key) || 'null')) hasSession = true; } catch(e){}
-  });
-  if(hasSession){ loginLink.style.display = 'none'; }
+  // The "Log in" link is hidden from the /auth/me callback below, along
+  // with everything else that depends on who is here. This block used to
+  // do it from three localStorage keys -- which meant a signed-in judge
+  // was still offered a login link, since no key named them.
 })();
 </script>
 
@@ -593,6 +590,10 @@ document.addEventListener('DOMContentLoaded', function(){
   var a = d && d.account;
   var session = (a && a.role === 'club') ? { clubName: a.clubName, number: a.foundingNumber } : null;
 
+  // Anyone signed in, whatever their role -- not just a club.
+  var loginLink = document.getElementById('nav-login-link');
+  if(a && loginLink){ loginLink.style.display = 'none'; }
+
   if(session && regLink){
     var initial = (session.clubName || '?').trim().charAt(0).toUpperCase();
     regLink.textContent = initial;
@@ -618,21 +619,24 @@ document.addEventListener('DOMContentLoaded', function(){
 
   document.getElementById('profile-content').style.display = 'block';
 
-  // Find full club record
-  var clubs = [];
-  try { clubs = JSON.parse(localStorage.getItem('rocodefest_clubs') || '[]'); } catch(e){ clubs = []; }
-  var club = clubs.find(function(c){ return c.clubName === session.clubName; }) || {};
+  // The club record used to be looked up in a localStorage array, by name.
+  // /auth/me already returns every field this page shows, so that lookup
+  // was reading a stale copy of data we were holding in hand -- and it
+  // matched on club_name, which is exactly what renaming a club breaks.
+  var club = a;
 
-  var avatarKey = 'rocodefest_avatar_' + session.clubName;
+  // The avatar is a column now, not rocodefest_avatar_<name>. It arrives
+  // with the account, so the picture no longer disappears on a different
+  // computer and nothing has to guess a key from a display name.
+  var avatar = a.avatar || null;
 
   function applyAvatar(){
-    var saved = localStorage.getItem(avatarKey);
     var bigAvatar = document.getElementById('p-avatar');
-    if(saved){
-      bigAvatar.style.backgroundImage = 'url(' + saved + ')';
+    if(avatar){
+      bigAvatar.style.backgroundImage = 'url(' + avatar + ')';
       bigAvatar.textContent = '';
       if(regLink){
-        regLink.style.backgroundImage = 'url(' + saved + ')';
+        regLink.style.backgroundImage = 'url(' + avatar + ')';
         regLink.textContent = '';
       }
     } else {
@@ -649,8 +653,8 @@ document.addEventListener('DOMContentLoaded', function(){
   document.getElementById('p-team-name').textContent = club.clubName || session.clubName;
   document.getElementById('p-org-city').textContent = club.city || '—';
   document.getElementById('p-coach').textContent = club.coachName || '—';
-  document.getElementById('p-email').textContent = club.email || '—';
-  document.getElementById('p-number').textContent = '#' + (club.number || '—');
+  document.getElementById('p-email').textContent = a.email || '—';
+  document.getElementById('p-number').textContent = '#' + (club.foundingNumber || '—');
 
   // Teams
   function getTeams(){
@@ -949,12 +953,26 @@ document.addEventListener('DOMContentLoaded', function(){
         ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
 
         var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-        try {
-          localStorage.setItem(avatarKey, dataUrl);
-          applyAvatar();
-        } catch(err){
-          alert('Could not save this image — try a smaller photo.');
-        }
+
+        // The canvas has already cropped this to 160x160 and re-encoded
+        // it, so what goes over the wire is a few KB whatever was picked.
+        // The server still refuses anything oversized or not an image --
+        // this is a browser, and a browser is not where a rule is kept.
+        fetch('/api/me/avatar', {
+          method: 'PUT',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ avatar: dataUrl })
+        })
+          .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+          .then(function(res){
+            if(!res.ok){ alert(res.d.error || 'Imaginea nu a putut fi salvată.'); return; }
+            // Only after the server has it: showing the new picture on a
+            // refusal would tell the person it was saved when it was not.
+            avatar = dataUrl;
+            applyAvatar();
+          })
+          .catch(function(){ alert('Imaginea nu a putut fi salvată.'); });
       };
       img.src = evt.target.result;
     };

@@ -394,6 +394,11 @@ INSERT INTO expected_columns(tbl,col,origin) VALUES
   ('clubs','city','profile'),('clubs','coach_name','profile'),('clubs','notes','profile'),
   ('judges','expertise','profile'),('judges','bio','profile'),
   ('partners','org_name','profile'),('partners','contact_name','profile'),('partners','message','profile'),
+  -- The avatar is a column on all four subtypes, not a localStorage key
+  -- named after a display name. Same shape everywhere, so it is listed
+  -- together rather than beside each table's own fields.
+  ('members','avatar_data_uri','profile'),('clubs','avatar_data_uri','profile'),
+  ('judges','avatar_data_uri','profile'),('partners','avatar_data_uri','profile'),
   ('teams','team_name','profile'),('team_categories','code','profile'),('team_categories','label','profile'),
   ('seasons','season_id','profile'),('seasons','name','profile'),('seasons','start_date','profile'),
   ('seasons','end_date','profile'),('seasons','is_active','lifecycle'),

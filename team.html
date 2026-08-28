@@ -370,9 +370,10 @@ document.addEventListener('DOMContentLoaded', function(){
           else if(a.role === 'judge'){ label = a.fullName; destination = 'judge-scoring.html'; }
           else if(a.role === 'partner'){ label = a.orgName || a.contactName; destination = 'partner-dashboard.html'; }
           else { return; }
-          var saved = null;
-          try { saved = localStorage.getItem('rocodefest_avatar_' + label); } catch(e){}
-          if(saved){ regLink.style.backgroundImage = 'url(' + saved + ')'; regLink.textContent = ''; }
+          // the picture comes back with the account now; it used to be a
+          // localStorage key, so the same person had an avatar on one
+          // computer and none on another
+          if(a.avatar){ regLink.style.backgroundImage = 'url(' + a.avatar + ')'; regLink.textContent = ''; }
           else { regLink.textContent = (label || '?').trim().charAt(0).toUpperCase(); }
           regLink.classList.add('profile-avatar');
           if(a.role !== 'club'){ regLink.classList.add('member-avatar'); }

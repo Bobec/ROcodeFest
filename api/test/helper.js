@@ -99,6 +99,7 @@ function client() {
   return {
     get:   (p)    => call('GET', p),
     post:  (p, b) => call('POST', p, b),
+    put:   (p, b) => call('PUT', p, b),
     patch: (p, b) => call('PATCH', p, b),
     // convenience: register and stay signed in
     async registerClub(email, clubName, password = 'parola-de-test-1') {

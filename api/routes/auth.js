@@ -173,11 +173,15 @@ router.post('/logout', async (req, res) => {
 // happens to be present.
 const PROFILE = {
   club:    `SELECT club_name AS "clubName", founding_number AS "foundingNumber",
-                   city, coach_name AS "coachName" FROM clubs WHERE account_id = $1`,
-  member:  `SELECT full_name AS "fullName", city, bio FROM members WHERE account_id = $1`,
-  judge:   `SELECT full_name AS "fullName", expertise, bio FROM judges WHERE account_id = $1`,
+                   city, coach_name AS "coachName", avatar_data_uri AS "avatar"
+            FROM clubs WHERE account_id = $1`,
+  member:  `SELECT full_name AS "fullName", city, bio, avatar_data_uri AS "avatar"
+            FROM members WHERE account_id = $1`,
+  judge:   `SELECT full_name AS "fullName", expertise, bio, avatar_data_uri AS "avatar"
+            FROM judges WHERE account_id = $1`,
   partner: `SELECT org_name AS "orgName", contact_name AS "contactName",
-                   partner_type AS "partnerType", message FROM partners WHERE account_id = $1`,
+                   partner_type AS "partnerType", message, avatar_data_uri AS "avatar"
+            FROM partners WHERE account_id = $1`,
 };
 
 router.get('/me', async (req, res, next) => {
