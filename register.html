@@ -431,8 +431,13 @@
         </div>
         <div class="field">
           <label for="email">Contact email *</label>
-          <input type="email" id="email" required placeholder="you@example.com">
+          <input type="email" id="email" required placeholder="you@example.com" autocomplete="username">
           <span class="error" id="err-email">Please enter a valid email.</span>
+        </div>
+        <div class="field">
+          <label for="password">Password *</label>
+          <input type="password" id="password" required placeholder="Cel puțin 8 caractere" autocomplete="new-password">
+          <span class="error" id="err-password">Parola trebuie să aibă cel puțin 8 caractere.</span>
         </div>
       </div>
 
@@ -639,36 +644,61 @@ document.addEventListener('DOMContentLoaded', function(){
     var email = fields['email'].el.value.trim();
     var notes = document.getElementById('notes').value.trim();
 
-    var existing = [];
-    try {
-      existing = JSON.parse(localStorage.getItem('rocodefest_clubs') || '[]');
-    } catch(err) { existing = []; }
+    var password = document.getElementById('password').value;
+    var pwErr = document.getElementById('err-password');
+    if(password.length < 8){
+      pwErr.classList.add('show');
+      document.getElementById('password').classList.add('invalid');
+      return;
+    }
+    pwErr.classList.remove('show');
+    document.getElementById('password').classList.remove('invalid');
 
-    var foundingNumber = existing.length + 1;
+    // The club is created in the database now, not in this browser.
+    // Two things the old version got wrong and no longer has to get
+    // right: the founding number was computed as "how many clubs I can
+    // see, plus one", so two people registering at the same moment would
+    // have been given the same one -- it is an identity column on the
+    // server. And the account had no password at all.
+    var submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    var emailErr = document.getElementById('err-email');
 
-    var clubRecord = {
-      number: foundingNumber,
-      clubName: clubName,
-      city: city,
-      coachName: coachName,
-      email: email,
-      notes: notes,
-      date: new Date().toISOString()
-    };
-
-    existing.push(clubRecord);
-    localStorage.setItem('rocodefest_clubs', JSON.stringify(existing));
-
-    // Auto-login: remember this club for future visits
-    localStorage.setItem('rocodefest_session', JSON.stringify({
-      clubName: clubName,
-      number: foundingNumber
-    }));
-
-    document.getElementById('success-heading').textContent = 'Welcome, ' + clubName + '!';
-    document.getElementById('success-detail').textContent = "You're founding club #" + foundingNumber + '. Now add your teams from your club profile.';
-    form.classList.add('hide');
-    document.getElementById('success-panel').classList.add('show');
+    fetch('/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: email, password: password, clubName: clubName,
+        city: city, coachName: coachName, notes: notes
+      })
+    }).then(function(r){
+      return r.json().then(function(data){ return { ok: r.ok, data: data }; });
+    }).then(function(res){
+      if(!res.ok){
+        // A duplicate email and a duplicate club name are both refused by
+        // the database, and the message says WHICH -- the person filling
+        // in the form needs to know what to change.
+        emailErr.textContent = res.data.error || 'Înregistrarea nu a reușit.';
+        emailErr.classList.add('show');
+        submitBtn.disabled = false;
+        return;
+      }
+      // Registering signs you in, so the session cookie is already set.
+      // The founding number is read back from the server rather than
+      // guessed, because the server is what assigned it.
+      return fetch('/auth/me').then(function(r){ return r.json(); }).then(function(me){
+        var n = (me.account && me.account.foundingNumber) || '?';
+        document.getElementById('success-heading').textContent = 'Welcome, ' + clubName + '!';
+        document.getElementById('success-detail').textContent =
+          "You're founding club #" + n + '. Now add your teams from your club profile.';
+        form.classList.add('hide');
+        document.getElementById('success-panel').classList.add('show');
+      });
+    }).catch(function(){
+      emailErr.textContent = 'Serverul nu răspunde. Încearcă din nou.';
+      emailErr.classList.add('show');
+      submitBtn.disabled = false;
+    });
   });
 });
 

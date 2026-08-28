@@ -272,10 +272,14 @@
     </div>
     <div class="field">
       <label for="login-club-email">Contact email</label>
-      <input type="email" id="login-club-email" placeholder="you@example.com">
+      <input type="email" id="login-club-email" placeholder="you@example.com" autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="login-club-password">Password</label>
+      <input type="password" id="login-club-password" placeholder="Your password" autocomplete="current-password">
     </div>
     <button class="btn btn-primary" id="club-login-btn">Log in →</button>
-    <p class="error-msg" id="club-login-error">We couldn't find a matching club on this browser. Try registering instead.</p>
+    <p class="error-msg" id="club-login-error">Email sau parolă greșită.</p>
   </div>
 
   <div class="form-card" id="member-form-wrap" style="display:none;">
@@ -377,21 +381,48 @@ document.addEventListener('DOMContentLoaded', function(){
   else if(initialTab === 'partner'){ showTab(tabPartner); }
 
   // Club login
+  //
+  // This used to match an email against a list in localStorage: typing any
+  // registered address signed you in, because there was no password to
+  // check. The account now lives in the database, the password is verified
+  // against a bcrypt hash on the server, and the session comes back as an
+  // httpOnly cookie the page cannot read.
   document.getElementById('club-login-btn').addEventListener('click', function(){
-    var name = document.getElementById('login-club-name').value.trim();
+    var btn = this;
     var email = document.getElementById('login-club-email').value.trim();
-    var clubs = [];
-    try { clubs = JSON.parse(localStorage.getItem('rocodefest_clubs') || '[]'); } catch(e){ clubs = []; }
-    var match = clubs.find(function(c){
-      return c.clubName.toLowerCase() === name.toLowerCase() && c.email.toLowerCase() === email.toLowerCase();
-    });
+    var password = document.getElementById('login-club-password').value;
     var errEl = document.getElementById('club-login-error');
-    if(match){
-      localStorage.setItem('rocodefest_session', JSON.stringify({ clubName: match.clubName, number: match.number }));
-      window.location.href = 'profile.html';
-    } else {
+    errEl.classList.remove('show');
+
+    if(!email || !password){
+      errEl.textContent = 'Completează emailul și parola.';
       errEl.classList.add('show');
+      return;
     }
+
+    btn.disabled = true;
+    fetch('/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: password })
+    }).then(function(r){
+      return r.json().then(function(data){ return { ok: r.ok, data: data }; });
+    }).then(function(res){
+      if(res.ok){
+        window.location.href = 'profile.html';
+        return;
+      }
+      // The server answers the same way for a wrong password and an
+      // address that was never registered, so this form cannot be used
+      // to find out which emails exist.
+      errEl.textContent = res.data.error || 'Email sau parolă greșită.';
+      errEl.classList.add('show');
+      btn.disabled = false;
+    }).catch(function(){
+      errEl.textContent = 'Serverul nu răspunde. Încearcă din nou.';
+      errEl.classList.add('show');
+      btn.disabled = false;
+    });
   });
 
   // Member login

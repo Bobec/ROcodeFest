@@ -6,13 +6,22 @@
 # copied from a template.
 # ---------------------------------------------------------------------
 
-# Credentials. The suites take the password from $env:PGPASSWORD and
-# never from a file, so nothing here should ever exist -- these patterns
-# are a backstop against one being added by hand later.
+# Installed dependencies. package.json and package-lock.json are the
+# source of truth; the tree itself is 87 packages that npm can rebuild.
+node_modules/
+
+# Credentials. The suites take the password from $env:PGPASSWORD and the
+# API from PGPASSWORD / SESSION_SECRET, never from a file, so nothing
+# here should ever exist -- these patterns are a backstop against one
+# being added by hand later.
 .env
 .env.*
 *.pgpass
 secrets.*
+
+# npm / node noise
+npm-debug.log*
+.npm/
 
 # psql / pg_dump scratch output, if anyone redirects into the tree
 *.dump
