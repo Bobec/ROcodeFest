@@ -100,10 +100,15 @@ function client() {
     get:   (p)    => call('GET', p),
     post:  (p, b) => call('POST', p, b),
     patch: (p, b) => call('PATCH', p, b),
-    // convenience: register a club and stay signed in as it
+    // convenience: register and stay signed in
     async registerClub(email, clubName, password = 'parola-de-test-1') {
-      const r = await call('POST', '/auth/register', { email, password, clubName });
+      const r = await call('POST', '/auth/register', { role: 'club', email, password, clubName });
       assert.equal(r.status, 201, `register ${email} failed: ${JSON.stringify(r.body)}`);
+      return r.body.account;
+    },
+    async register(role, email, extra, password = 'parola-de-test-1') {
+      const r = await call('POST', '/auth/register', { role, email, password, ...extra });
+      assert.equal(r.status, 201, `register ${role} ${email} failed: ${JSON.stringify(r.body)}`);
       return r.body.account;
     },
   };

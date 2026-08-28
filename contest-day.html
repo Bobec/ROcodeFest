@@ -229,13 +229,28 @@
 </script>
 <script>
 (function(){
+  // The one question every page asks. It used to be three localStorage
+  // keys read as an OR, which is where three findings came from: a judge
+  // was signed in and shown as signed out (their key was not in the
+  // list), that key could not be cleared by anything (no sign-out
+  // touched it), and two sign-ins left two keys where one sign-out
+  // cleared one. There is one session now, it carries its own role, and
+  // the page is told rather than left to deduce.
   var loginLink = document.getElementById('nav-login-link');
+  var registerLink = document.getElementById('nav-register-link');
   if(!loginLink) return;
-  var hasSession = false;
-  ['rocodefest_session','rocodefest_member_session','rocodefest_partner_session'].forEach(function(key){
-    try { if(JSON.parse(localStorage.getItem(key) || 'null')) hasSession = true; } catch(e){}
-  });
-  if(hasSession){ loginLink.style.display = 'none'; }
+  fetch('/auth/me', { credentials: 'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d && d.account){
+        loginLink.style.display = 'none';
+        if(registerLink) registerLink.style.display = 'none';
+      }
+    })
+    .catch(function(){
+      // The pages are still readable with the API down; showing "Log in"
+      // to someone who is signed in is a smaller failure than a blank nav.
+    });
 })();
 </script>
 
@@ -349,24 +364,39 @@ document.addEventListener('DOMContentLoaded', function(){
     document.getElementById('contest-day-content').style.display = 'block';
   }
 
-  var session2 = null;
-  try { session2 = JSON.parse(localStorage.getItem('rocodefest_session') || 'null'); } catch(e){ session2 = null; }
-  var memberSessionNav = null;
-  try { memberSessionNav = JSON.parse(localStorage.getItem('rocodefest_member_session') || 'null'); } catch(e){ memberSessionNav = null; }
-  var regLink = document.getElementById('nav-register-link');
-  if(session2 && regLink){
-    var savedClubAvatar = localStorage.getItem('rocodefest_avatar_' + session2.clubName);
-    if(savedClubAvatar){ regLink.style.backgroundImage = 'url(' + savedClubAvatar + ')'; regLink.textContent = ''; }
-    else { regLink.textContent = (session2.clubName || '?').trim().charAt(0).toUpperCase(); }
-    regLink.classList.add('profile-avatar');
-    regLink.title = session2.clubName + ' — click to view your club';
-    regLink.href = 'profile.html';
-  } else if(memberSessionNav && regLink){
-    regLink.textContent = (memberSessionNav.memberName || '?').trim().charAt(0).toUpperCase();
-    regLink.classList.add('profile-avatar', 'member-avatar');
-    regLink.title = memberSessionNav.memberName;
-    regLink.href = 'member-profile.html';
-  }
+  // The avatar in the navigation bar. It used to read two session keys
+    // directly and pick between them; it now asks the same one endpoint
+    // the sign-in link does, and switches on the role the server reports
+    // -- so a judge or a partner gets an avatar too, which the old two-key
+    // version could not give them.
+    var regLink = document.getElementById('nav-register-link');
+    if(regLink){
+      fetch('/auth/me', { credentials: 'same-origin' })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          var a = d && d.account;
+          if(!a) return;
+          var label, destination;
+          if(a.role === 'club'){ label = a.clubName; destination = 'profile.html'; }
+          else if(a.role === 'member'){ label = a.fullName; destination = 'member-profile.html'; }
+          else if(a.role === 'judge'){ label = a.fullName; destination = 'judge-scoring.html'; }
+          else if(a.role === 'partner'){ label = a.orgName || a.contactName; destination = 'partner-dashboard.html'; }
+          else { return; }
+
+          // the uploaded picture is still per-browser: it is a file the
+          // account never sent anywhere, so it stays in localStorage
+          var saved = null;
+          try { saved = localStorage.getItem('rocodefest_avatar_' + label); } catch(e){}
+          if(saved){ regLink.style.backgroundImage = 'url(' + saved + ')'; regLink.textContent = ''; }
+          else { regLink.textContent = (label || '?').trim().charAt(0).toUpperCase(); }
+
+          regLink.classList.add('profile-avatar');
+          if(a.role !== 'club'){ regLink.classList.add('member-avatar'); }
+          regLink.title = label;
+          regLink.href = destination;
+        })
+        .catch(function(){});
+    }
   var resetLink = document.getElementById('reset-demo-link');
   if(resetLink){
     resetLink.addEventListener('click', function(){

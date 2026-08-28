@@ -578,26 +578,37 @@ document.addEventListener('DOMContentLoaded', function(){
   var badge = document.getElementById('rules-badge');
   if(badge && seen !== RULES_VERSION){ badge.classList.add('show'); }
 
-  var session = null;
-  try { session = JSON.parse(localStorage.getItem('rocodefest_session') || 'null'); } catch(e){ session = null; }
-
+  // Who is signed in comes from the server. This page read two
+  // localStorage keys and picked between them, which is where three
+  // findings came from: a role whose key no navigation bar read, a key
+  // nothing anywhere cleared, and two keys where one sign-out cleared
+  // one. There is one session now and it carries its own role.
+  //
+  // The whole page moves inside the callback: asking a server makes the
+  // answer asynchronous, and everything below needs it.
   var regLink = document.getElementById('nav-register-link');
+  fetch('/auth/me', { credentials: 'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+  var a = d && d.account;
+  var session = (a && a.role === 'club') ? { clubName: a.clubName, number: a.foundingNumber } : null;
+
   if(session && regLink){
     var initial = (session.clubName || '?').trim().charAt(0).toUpperCase();
     regLink.textContent = initial;
     regLink.classList.add('profile-avatar');
     regLink.title = session.clubName + ' — click to view your club';
     regLink.href = 'profile.html';
-  } else {
-    var memberSessionNav = null;
-    try { memberSessionNav = JSON.parse(localStorage.getItem('rocodefest_member_session') || 'null'); } catch(e){ memberSessionNav = null; }
-    if(memberSessionNav && regLink){
-      var mInitial = (memberSessionNav.memberName || '?').trim().charAt(0).toUpperCase();
-      regLink.textContent = mInitial;
-      regLink.classList.add('profile-avatar', 'member-avatar');
-      regLink.title = memberSessionNav.memberName + ' — click to view your profile';
-      regLink.href = 'member-profile.html';
-    }
+  } else if(a && regLink){
+    // any other role still gets an avatar, which the two-key version
+    // could not give a judge or a partner at all
+    var other = a.fullName || a.orgName || a.contactName || '?';
+    regLink.textContent = other.trim().charAt(0).toUpperCase();
+    regLink.classList.add('profile-avatar', 'member-avatar');
+    regLink.title = other;
+    regLink.href = a.role === 'member'  ? 'member-profile.html'
+                 : a.role === 'judge'   ? 'judge-scoring.html'
+                 : 'partner-dashboard.html';
   }
 
   if(!session){
@@ -951,9 +962,19 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 
   document.getElementById('logout-link').addEventListener('click', function(){
-    localStorage.removeItem('rocodefest_session');
-    window.location.href = 'index.html';
+    // One call ends the session, whatever the role. Each sign-out page
+    // used to clear one key of four, which is why signing out of one
+    // role left another signed in.
+    fetch('/auth/logout', { method: 'POST', credentials: 'same-origin' })
+      .then(function(){ window.location.href = 'index.html'; })
+      .catch(function(){ window.location.href = 'index.html'; });
   });
+    })
+    .catch(function(){
+      // With the API unreachable the page shows its signed-out state:
+      // it cannot know who is here, and guessing would be worse.
+      document.getElementById('not-logged-in').style.display = 'block';
+    });
 });
 
   var resetLink = document.getElementById('reset-demo-link');

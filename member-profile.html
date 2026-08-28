@@ -246,13 +246,28 @@
 </script>
 <script>
 (function(){
+  // The one question every page asks. It used to be three localStorage
+  // keys read as an OR, which is where three findings came from: a judge
+  // was signed in and shown as signed out (their key was not in the
+  // list), that key could not be cleared by anything (no sign-out
+  // touched it), and two sign-ins left two keys where one sign-out
+  // cleared one. There is one session now, it carries its own role, and
+  // the page is told rather than left to deduce.
   var loginLink = document.getElementById('nav-login-link');
+  var registerLink = document.getElementById('nav-register-link');
   if(!loginLink) return;
-  var hasSession = false;
-  ['rocodefest_session','rocodefest_member_session','rocodefest_partner_session'].forEach(function(key){
-    try { if(JSON.parse(localStorage.getItem(key) || 'null')) hasSession = true; } catch(e){}
-  });
-  if(hasSession){ loginLink.style.display = 'none'; }
+  fetch('/auth/me', { credentials: 'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d && d.account){
+        loginLink.style.display = 'none';
+        if(registerLink) registerLink.style.display = 'none';
+      }
+    })
+    .catch(function(){
+      // The pages are still readable with the API down; showing "Log in"
+      // to someone who is signed in is a smaller failure than a blank nav.
+    });
 })();
 </script>
 
@@ -355,8 +370,16 @@ document.addEventListener('DOMContentLoaded', function(){
   var badge = document.getElementById('rules-badge');
   if(badge && seen !== RULES_VERSION){ badge.classList.add('show'); }
 
-  var memberSession = null;
-  try { memberSession = JSON.parse(localStorage.getItem('rocodefest_member_session') || 'null'); } catch(e){ memberSession = null; }
+  // Who is signed in comes from the server. These used to be
+  // localStorage keys, which is where three findings came from: a
+  // role whose key no navigation bar read, a key nothing cleared,
+  // and two keys where one sign-out cleared one. There is one
+  // session now and it carries its own role.
+('/auth/me', { credentials: 'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+    var a = d && d.account;
+    var memberSession = (a && a.role === 'member') ? { memberName: a.fullName, email: a.email, city: a.city } : null;
 
   var regLink = document.getElementById('nav-register-link');
   if(memberSession && regLink){
@@ -498,9 +521,11 @@ document.addEventListener('DOMContentLoaded', function(){
   renderMyRequests();
 
   document.getElementById('logout-link').addEventListener('click', function(){
-    localStorage.removeItem('rocodefest_member_session');
+    fetch('/auth/logout', { method:'POST', credentials:'same-origin' });
     window.location.href = 'index.html';
   });
+    })
+    .catch(function(){});
 });
 
   var resetLink = document.getElementById('reset-demo-link');

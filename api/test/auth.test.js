@@ -17,7 +17,7 @@ beforeEach(reset);
 test('registration creates an account and signs it in', async () => {
   const c = client();
   const r = await c.post('/auth/register', {
-    email: 'club@test.ro', password: 'parola-de-test-1',
+    role: 'club', email: 'club@test.ro', password: 'parola-de-test-1',
     clubName: 'Clubul Unu', city: 'Cluj',
   });
   assert.equal(r.status, 201);
@@ -47,7 +47,7 @@ test('the founding number comes from the database, not the browser', async () =>
 test('a short password is refused, and creates nothing', async () => {
   const c = client();
   const r = await c.post('/auth/register', {
-    email: 'scurt@test.ro', password: 'scurta', clubName: 'Clubul Scurt',
+    role: 'club', email: 'scurt@test.ro', password: 'scurta', clubName: 'Clubul Scurt',
   });
   assert.equal(r.status, 400);
 
@@ -55,7 +55,7 @@ test('a short password is refused, and creates nothing', async () => {
   // registration with an acceptable password goes through, so the 400
   // was about the password and not about the request being malformed
   const ok = await c.post('/auth/register', {
-    email: 'scurt@test.ro', password: 'parola-de-test-1', clubName: 'Clubul Scurt',
+    role: 'club', email: 'scurt@test.ro', password: 'parola-de-test-1', clubName: 'Clubul Scurt',
   });
   assert.equal(ok.status, 201);
 });
@@ -65,7 +65,7 @@ test('a duplicate email is refused with 409, and says which field', async () => 
   await a.registerClub('acelasi@test.ro', 'Primul Club');
 
   const r = await b.post('/auth/register', {
-    email: 'acelasi@test.ro', password: 'parola-de-test-1', clubName: 'Alt Club',
+    role: 'club', email: 'acelasi@test.ro', password: 'parola-de-test-1', clubName: 'Alt Club',
   });
   assert.equal(r.status, 409, 'a collision is a conflict, not a 500');
   assert.match(r.body.error, /email/i, 'the message names the field to change');
@@ -76,7 +76,7 @@ test('a duplicate club name is refused, and names the OTHER field', async () => 
   await a.registerClub('primul@test.ro', 'Nume Duplicat');
 
   const r = await b.post('/auth/register', {
-    email: 'al-doilea@test.ro', password: 'parola-de-test-1', clubName: 'Nume Duplicat',
+    role: 'club', email: 'al-doilea@test.ro', password: 'parola-de-test-1', clubName: 'Nume Duplicat',
   });
   assert.equal(r.status, 409);
   assert.match(r.body.error, /club/i,
@@ -91,7 +91,7 @@ test('registration is atomic: a refused club leaves no orphan account', async ()
   await a.registerClub('atomic@test.ro', 'Club Atomic');
 
   const r = await b.post('/auth/register', {
-    email: 'nou@test.ro', password: 'parola-de-test-1', clubName: 'Club Atomic',
+    role: 'club', email: 'nou@test.ro', password: 'parola-de-test-1', clubName: 'Club Atomic',
   });
   assert.equal(r.status, 409);
 
@@ -151,7 +151,7 @@ test('the session cookie is httpOnly', async () => {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      email: 'cookie@test.ro', password: 'parola-de-test-1', clubName: 'Club Cookie',
+      role: 'club', email: 'cookie@test.ro', password: 'parola-de-test-1', clubName: 'Club Cookie',
     }),
   });
   assert.equal(res.status, 201);

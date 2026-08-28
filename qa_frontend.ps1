@@ -1,17 +1,21 @@
 # =====================================================================
 # QA — the static pages
 # =====================================================================
-# The 29 pages had no tests of any kind. They are interactive mockups:
-# every one carries inline JavaScript, every one uses localStorage, and
-# NONE of them makes a network request. So there is no server to check
-# against -- the contract they have to keep is with each other, through
-# the keys they share in localStorage and the links they point at.
+# When these checks were first written the 29 pages made no network
+# request at all: they kept four session keys in localStorage, and the
+# contract they had to keep was with each other. Three findings came out
+# of that -- a role whose key no navigation bar read, a session nothing
+# could end, and two sessions where one sign-out ended one.
 #
-# That is what this file tests. It is static analysis, not a browser: it
-# runs anywhere pwsh runs, needs no dependencies, and takes under a
-# second. Testing the BEHAVIOUR of the page scripts would need a headless
-# browser and is deliberately out of scope here -- see the note at the
-# bottom.
+# There is a server now, so the questions changed with it. The checks
+# below no longer ask whether the pages AGREE about localStorage; they
+# ask whether any of them still decides anything from it. A session the
+# page can write is a session the page can forge.
+#
+# It is still static analysis, not a browser: it runs anywhere pwsh runs,
+# needs no dependencies, and takes under a second. Testing the BEHAVIOUR
+# of the page scripts would need a headless browser and is deliberately
+# out of scope -- see the note at the bottom.
 #
 # Same vocabulary as the database suites:
 #   PASS   verified
@@ -98,102 +102,78 @@ Check "L" "L1 every local link and asset resolves to a file that exists" `
 # questions worth asking are: do all the pages agree on it, and does
 # everything that creates a session appear in it?
 # ---------------------------------------------------------------------
-$navLists = @{}
-foreach ($name in $src.Keys) {
-    foreach ($m in [regex]::Matches($src[$name], "\[\s*((?:'rocodefest_[a-z_]*session'\s*,?\s*)+)\]")) {
-        $list = ($m.Groups[1].Value -replace "['\s]", "")
-        if (-not $navLists.ContainsKey($list)) { $navLists[$list] = @() }
-        $navLists[$list] += $name
-    }
-}
-$pagesWithNav = ($src.Keys | Where-Object { $src[$_] -match 'nav-login-link' }).Count
+$pagesWithNav  = ($src.Keys | Where-Object { $src[$_] -match 'nav-login-link' }).Count
+$pagesAskingApi = ($src.Keys | Where-Object { $src[$_] -match "fetch\(\s*'/auth/me'" }).Count
 
+# The pages used to read three localStorage keys as an OR. Every finding
+# in this group came from that: a fourth key nobody read, a key nothing
+# cleared, and two keys where one sign-out cleared one. They now ask the
+# server, which answers once and includes the role.
 Pre "S" "S1 the pages carry a session check at all" ($pagesWithNav -gt 0) `
-    "$pagesWithNav of $($pages.Count) pages read a session list to decide the nav"
+    "$pagesWithNav of $($pages.Count) pages decide whether to show the sign-in link"
 
-Check "S" "S1 every page agrees on which keys mean 'logged in'" `
-    "one page disagreeing would show a different nav for the same visitor" `
-    ($navLists.Count -eq 1) `
-    $(if ($navLists.Count -eq 1) { "one list, used by $pagesWithNav pages: [" + ($navLists.Keys | Select-Object -First 1) + "]" }
-      else { "$($navLists.Count) DIFFERENT lists: " + (($navLists.Keys) -join "  |  ") })
+Check "S" "S1 every page asks the SERVER who is signed in" `
+    "one page deciding for itself would show a different nav for the same visitor" `
+    ($pagesAskingApi -eq $pagesWithNav) `
+    "$pagesAskingApi of $pagesWithNav pages call /auth/me"
 
-# --- every session key that exists, and what happens to it ------------
-$sessionKeys = @{}
-foreach ($name in $src.Keys) {
-    foreach ($m in [regex]::Matches($src[$name], "localStorage\.(getItem|setItem|removeItem)\s*\(\s*['""](rocodefest_[a-z_]*session)['""]")) {
-        $k = $m.Groups[2].Value
-        if (-not $sessionKeys.ContainsKey($k)) { $sessionKeys[$k] = @{ get = @(); set = @(); rm = @() } }
-        switch ($m.Groups[1].Value) {
-            "getItem"    { $sessionKeys[$k].get += $name }
-            "setItem"    { $sessionKeys[$k].set += $name }
-            "removeItem" { $sessionKeys[$k].rm  += $name }
-        }
-    }
-}
-$navList = ($navLists.Keys | Select-Object -First 1)
-$created = $sessionKeys.Keys | Where-Object { $sessionKeys[$_].set.Count -gt 0 }
-$unseen  = $created | Where-Object { $navList -notlike "*$_*" }
+# Reading a session key in the browser is now the defect, not the norm:
+# there is one session, it is httpOnly, and page script cannot see it.
+$stillReadingKeys = $src.Keys | Where-Object {
+    $src[$_] -match "localStorage\.getItem\s*\(\s*'rocodefest_[a-z_]*session'"
+} | Sort-Object
+Check "S" "S1 no page decides sign-in state from localStorage" `
+    "a page that still reads a session key is deciding from something the server does not control" `
+    ($stillReadingKeys.Count -eq 0) `
+    $(if ($stillReadingKeys.Count -eq 0) { "no page reads a session key" }
+      else { "still reading: " + ($stillReadingKeys -join ", ") })
 
-Pre "S" "S2 more than one kind of session is created" ($created.Count -gt 1) `
-    "$($created.Count) session keys are written somewhere: $($created -join ', ')"
+# --- sessions are the server's, not the browser's ---------------------
+# Every one of these used to be a localStorage key. The findings that
+# came out of that -- a role the nav could not see, a session nothing
+# could end, two sessions where one sign-out ended one -- are not
+# possible against a session the page cannot touch. So the question is
+# no longer "do the keys agree"; it is "is there a key at all".
+$writesSession = $src.Keys | Where-Object {
+    $src[$_] -match "localStorage\.(setItem|removeItem)\s*\(\s*'rocodefest_[a-z_]*session'"
+} | Sort-Object
 
-if ($unseen.Count -eq 0) {
-    Check "S" "S2 every session that can be created is recognised by the nav" `
-        "a session the nav cannot see leaves a signed-in visitor looking signed out" $true `
-        "all $($created.Count) created sessions appear in the nav list"
-} else {
-    Gap "S" "S2-GAP a session the nav never checks" `
-        "which sessions count as being logged in?" `
-        ("created but absent from the nav list: " + ($unseen -join ", ") +
-         " -- the list is [$navList], used by $pagesWithNav pages") `
-        ("Signing in through that route sets a key no page reads, so the visitor stays signed in as far " +
-         "as the feature is concerned and signed OUT as far as every navigation bar is concerned. The " +
-         "two answers come from different keys, and nothing keeps them in step.")
-}
+Check "S" "S2 no page creates or clears a session in the browser" `
+    "a session page script can write is a session page script can forge" `
+    ($writesSession.Count -eq 0) `
+    $(if ($writesSession.Count -eq 0) { "no page writes a session key; the cookie is httpOnly and set by the server" }
+      else { "still writing: " + ($writesSession -join ", ") })
 
-# --- can a session be ended? ------------------------------------------
-$noLogout = $created | Where-Object { $sessionKeys[$_].rm.Count -eq 0 }
-if ($noLogout.Count -eq 0) {
-    Check "S" "S3 every session that can be created can also be ended" `
-        "a session with no way out is a session that never ends" $true `
-        "all $($created.Count) sessions have a removeItem somewhere"
-} else {
-    Gap "S" "S3-GAP a session that cannot be ended" `
-        "how does this visitor sign out?" `
-        ("written but never removed anywhere: " + ($noLogout -join ", ")) `
-        ("No page clears it, so it survives until the browser's storage is cleared by hand. Every other " +
-         "session key in the site has a page that removes it.")
-}
+# --- signing out ------------------------------------------------------
+$signOutPages = $src.Keys | Where-Object { $src[$_] -match "logout-link" } | Sort-Object
+$callLogout   = @($signOutPages | Where-Object { $src[$_] -match "/auth/logout" })
 
-# --- can two sessions exist at once? ----------------------------------
-# Reachability matters more than possibility here: if the two sign-in
-# forms live on ONE page and neither clears the other, an ordinary
-# visitor can hold both without doing anything unusual.
-$loginPage = $src.Keys | Where-Object { $src[$_] -match 'club-login-btn' -and $src[$_] -match 'member-login-btn' }
-if ($loginPage) {
-    $lp = $loginPage | Select-Object -First 1
-    $clearsOther = $src[$lp] -match "removeItem\s*\(\s*['""]rocodefest_"
-    Pre "S" "S4 two sign-in forms share one page" ($null -ne $lp) `
-        "$lp carries both the club and the member sign-in"
+Pre "S" "S3 some pages offer a way to sign out" ($signOutPages.Count -gt 0) `
+    "$($signOutPages.Count) page(s) carry a sign-out control"
 
-    if (-not $clearsOther) {
-        $logoutPages = @()
-        foreach ($k in $created) { foreach ($pg in ($sessionKeys[$k].rm | Select-Object -Unique)) { $logoutPages += "$pg clears $k" } }
-        Gap "S" "S4-GAP signing out of one role leaves the other signed in" `
-            "what does signing out actually end?" `
-            ("$lp writes a session without clearing any other, and each sign-out page clears exactly one key: " +
-             ($logoutPages -join "; ")) `
-            ("Signing in as a club and then as a member -- both forms are on the same page -- leaves two " +
-             "session keys set. The nav reads the list as an OR, so clearing one still leaves the visitor " +
-             "shown as signed in, on all $pagesWithNav pages. Nothing here is contrived: it takes two " +
-             "ordinary sign-ins and one ordinary sign-out.")
-    } else {
-        Check "S" "S4 signing in clears any other role's session" `
-            "otherwise two sessions coexist and one sign-out ends neither" $true `
-            "$lp removes other session keys before writing its own"
-    }
-}
+Check "S" "S3 every sign-out ends the session on the server" `
+    "clearing something in the browser would leave the real session standing" `
+    ($callLogout.Count -eq $signOutPages.Count) `
+    "$($callLogout.Count) of $($signOutPages.Count) call /auth/logout"
 
+# --- signing in -------------------------------------------------------
+$signInPages = $src.Keys | Where-Object { $src[$_] -match "login-btn|register-form|judge-form" } | Sort-Object
+$viaApi = @($signInPages | Where-Object { $src[$_] -match "/auth/(login|register)" })
+
+Pre "S" "S4 the pages carry sign-in and registration forms" ($signInPages.Count -gt 0) `
+    "$($signInPages.Count) page(s): $($signInPages -join ', ')"
+
+Check "S" "S4 every sign-in and registration goes through the server" `
+    "matching an email against a list in the browser is what let any registered address in" `
+    ($viaApi.Count -eq $signInPages.Count) `
+    "$($viaApi.Count) of $($signInPages.Count) post to /auth"
+
+$noPassword = @($signInPages | Where-Object { $src[$_] -notmatch 'type\s*=\s*"password"' }) | Sort-Object
+Check "S" "S5 every sign-in and registration form asks for a password" `
+    "there was no password field anywhere on this site, while accounts.password_hash has always been NOT NULL" `
+    ($noPassword.Count -eq 0) `
+    $(if ($noPassword.Count -eq 0) { "all $($signInPages.Count) forms take a password" }
+      else { "missing a password field: " + ($noPassword -join ", ") })
 
 # =====================================================================
 # K — the localStorage contract

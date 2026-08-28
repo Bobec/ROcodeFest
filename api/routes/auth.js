@@ -19,37 +19,84 @@ function badPassword(pw) {
 }
 
 // ---------------------------------------------------------------------
-// POST /auth/register  -- a club account
+// Registration, for all four roles
 // ---------------------------------------------------------------------
-// Account and club row in ONE transaction. enforce_subtype_role refuses a
-// clubs row whose account is not role='club', so committing the account
-// alone would leave one nobody can use; and R8 now refuses to change the
-// role afterwards while the subtype row exists, so it could not be
-// repaired by hand either.
+// One endpoint rather than four near-identical ones. An account plus its
+// subtype row is the same shape every time -- what changes is which table
+// the second insert goes to and which fields it needs -- so the shape is
+// described once, as data, and the handler below is the same code for a
+// club, a member, a judge and a partner.
+//
+// enforce_subtype_role refuses a subtype row whose account has the wrong
+// role, so the pair must be one transaction: an account committed without
+// its subtype row would be one nobody can use, and R8 now refuses to
+// change the role afterwards, so it could not be repaired by hand either.
+const SUBTYPES = {
+  club: {
+    table: 'clubs',
+    // founding_number is GENERATED ALWAYS AS IDENTITY. The page used to
+    // compute it as "how many clubs are in localStorage, plus one".
+    columns: ['club_name', 'city', 'coach_name', 'notes'],
+    from: (b) => [b.clubName, b.city || null, b.coachName || null, b.notes || null],
+    required: (b) => (b.clubName ? null : 'Numele clubului este obligatoriu.'),
+    conflicts: { uq_clubs_name: 'Există deja un club cu acest nume.' },
+  },
+  member: {
+    table: 'members',
+    columns: ['full_name', 'city', 'bio'],
+    from: (b) => [b.fullName, b.city || null, b.bio || null],
+    required: (b) => (b.fullName ? null : 'Numele este obligatoriu.'),
+    conflicts: {},
+  },
+  judge: {
+    table: 'judges',
+    columns: ['full_name', 'expertise', 'bio'],
+    from: (b) => [b.fullName, b.expertise || null, b.bio || null],
+    required: (b) => (b.fullName ? null : 'Numele este obligatoriu.'),
+    conflicts: {},
+  },
+  partner: {
+    table: 'partners',
+    columns: ['org_name', 'contact_name', 'partner_type', 'message'],
+    from: (b) => [b.orgName || null, b.contactName, b.partnerType, b.message || null],
+    required: (b) => {
+      if (!b.contactName) return 'Numele persoanei de contact este obligatoriu.';
+      if (!b.partnerType) return 'Tipul de partener este obligatoriu.';
+      return null;
+    },
+    conflicts: {},
+  },
+};
+
 router.post('/register', async (req, res, next) => {
-  const { email, password, clubName, city, coachName, notes } = req.body || {};
-  if (!email || !clubName) {
-    return res.status(400).json({ error: 'Emailul și numele clubului sunt obligatorii.' });
+  const body = req.body || {};
+  const spec = SUBTYPES[body.role];
+  if (!spec) {
+    return res.status(400).json({
+      error: `Rol necunoscut. Alege unul dintre: ${Object.keys(SUBTYPES).join(', ')}.`,
+    });
   }
-  const pwErr = badPassword(password);
+  if (!body.email) return res.status(400).json({ error: 'Emailul este obligatoriu.' });
+
+  const missing = spec.required(body);
+  if (missing) return res.status(400).json({ error: missing });
+
+  const pwErr = badPassword(body.password);
   if (pwErr) return res.status(400).json({ error: pwErr });
 
   try {
     const account = await db.tx(async (c) => {
       const a = await c.query(
         `INSERT INTO accounts (email, password_hash, role)
-         VALUES ($1, $2, 'club')
+         VALUES ($1, $2, $3)
          RETURNING account_id, email, role`,
-        [email, await auth.hash(password)]
+        [body.email, await auth.hash(body.password), body.role]
       );
-      // founding_number is GENERATED ALWAYS AS IDENTITY -- the mockup
-      // computed it as "how many clubs are in localStorage, plus one",
-      // which two people registering at once would have given the same
-      // number. The database has never needed help with that.
+      const cols = ['account_id', ...spec.columns];
+      const holes = cols.map((_, i) => `$${i + 1}`).join(', ');
       await c.query(
-        `INSERT INTO clubs (account_id, club_name, city, coach_name, notes)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [a.rows[0].account_id, clubName, city || null, coachName || null, notes || null]
+        `INSERT INTO ${spec.table} (${cols.join(', ')}) VALUES (${holes})`,
+        [a.rows[0].account_id, ...spec.from(body)]
       );
       return a.rows[0];
     });
@@ -59,10 +106,11 @@ router.post('/register', async (req, res, next) => {
   } catch (e) {
     const t = db.translate(e);
     if (t) {
-      // uq_accounts_email and uq_clubs_name both land here, and the
-      // difference matters to whoever is filling in the form
-      if (e.constraint === 'uq_accounts_email')  t.message = 'Există deja un cont cu acest email.';
-      if (e.constraint === 'uq_clubs_name')      t.message = 'Există deja un club cu acest nume.';
+      // The email collision is shared by every role; the rest are the
+      // subtype's own. Which field to change is the only thing the person
+      // filling in the form actually needs from this message.
+      if (e.constraint === 'uq_accounts_email') t.message = 'Există deja un cont cu acest email.';
+      else if (spec.conflicts[e.constraint])    t.message = spec.conflicts[e.constraint];
       return res.status(t.status).json({ error: t.message, hint: t.hint });
     }
     next(e);
@@ -110,29 +158,50 @@ router.post('/logout', async (req, res) => {
 // ---------------------------------------------------------------------
 // GET /auth/me  -- who is signed in, if anyone
 // ---------------------------------------------------------------------
-// This replaces the nav's three-key OR: one question, one answer, and the
-// role comes back with it, so a page never has to guess from which key
-// happened to be set.
+// This one call replaces the nav's three-key OR across all 29 pages, and
+// with it three findings at once:
+//
+//   S2  a judge was signed in and every navigation bar showed them
+//       signed out, because rocodefest_judge_session was not in the list
+//   S3  and nothing anywhere cleared that key, so the session could not
+//       be ended at all
+//   S4  signing in as a club and then as a member left two keys set, and
+//       signing out of one still showed you as signed in
+//
+// None of those are possible against one session that carries its own
+// role. A page asks who is here; it does not deduce it from which key
+// happens to be present.
+const PROFILE = {
+  club:    `SELECT club_name AS "clubName", founding_number AS "foundingNumber",
+                   city, coach_name AS "coachName" FROM clubs WHERE account_id = $1`,
+  member:  `SELECT full_name AS "fullName", city, bio FROM members WHERE account_id = $1`,
+  judge:   `SELECT full_name AS "fullName", expertise, bio FROM judges WHERE account_id = $1`,
+  partner: `SELECT org_name AS "orgName", contact_name AS "contactName",
+                   partner_type AS "partnerType", message FROM partners WHERE account_id = $1`,
+};
+
 router.get('/me', async (req, res, next) => {
   const me = auth.current(req);
   if (!me) return res.json({ account: null });
   try {
     const r = await db.query(
-      `SELECT a.account_id, a.email, a.role, c.club_name, c.founding_number
-       FROM accounts a
-       LEFT JOIN clubs c ON c.account_id = a.account_id
-       WHERE a.account_id = $1 AND a.is_active`,
+      `SELECT account_id, email, role FROM accounts WHERE account_id = $1 AND is_active`,
       [me.accountId]
     );
+    // The account can disappear or be deactivated while a session is
+    // still open. Reporting it as signed in would leave a visitor with a
+    // navigation bar promising a profile that answers 404.
     if (!r.rows[0]) { await auth.logout(req); return res.json({ account: null }); }
     const a = r.rows[0];
-    res.json({
-      account: {
-        id: a.account_id, email: a.email, role: a.role,
-        clubName: a.club_name || undefined,
-        foundingNumber: a.founding_number || undefined,
-      },
-    });
+
+    let profile = {};
+    const q = PROFILE[a.role];
+    if (q) {
+      const p = await db.query(q, [a.account_id]);
+      if (p.rows[0]) profile = p.rows[0];
+    }
+
+    res.json({ account: { id: a.account_id, email: a.email, role: a.role, ...profile } });
   } catch (e) { next(e); }
 });
 

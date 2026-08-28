@@ -216,13 +216,28 @@
 </script>
 <script>
 (function(){
+  // The one question every page asks. It used to be three localStorage
+  // keys read as an OR, which is where three findings came from: a judge
+  // was signed in and shown as signed out (their key was not in the
+  // list), that key could not be cleared by anything (no sign-out
+  // touched it), and two sign-ins left two keys where one sign-out
+  // cleared one. There is one session now, it carries its own role, and
+  // the page is told rather than left to deduce.
   var loginLink = document.getElementById('nav-login-link');
+  var registerLink = document.getElementById('nav-register-link');
   if(!loginLink) return;
-  var hasSession = false;
-  ['rocodefest_session','rocodefest_member_session','rocodefest_partner_session'].forEach(function(key){
-    try { if(JSON.parse(localStorage.getItem(key) || 'null')) hasSession = true; } catch(e){}
-  });
-  if(hasSession){ loginLink.style.display = 'none'; }
+  fetch('/auth/me', { credentials: 'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d && d.account){
+        loginLink.style.display = 'none';
+        if(registerLink) registerLink.style.display = 'none';
+      }
+    })
+    .catch(function(){
+      // The pages are still readable with the API down; showing "Log in"
+      // to someone who is signed in is a smaller failure than a blank nav.
+    });
 })();
 </script>
 
@@ -269,7 +284,11 @@
     <form id="judge-form">
       <div class="field"><label>Full name *</label><input id="j-name" required placeholder="Your name"></div>
       <div class="grid-2">
-        <div class="field"><label>Email *</label><input type="email" id="j-email" required placeholder="you@example.com"></div>
+        <div class="field"><label>Email *</label><input type="email" id="j-email" required placeholder="you@example.com">
+        </div>
+        <div class="field">
+          <label for="j-password">Password *</label>
+          <input type="password" id="j-password" required placeholder="Cel putin 8 caractere" autocomplete="new-password"></div>
         <div class="field"><label>Expertise</label><input id="j-expertise" placeholder="e.g. Robotics, AI"></div>
       </div>
       <div class="field"><label>Why you want to judge</label><textarea id="j-why" rows="3" placeholder="Optional"></textarea></div>
@@ -309,24 +328,39 @@ document.addEventListener('DOMContentLoaded', function(){
   var badge = document.getElementById('rules-badge');
   if(badge && seen !== RULES_VERSION){ badge.classList.add('show'); }
 
-  var session2 = null;
-  try { session2 = JSON.parse(localStorage.getItem('rocodefest_session') || 'null'); } catch(e){ session2 = null; }
-  var memberSessionNav = null;
-  try { memberSessionNav = JSON.parse(localStorage.getItem('rocodefest_member_session') || 'null'); } catch(e){ memberSessionNav = null; }
-  var regLink = document.getElementById('nav-register-link');
-  if(session2 && regLink){
-    var savedClubAvatar = localStorage.getItem('rocodefest_avatar_' + session2.clubName);
-    if(savedClubAvatar){ regLink.style.backgroundImage = 'url(' + savedClubAvatar + ')'; regLink.textContent = ''; }
-    else { regLink.textContent = (session2.clubName || '?').trim().charAt(0).toUpperCase(); }
-    regLink.classList.add('profile-avatar');
-    regLink.title = session2.clubName + ' — click to view your club';
-    regLink.href = 'profile.html';
-  } else if(memberSessionNav && regLink){
-    regLink.textContent = (memberSessionNav.memberName || '?').trim().charAt(0).toUpperCase();
-    regLink.classList.add('profile-avatar', 'member-avatar');
-    regLink.title = memberSessionNav.memberName;
-    regLink.href = 'member-profile.html';
-  }
+  // The avatar in the navigation bar. It used to read two session keys
+    // directly and pick between them; it now asks the same one endpoint
+    // the sign-in link does, and switches on the role the server reports
+    // -- so a judge or a partner gets an avatar too, which the old two-key
+    // version could not give them.
+    var regLink = document.getElementById('nav-register-link');
+    if(regLink){
+      fetch('/auth/me', { credentials: 'same-origin' })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          var a = d && d.account;
+          if(!a) return;
+          var label, destination;
+          if(a.role === 'club'){ label = a.clubName; destination = 'profile.html'; }
+          else if(a.role === 'member'){ label = a.fullName; destination = 'member-profile.html'; }
+          else if(a.role === 'judge'){ label = a.fullName; destination = 'judge-scoring.html'; }
+          else if(a.role === 'partner'){ label = a.orgName || a.contactName; destination = 'partner-dashboard.html'; }
+          else { return; }
+
+          // the uploaded picture is still per-browser: it is a file the
+          // account never sent anywhere, so it stays in localStorage
+          var saved = null;
+          try { saved = localStorage.getItem('rocodefest_avatar_' + label); } catch(e){}
+          if(saved){ regLink.style.backgroundImage = 'url(' + saved + ')'; regLink.textContent = ''; }
+          else { regLink.textContent = (label || '?').trim().charAt(0).toUpperCase(); }
+
+          regLink.classList.add('profile-avatar');
+          if(a.role !== 'club'){ regLink.classList.add('member-avatar'); }
+          regLink.title = label;
+          regLink.href = destination;
+        })
+        .catch(function(){});
+    }
   var resetLink = document.getElementById('reset-demo-link');
   if(resetLink){
     resetLink.addEventListener('click', function(){
@@ -346,13 +380,44 @@ document.addEventListener('DOMContentLoaded', function(){
     var name = document.getElementById('j-name').value.trim();
     var email = document.getElementById('j-email').value.trim();
     if(!name || !email){ document.getElementById('j-error').classList.add('show'); return; }
-    var judges = []; try { judges = JSON.parse(localStorage.getItem('rocodefest_judges') || '[]'); } catch(e){ judges = []; }
-    judges.push({ name: name, email: email, expertise: document.getElementById('j-expertise').value.trim(), why: document.getElementById('j-why').value.trim(), date: new Date().toISOString() });
-    localStorage.setItem('rocodefest_judges', JSON.stringify(judges));
-    localStorage.setItem('rocodefest_judge_session', JSON.stringify({ name: name, email: email }));
-    jForm.style.display = 'none';
-    document.getElementById('j-success').style.display = 'block';
-    document.getElementById('j-success-msg').textContent = 'Welcome, Judge ' + name + '!';
+    var password = document.getElementById('j-password').value;
+    var err = document.getElementById('j-error');
+    if(password.length < 8){
+      err.textContent = 'Parola trebuie să aibă cel puțin 8 caractere.';
+      err.classList.add('show');
+      return;
+    }
+    err.classList.remove('show');
+
+    // The judge account goes to the database. It used to be a row in
+    // localStorage plus rocodefest_judge_session -- a key no navigation
+    // bar read, and one that nothing anywhere cleared, so a signed-in
+    // judge was shown as signed out and could not sign out at all.
+    // There is one session now and it carries the role.
+    fetch('/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        role: 'judge', email: email, password: password, fullName: name,
+        expertise: document.getElementById('j-expertise').value.trim(),
+        bio: document.getElementById('j-why').value.trim()
+      })
+    }).then(function(r){
+      return r.json().then(function(d){ return { ok: r.ok, data: d }; });
+    }).then(function(res){
+      if(!res.ok){
+        err.textContent = res.data.error || 'Înregistrarea nu a reușit.';
+        err.classList.add('show');
+        return;
+      }
+      jForm.style.display = 'none';
+      document.getElementById('j-success').style.display = 'block';
+      document.getElementById('j-success-msg').textContent = 'Welcome, Judge ' + name + '!';
+    }).catch(function(){
+      err.textContent = 'Serverul nu răspunde. Încearcă din nou.';
+      err.classList.add('show');
+    });
   });
     
 });
