@@ -120,4 +120,10 @@ function client() {
 // not already digested.
 function baseUrl() { return base; }
 
-module.exports = { start, stop, reset, client, baseUrl };
+// Some fixtures have no endpoint yet -- a membership is created by
+// accepting a join request, and that flow is not built. Setting one up
+// directly is honest about that: the test is about what /api/teams/mine
+// ANSWERS, not about how the row got there.
+function sql(text, params) { return pool.query(text, params); }
+
+module.exports = { start, stop, reset, client, baseUrl, sql };

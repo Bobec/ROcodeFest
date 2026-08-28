@@ -14,12 +14,20 @@ const router = express.Router();
 // has no business seeing. A SELECT * here would have leaked both.
 router.get('/', async (req, res, next) => {
   try {
+    // Field names are the ones the pages already use. They were the keys
+    // in the localStorage arrays these endpoints replace, so the pages
+    // change from "read an array" to "await an array" and nothing else.
+    // count() returns bigint, which pg hands back as a string -- ::int
+    // so that a page can compare it to a number without noticing.
     const r = await db.query(
-      `SELECT c.account_id AS id, c.club_name, c.city, c.coach_name, c.founding_number,
-              count(t.team_id) AS team_count
+      `SELECT c.account_id AS id, c.club_name AS "clubName", c.city,
+              c.coach_name AS "coachName", c.founding_number AS "number",
+              c.avatar_data_uri AS "avatar",
+              count(t.team_id)::int AS "teamCount"
        FROM clubs c
        LEFT JOIN teams t ON t.club_id = c.account_id AND t.is_active
-       GROUP BY c.account_id, c.club_name, c.city, c.coach_name, c.founding_number
+       GROUP BY c.account_id, c.club_name, c.city, c.coach_name,
+                c.founding_number, c.avatar_data_uri
        ORDER BY c.founding_number`
     );
     res.json({ clubs: r.rows });
@@ -37,8 +45,10 @@ router.get('/me', requireRole('club'), async (req, res, next) => {
   try {
     const me = current(req);
     const r = await db.query(
-      `SELECT c.account_id AS id, c.club_name, c.city, c.coach_name, c.notes,
-              c.founding_number, c.created_at, a.email
+      `SELECT c.account_id AS id, c.club_name AS "clubName", c.city,
+              c.coach_name AS "coachName", c.notes,
+              c.founding_number AS "number", c.created_at AS "createdAt",
+              c.avatar_data_uri AS "avatar", a.email
        FROM clubs c JOIN accounts a ON a.account_id = c.account_id
        WHERE c.account_id = $1`,
       [me.accountId]
@@ -68,7 +78,8 @@ router.patch('/me', requireRole('club'), async (req, res, next) => {
          coach_name = COALESCE($4, coach_name),
          notes      = COALESCE($5, notes)
        WHERE account_id = $1
-       RETURNING account_id AS id, club_name, city, coach_name, notes, founding_number`,
+       RETURNING account_id AS id, club_name AS "clubName", city,
+                 coach_name AS "coachName", notes, founding_number AS "number"`,
       [me.accountId, clubName ?? null, city ?? null, coachName ?? null, notes ?? null]
     );
     if (!r.rows[0]) return res.status(404).json({ error: 'Clubul nu a fost găsit.' });

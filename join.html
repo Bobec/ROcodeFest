@@ -400,11 +400,11 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
 
-  // Populate team dropdown from registered teams
-  var teams = [];
-  try {
-    teams = JSON.parse(localStorage.getItem('rocodefest_founding_teams') || '[]');
-  } catch(err) { teams = []; }
+  // A read of rocodefest_founding_teams stood here, filling a dropdown
+  // this form no longer has -- the team is chosen on founding-teams.html
+  // afterwards. Nothing ever wrote that key, so it was an empty array
+  // assigned to a variable nobody used. Removed rather than pointed at
+  // an endpoint: there is nothing here to populate.
 
   var form = document.getElementById('join-form');
   var fields = {

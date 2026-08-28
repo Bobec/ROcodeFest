@@ -363,13 +363,21 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
 
-  var clubs = [];
-  try { clubs = JSON.parse(localStorage.getItem('rocodefest_clubs') || '[]'); } catch(err) { clubs = []; }
-  var allTeams = [];
-  try { allTeams = JSON.parse(localStorage.getItem('rocodefest_teams') || '[]'); } catch(err) { allTeams = []; }
-
   var listEl = document.getElementById('org-list');
   var emptyEl = document.getElementById('empty-state');
+
+  // Both lists were localStorage arrays, so this page showed a visitor
+  // the clubs their own browser happened to have stored -- which for
+  // anyone arriving for the first time was none at all. They come from
+  // the server now, and the two requests go out together because
+  // neither depends on the other.
+  Promise.all([
+    fetch('/api/clubs', { credentials: 'same-origin' }).then(function(r){ return r.json(); }),
+    fetch('/api/teams', { credentials: 'same-origin' }).then(function(r){ return r.json(); })
+  ])
+    .then(function(res){
+  var clubs    = (res[0] && res[0].clubs) || [];
+  var allTeams = (res[1] && res[1].teams) || [];
 
   if(clubs.length === 0){
     emptyEl.style.display = 'block';
@@ -380,7 +388,10 @@ document.addEventListener('DOMContentLoaded', function(){
     var card = document.createElement('div');
     card.className = 'org-card';
 
-    var clubTeams = allTeams.filter(function(t){ return t.clubName === club.clubName; });
+    // Matched on the club's id, not its name. The name is a display
+    // field a club may change; matching on it meant a rename detached
+    // a club from its own teams.
+    var clubTeams = allTeams.filter(function(t){ return t.clubId === club.id; });
 
     var chips = clubTeams.length > 0
       ? clubTeams.map(function(t){
@@ -392,11 +403,17 @@ document.addEventListener('DOMContentLoaded', function(){
 
     card.innerHTML =
       '<h2>' + club.clubName.replace(/</g,'&lt;') + '</h2>' +
-      '<div class="org-meta">' + club.city.replace(/</g,'&lt;') + ' · ' + clubTeams.length + ' team' + (clubTeams.length !== 1 ? 's' : '') + '</div>' +
+      '<div class="org-meta">' + (club.city || '—').replace(/</g,'&lt;') + ' · ' + clubTeams.length + ' team' + (clubTeams.length !== 1 ? 's' : '') + '</div>' +
       '<div class="team-chip-row">' + chips + '</div>';
 
     listEl.appendChild(card);
   });
+    })
+    .catch(function(){
+      emptyEl.style.display = 'block';
+      var msg = emptyEl.querySelector('p');
+      if(msg){ msg.textContent = 'Lista nu a putut fi încărcată. Reîncarcă pagina.'; }
+    });
 });
 
   var resetLink = document.getElementById('reset-demo-link');

@@ -468,16 +468,23 @@ document.addEventListener('DOMContentLoaded', function(){
   // role whose key no navigation bar read, a key nothing cleared,
   // and two keys where one sign-out cleared one. There is one
   // session now and it carries its own role.
-fetch('/auth/me', { credentials: 'same-origin' })
-    .then(function(r){ return r.json(); })
-    .then(function(d){
+  // /api/teams/mine, not the whole list filtered in the browser: the
+  // endpoint scopes to the session's club, so which teams a club may
+  // appeal for is decided on the server rather than by a comparison a
+  // page could be edited to skip.
+  Promise.all([
+    fetch('/auth/me',        { credentials: 'same-origin' }).then(function(r){ return r.json(); }),
+    fetch('/api/teams/mine', { credentials: 'same-origin' })
+      .then(function(r){ return r.ok ? r.json() : { teams: [] }; })
+  ])
+    .then(function(res){
+    var d = res[0];
+    var mine = (res[1] && res[1].teams) || [];
     var a = d && d.account;
     var clubSession = (a && a.role === 'club') ? { clubName: a.clubName, number: a.foundingNumber } : null;
   if(!clubSession){ document.getElementById('no-club-a').style.display = 'block'; }
   else {
     document.getElementById('appeal-wrap').style.display = 'block';
-    var teams = []; try { teams = JSON.parse(localStorage.getItem('rocodefest_teams') || '[]'); } catch(e){}
-    var mine = teams.filter(function(t){ return t.clubName === clubSession.clubName; });
     var sel = document.getElementById('ap-team');
     mine.forEach(function(t){ var o = document.createElement('option'); o.value = t.teamName; o.textContent = t.teamName; sel.appendChild(o); });
 

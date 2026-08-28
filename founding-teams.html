@@ -374,25 +374,6 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
 
-  var clubs = [];
-  try { clubs = JSON.parse(localStorage.getItem('rocodefest_clubs') || '[]'); } catch(err) { clubs = []; }
-  var rawTeams = [];
-  try { rawTeams = JSON.parse(localStorage.getItem('rocodefest_teams') || '[]'); } catch(err) { rawTeams = []; }
-
-  // Join each team with its club's info
-  var teams = rawTeams.map(function(t){
-    var club = clubs.find(function(c){ return c.clubName === t.clubName; }) || {};
-    return {
-      teamName: t.teamName,
-      category: t.category,
-      clubName: t.clubName,
-      city: club.city || '—',
-      number: club.number
-    };
-  });
-
-  document.getElementById('team-count').textContent = teams.length;
-
   var grid = document.getElementById('team-grid');
   var wrap = document.getElementById('team-list-wrap');
   var empty = document.getElementById('empty-state');
@@ -402,9 +383,26 @@ document.addEventListener('DOMContentLoaded', function(){
   // role whose key no navigation bar read, a key nothing cleared,
   // and two keys where one sign-out cleared one. There is one
   // session now and it carries its own role.
-fetch('/auth/me', { credentials: 'same-origin' })
-    .then(function(r){ return r.json(); })
-    .then(function(d){
+  //
+  // The teams come from the server too. This page used to read two
+  // localStorage arrays and join them in the browser by matching
+  // club_name against club_name -- a join on a display name, which a
+  // rename silently breaks, and which showed every visitor only the
+  // teams that their own browser happened to have stored. The join is
+  // in the query now, so /api/teams carries the club's city and number
+  // with each team and there is nothing to match up here.
+  //
+  // Both requests go out together rather than one after the other:
+  // they do not depend on each other, and waiting for the first before
+  // asking the second would double the time the page shows nothing.
+  Promise.all([
+    fetch('/auth/me',   { credentials: 'same-origin' }).then(function(r){ return r.json(); }),
+    fetch('/api/teams', { credentials: 'same-origin' }).then(function(r){ return r.json(); })
+  ])
+    .then(function(res){
+    var d = res[0];
+    var teams = (res[1] && res[1].teams) || [];
+    document.getElementById('team-count').textContent = teams.length;
     var a = d && d.account;
     var memberSession = (a && a.role === 'member') ? { memberName: a.fullName, email: a.email, city: a.city } : null;
     var clubSession = (a && a.role === 'club') ? { clubName: a.clubName, number: a.foundingNumber } : null;
@@ -444,7 +442,7 @@ fetch('/auth/me', { credentials: 'same-origin' })
       var teamHref = 'team.html?club=' + encodeURIComponent(t.clubName) + '&team=' + encodeURIComponent(t.teamName);
       card.innerHTML = '<span class="badge-num">#' + t.displayNumber + '</span>' +
         '<h3><a href="' + teamHref + '" style="text-decoration:none;">' + t.teamName.replace(/</g,'&lt;') + '</a></h3>' +
-        '<p>' + t.clubName.replace(/</g,'&lt;') + ' · ' + t.city.replace(/</g,'&lt;') + ' · ' + t.category + '</p>' +
+        '<p>' + t.clubName.replace(/</g,'&lt;') + ' · ' + (t.clubCity || '—').replace(/</g,'&lt;') + ' · ' + t.category + '</p>' +
         actionHtml;
 
       var joinBtn = card.querySelector('.join-btn');
@@ -476,7 +474,15 @@ fetch('/auth/me', { credentials: 'same-origin' })
     });
   }
     })
-    .catch(function(){});
+    .catch(function(){
+      // A swallowed failure here is indistinguishable from a festival
+      // with no teams yet, and the two need different reactions from
+      // whoever is looking at the page.
+      wrap.style.display = 'none';
+      empty.style.display = 'block';
+      var msg = empty.querySelector('p');
+      if(msg){ msg.textContent = 'Lista de echipe nu a putut fi încărcată. Reîncarcă pagina.'; }
+    });
 });
 
   var resetLink = document.getElementById('reset-demo-link');

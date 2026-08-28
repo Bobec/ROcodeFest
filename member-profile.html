@@ -375,9 +375,17 @@ document.addEventListener('DOMContentLoaded', function(){
   // role whose key no navigation bar read, a key nothing cleared,
   // and two keys where one sign-out cleared one. There is one
   // session now and it carries its own role.
-fetch('/auth/me', { credentials: 'same-origin' })
-    .then(function(r){ return r.json(); })
-    .then(function(d){
+  // The team list comes with it. It used to be two localStorage arrays
+  // joined in the browser on club_name, so this page suggested teams
+  // only from whatever the visitor's own browser had stored -- for
+  // anyone arriving for the first time, nothing at all.
+  Promise.all([
+    fetch('/auth/me',   { credentials: 'same-origin' }).then(function(r){ return r.json(); }),
+    fetch('/api/teams', { credentials: 'same-origin' }).then(function(r){ return r.json(); })
+  ])
+    .then(function(res){
+    var d = res[0];
+    var allTeams = (res[1] && res[1].teams) || [];
     var a = d && d.account;
     var memberSession = (a && a.role === 'member') ? { memberName: a.fullName, email: a.email, city: a.city } : null;
 
@@ -396,21 +404,22 @@ fetch('/auth/me', { credentials: 'same-origin' })
   }
 
   document.getElementById('profile-content').style.display = 'block';
-  document.getElementById('p-avatar').textContent = (memberSession.memberName || '?').charAt(0).toUpperCase();
+  var bigAvatar = document.getElementById('p-avatar');
+  bigAvatar.textContent = (memberSession.memberName || '?').charAt(0).toUpperCase();
+  // Members have a picture now too, and it arrives with the account.
+  if(a.avatar){ bigAvatar.style.backgroundImage = 'url(' + a.avatar + ')'; bigAvatar.textContent = ''; }
   document.getElementById('p-name').textContent = memberSession.memberName;
   document.getElementById('p-city-email').textContent = memberSession.city + ' · ' + memberSession.email;
   document.getElementById('p-city').textContent = memberSession.city || '—';
   document.getElementById('p-email').textContent = memberSession.email || '—';
   document.getElementById('p-message').textContent = memberSession.message || 'Nothing added yet.';
 
+  // The join that used to happen here is in the query now: /api/teams
+  // carries each team's club city with it. This only renames the field
+  // so the rest of the page reads as it did.
   function getTeams(){
-    var rawTeams = [];
-    var clubs = [];
-    try { rawTeams = JSON.parse(localStorage.getItem('rocodefest_teams') || '[]'); } catch(e){ rawTeams = []; }
-    try { clubs = JSON.parse(localStorage.getItem('rocodefest_clubs') || '[]'); } catch(e){ clubs = []; }
-    return rawTeams.map(function(t){
-      var club = clubs.find(function(c){ return c.clubName === t.clubName; }) || {};
-      return { teamName: t.teamName, category: t.category, clubName: t.clubName, city: club.city || '' };
+    return allTeams.map(function(t){
+      return { teamName: t.teamName, category: t.category, clubName: t.clubName, city: t.clubCity || '' };
     });
   }
   function findTeamClub(teamName){

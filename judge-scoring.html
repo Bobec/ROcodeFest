@@ -392,15 +392,21 @@ document.addEventListener('DOMContentLoaded', function(){
   // The page waits for the answer instead of reading it synchronously.
   // That is the one structural change asking a server rather than a
   // browser forces on a page like this.
-  fetch('/auth/me', { credentials: 'same-origin' })
-    .then(function(r){ return r.json(); })
-    .then(function(d){
+  // A judge scores every team, not their own, so this is the public
+  // listing. It used to be whatever was in the judge's browser, which
+  // for a judge arriving on the day was an empty dropdown.
+  Promise.all([
+    fetch('/auth/me',   { credentials: 'same-origin' }).then(function(r){ return r.json(); }),
+    fetch('/api/teams', { credentials: 'same-origin' }).then(function(r){ return r.json(); })
+  ])
+    .then(function(res){
+  var d = res[0];
+  var teams = (res[1] && res[1].teams) || [];
   var a = d && d.account;
   var judgeSession = (a && a.role === 'judge') ? { name: a.fullName, email: a.email } : null;
   if(!judgeSession){ document.getElementById('no-judge').style.display = 'block'; }
   else {
     document.getElementById('scoring-wrap').style.display = 'block';
-    var teams = []; try { teams = JSON.parse(localStorage.getItem('rocodefest_teams') || '[]'); } catch(e){}
     var sel = document.getElementById('score-team');
     teams.forEach(function(t){ var o = document.createElement('option'); o.value = t.teamName; o.textContent = t.teamName + ' (' + t.category + ')'; sel.appendChild(o); });
 

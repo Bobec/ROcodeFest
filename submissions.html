@@ -392,15 +392,24 @@ document.addEventListener('DOMContentLoaded', function(){
   // role whose key no navigation bar read, a key nothing cleared,
   // and two keys where one sign-out cleared one. There is one
   // session now and it carries its own role.
-fetch('/auth/me', { credentials: 'same-origin' })
-    .then(function(r){ return r.json(); })
-    .then(function(d){
+  // /api/teams/mine answers for both roles: a club gets the teams it
+  // owns, a member gets the teams it currently belongs to. This page
+  // used to work both out in the browser -- the club by filtering the
+  // full list on its own name, and the member by reading the join
+  // requests and keeping the accepted ones. An accepted request is not
+  // a membership; a member removed from a team still had one, and could
+  // still pick that team here.
+  Promise.all([
+    fetch('/auth/me',        { credentials: 'same-origin' }).then(function(r){ return r.json(); }),
+    fetch('/api/teams/mine', { credentials: 'same-origin' })
+      .then(function(r){ return r.ok ? r.json() : { teams: [] }; })
+  ])
+    .then(function(res){
+    var d = res[0];
+    var myTeams = (res[1] && res[1].teams) || [];
     var a = d && d.account;
     var clubSession = (a && a.role === 'club') ? { clubName: a.clubName, number: a.foundingNumber } : null;
     var memberSession = (a && a.role === 'member') ? { memberName: a.fullName, email: a.email, city: a.city } : null;
-
-  function getAllTeams(){ try { return JSON.parse(localStorage.getItem('rocodefest_teams') || '[]'); } catch(e){ return []; } }
-  function getRequests(){ try { return JSON.parse(localStorage.getItem('rocodefest_join_requests') || '[]'); } catch(e){ return []; } }
 
   var role = clubSession ? 'club' : (memberSession ? 'member' : null);
 
@@ -413,14 +422,11 @@ fetch('/auth/me', { credentials: 'same-origin' })
     if(role === 'club'){
       document.getElementById('sub-session-line').innerHTML = 'Submitting as club <strong>' + clubSession.clubName.replace(/</g,'&lt;') + '</strong>. As the club, you can view and manage every submission across your teams.';
       document.getElementById('sub-list-hint').textContent = 'All submissions from any of your club\'s teams.';
-      myTeamOptions = getAllTeams().filter(function(t){ return t.clubName === clubSession.clubName; })
-        .map(function(t){ return { teamName:t.teamName, clubName:t.clubName, category:t.category }; });
+      myTeamOptions = myTeams.map(function(t){ return { teamName:t.teamName, clubName:t.clubName, category:t.category }; });
     } else {
       document.getElementById('sub-session-line').innerHTML = 'Submitting as member <strong>' + memberSession.memberName.replace(/</g,'&lt;') + '</strong>. Members can submit for their own team(s), and edit or delete only what they personally submitted.';
       document.getElementById('sub-list-hint').textContent = 'Submissions you personally sent, across any team you belong to.';
-      var acceptedTeamNames = getRequests().filter(function(r){ return r.email === memberSession.email && r.status === 'accepted'; }).map(function(r){ return r.teamChoice; });
-      myTeamOptions = getAllTeams().filter(function(t){ return acceptedTeamNames.indexOf(t.teamName) !== -1; })
-        .map(function(t){ return { teamName:t.teamName, clubName:t.clubName, category:t.category }; });
+      myTeamOptions = myTeams.map(function(t){ return { teamName:t.teamName, clubName:t.clubName, category:t.category }; });
     }
 
     myTeamOptions.forEach(function(t){
