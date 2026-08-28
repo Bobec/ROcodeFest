@@ -48,6 +48,24 @@ to start without it. Sessions are kept in memory, so restarting signs everyone
 out — fine for development, and a real store is the first thing to add before
 this is deployed anywhere.
 
+### Testing it
+
+```powershell
+$env:PGPASSWORD = "…"
+$env:PGDATABASE = "rocodefest_test"    # a database with 01_ loaded
+cd api; npm test
+```
+
+24 cases, with no test framework and no HTTP client beyond what Node ships
+with. They run against the **real schema** — every refusal they assert is
+enforced by a constraint in `01_oltp_schema.sql`, and testing against a stub
+would prove only that the stub agrees with itself.
+
+They run serially (`--test-concurrency=1`). The files share one database and
+reset it between tests, so in parallel one file wipes another's fixture
+mid-assertion — which is exactly what happened the first time they were run
+together, and every one of those six failures passed on its own.
+
 ### What is wired so far
 
 One vertical slice, end to end: **club registration, login, logout, and teams**.

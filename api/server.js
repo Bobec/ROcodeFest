@@ -64,9 +64,15 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Eroare internă.' });
 });
 
-app.listen(PORT, () => {
-  console.log(`ROcodeFest pe http://localhost:${PORT}`);
-  console.log(`  baza de date: ${process.env.PGDATABASE || 'rocodefest'}@${process.env.PGHOST || 'localhost'}`);
-});
+// Only bind a port when this file is RUN, not when it is imported. The
+// tests need the app object to listen on an ephemeral port of their own;
+// without this guard, importing it would take port 3000 and two test
+// files could not run at once.
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`ROcodeFest pe http://localhost:${PORT}`);
+    console.log(`  baza de date: ${process.env.PGDATABASE || 'rocodefest'}@${process.env.PGHOST || 'localhost'}`);
+  });
+}
 
 module.exports = app;

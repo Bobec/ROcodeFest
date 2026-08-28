@@ -35,6 +35,14 @@ const SQLSTATE = {
   '23502': { status: 400, message: 'Un câmp obligatoriu lipsește.' },
   '22P02': { status: 400, message: 'Valoare invalidă pentru acest câmp.' },
   '428C9': { status: 400, message: 'Acest câmp este calculat automat și nu poate fi trimis.' },
+  // A number too large for its column and a string too long for it are
+  // both bad input, not server faults. These were missing at first, and
+  // the API answered 500 to a caller who sent 999999 for a SMALLINT --
+  // found by the test that asserts "a category that does not exist is a
+  // 400, not a 500", which is why that test says "not a 500" rather than
+  // just checking for a rejection.
+  '22003': { status: 400, message: 'Valoare numerică în afara intervalului permis.' },
+  '22001': { status: 400, message: 'Text prea lung pentru acest câmp.' },
 };
 
 // Business-rule triggers RAISE EXCEPTION, which arrives as P0001. Those

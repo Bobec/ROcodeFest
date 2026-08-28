@@ -68,6 +68,57 @@ jobs:
         # block; everything else it needs comes from PGPASSWORD.
         run: pwsh ./db/run_qa.ps1 -PsqlPath psql -User postgres -DbHost localhost -Port 5432
 
+  api:
+    name: api
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      # The API tests run against the REAL schema, not a stub. Every
+      # refusal they assert -- a duplicate participation code, a category
+      # that does not exist -- is enforced by a constraint in this file,
+      # and testing against a fake would prove only that the fake agrees
+      # with itself.
+      - name: Load the schema
+        env:
+          PGPASSWORD: postgres
+        run: |
+          createdb -h localhost -U postgres rocodefest_test
+          psql -h localhost -U postgres -d rocodefest_test -v ON_ERROR_STOP=1 -q -f db/01_oltp_schema.sql
+
+      - name: Install
+        run: npm ci
+        working-directory: api
+
+      - name: Run the API tests
+        working-directory: api
+        env:
+          PGHOST: localhost
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: rocodefest_test
+        run: npm test
+
   frontend:
     name: static pages
     runs-on: ubuntu-latest
