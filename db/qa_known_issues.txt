@@ -1,0 +1,76 @@
+# =====================================================================
+# Known open findings — suites allowed to exit non-zero
+# =====================================================================
+# Format:  suite | proposal | findings | one-line reason
+# Lines starting with # are comments. Blank lines ignored.
+#
+# A suite listed here is reported KNOWN and does not fail the run. The
+# point is to keep the runner usable as a regression gate: a permanently
+# red runner tells you nothing, so nobody looks at it.
+#
+# THE LIST IS SELF-CLEANING, IN BOTH DIRECTIONS.
+#   * a listed suite that starts PASSING          -> run FAILS, stale
+#   * FEWER findings than the count says          -> run FAILS, narrowed
+#   * MORE findings than the count says           -> run FAILS, widened
+#
+# The count is what makes the middle case visible. Keyed only on
+# red-vs-green, a suite holding three findings that drops to one still
+# exits non-zero, stays KNOWN, and keeps a reason line describing a
+# finding that is already closed -- the file goes on excusing something
+# that no longer happens, and nobody notices because the colour did not
+# change. That is precisely how a known-issues list rots into a
+# permanent excuse.
+#
+# The last case is the enforcement half of the rule below: without a
+# count, a new failure in an already-listed suite is silently absorbed
+# by the existing entry.
+#
+# Nothing may be added to this file to silence a NEW failure. A new
+# failure is a regression; it gets fixed or it gets a proposal first.
+#
+# Put `-` in the findings field for a suite whose summary the runner
+# cannot count. That falls back to plain red-vs-green -- honest about
+# being weaker, rather than a 0 that would read as "all fixed".
+# =====================================================================
+
+# search_path -- CLOSED. R4 was folded into 01_oltp_schema.sql; every
+# trigger function now pins SET search_path = oltp, public. The runner
+# reported "now pass; remove it from the baseline", which is what this
+# deletion is. Left as a comment so the history of the entry survives.
+
+# The proposal column names where the finding is TRACKED, not what caused
+# it. R3 owns neither of these: it decides which version may exist, T4 is
+# who gets told, T5 is who may write. Adopting R3 left both red, which is
+# the evidence they are independent rather than a shared symptom.
+#
+# The 3 break down as T4 = 1, T5 = 2 (the bare FK, and the catalogue limb
+# showing no constraint references memberships and RLS is off).
+#
+# T4 is DUPLICATE COVERAGE and is expected to go first: qa_notifications
+# N1 already measures the same defect as a matrix ("0 of 4 link tables
+# emitted a notification"), and notification_submission_review_links is
+# one of those four. When T4 is dissolved into N1 this count drops to 2
+# and the runner will say so.
+gate_blocks | R3_resubmission_gate.patch.sql | 3 | T4: no notification is emitted when a review sets requires_resubmission -- duplicate of qa_notifications N1, dissolve it there. T5: submitted_by_account_id is a bare FK, so any account can author a version for any team; authorisation is unowned at the DB layer, awaiting a design decision.
+
+# ---------------------------------------------------------------------
+# CLOSED BY ADOPTION -- kept as comments so the history survives the edit
+# ---------------------------------------------------------------------
+# All five proposals in db/proposals/ are now folded into
+# 01_oltp_schema.sql, and every suite that was red because of them is
+# green. Nothing below needs an entry any more:
+#
+#   R2  match_judges          judge_feedback B4 (was PENDING-SCHEMA)
+#   R3  resubmission gate     resubmission G2, G3, I2, J1, H3
+#   R4  trigger search_path   search_path (removed above)
+#   R5  rule citations        rule_refs R4, A4, X3, X4
+#   R6  forum                 forum U5, U6, U7, U8, U9, P2, P4, C2, C3, T5
+#
+# Two findings stay OPEN and are deliberately NOT listed as known issues,
+# because their suites exit 0 and the runner would then have nothing to
+# tell anyone:
+#   concurrency C3  a version outlives the retracted review that justified
+#                   it. R3 checks on INSERT only. Closing it is a business
+#                   decision (is an exercised right permanent?), not a bug
+#                   fix, so it is recorded as a GAP with the two options.
+#   forum/notif     the emitter matrix is still 0/4; see qa_notifications.

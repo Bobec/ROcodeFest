@@ -1,0 +1,29 @@
+# ---------------------------------------------------------------------
+# Almost nothing in this repository is generated: the SQL is the source,
+# the HTML pages are hand-written, and the QA suites build their own
+# throwaway databases and drop them again. So this file is short on
+# purpose -- each entry below is here for a stated reason rather than
+# copied from a template.
+# ---------------------------------------------------------------------
+
+# Credentials. The suites take the password from $env:PGPASSWORD and
+# never from a file, so nothing here should ever exist -- these patterns
+# are a backstop against one being added by hand later.
+.env
+.env.*
+*.pgpass
+secrets.*
+
+# psql / pg_dump scratch output, if anyone redirects into the tree
+*.dump
+*.backup
+psql_history
+.psql_history
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini
+.DS_Store

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Appeals — ROcodeFest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF9EF; --ink:#2B2A28; --ink-soft:#6B6660;
+    --blue:#3E9DD1; --blue-light:#E4F3FA;
+    --yellow:#FFC857; --yellow-light:#FFF3D9;
+    --coral:#FF6B4A; --coral-dark:#D8492C;
+    --green:#4CAF7D; --green-light:#E4F5EC;
+    --purple:#8B7FD1; --purple-light:#ECEAFA;
+    --radius-lg:28px; --radius-md:18px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Nunito',sans-serif;line-height:1.6;}
+  h1,h2,h3{font-family:'Baloo 2',sans-serif;font-weight:700;margin:0;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px;}
+  a{color:inherit;}
+  html{scroll-behavior:smooth;}
+  nav{
+    position:sticky; top:0; z-index:50;
+    display:flex;justify-content:space-between;align-items:center;padding:24px 0;
+    background:var(--cream); transition:box-shadow 0.3s ease;
+  }
+  nav.scrolled{box-shadow:0 2px 14px rgba(43,42,40,0.08);}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;}
+  .logo-dot{width:34px;height:34px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;}
+  .nav-links{display:flex;gap:18px;font-weight:700;font-size:14px;color:var(--ink-soft);align-items:center;}
+  .nav-links a{text-decoration:none; position:relative; transition:color 0.2s ease;}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:2px;background:var(--coral);transition:width 0.25s ease;}
+  .nav-links a:hover{color:var(--coral-dark);}
+  .nav-links a:hover::after{width:100%;}
+  .partner-link{background:var(--ink);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .partner-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
+  .partner-link::after{display:none !important;}
+  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .speaker-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
+  .speaker-link::after{display:none !important;}
+  .nav-rules-wrap{position:relative;}
+  .rules-badge{position:absolute;top:-4px;right:-10px;width:9px;height:9px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 2px var(--cream);display:none;}
+  .rules-badge.show{display:block;}
+  .profile-avatar{
+    width:32px; height:32px; border-radius:50%; background:var(--coral); color:#fff !important;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:14px; text-decoration:none;
+    transition:transform 0.2s ease, box-shadow 0.2s ease; background-size:cover; background-position:center;
+  }
+  .profile-avatar:hover{transform:translateY(-2px); box-shadow:0 8px 16px rgba(43,42,40,0.18);}
+  .profile-avatar::after{display:none !important;}
+  .profile-avatar.member-avatar{background-color:var(--blue);}
+  @media (max-width:860px){ .nav-links{display:none;} }
+
+  .page-hero{padding:30px 0 20px;text-align:center;}
+  .eyebrow{font-weight:800;color:var(--coral-dark);font-size:13px;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:10px;}
+  .page-hero h1{font-size:38px;max-width:640px;margin:0 auto 16px;}
+  .page-hero p{color:var(--ink-soft);font-size:17px;max-width:560px;margin:0 auto;}
+
+  .card{background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg); padding:26px; margin-bottom:16px;}
+  .card-light{background:#fff; border-radius:var(--radius-md); padding:20px; border:1.5px solid #E4E1D8; margin-bottom:12px;}
+  .section{padding:24px 0;}
+  .section h2{font-size:22px; margin-bottom:14px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media (max-width:700px){ .grid-2,.grid-3{grid-template-columns:1fr;} }
+
+  .field{margin-bottom:16px; text-align:left;}
+  label{display:block; font-weight:700; font-size:13px; margin-bottom:6px; color:var(--ink);}
+  input, textarea, select{
+    width:100%; padding:11px 14px; border-radius:12px;
+    border:2px solid #E4E1D8; font-family:'Nunito',sans-serif; font-size:14px;
+    background:var(--cream); transition:border-color 0.2s ease;
+  }
+  input:focus, textarea:focus, select:focus{ outline:none; border-color:var(--blue); }
+  .btn{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;display:inline-block;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .btn:hover{transform:translateY(-3px);box-shadow:0 10px 20px rgba(43,42,40,0.15);}
+  .btn-primary{background:var(--coral);color:#fff;}
+  .btn-secondary{background:#fff; color:var(--ink); border:2px solid var(--ink);}
+  .btn-small{font-size:13px; padding:9px 16px;}
+
+  .tab-row{display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;}
+  .tab-btn{font-family:'Baloo 2'; font-weight:700; font-size:13px; padding:9px 18px; border-radius:999px; border:2px solid var(--ink); background:#fff; cursor:pointer; transition:all 0.2s ease;}
+  .tab-btn.active{background:var(--ink); color:#fff;}
+
+  .empty-state{text-align:center; padding:50px 20px; color:var(--ink-soft); font-size:14px;}
+  .stat-num{font-family:'Baloo 2'; font-weight:800; font-size:28px;}
+  .tag{display:inline-block; font-size:11px; font-weight:800; padding:4px 10px; border-radius:999px; color:#fff;}
+  .error-msg{display:none; color:var(--coral-dark); font-size:13px; font-weight:700; margin-top:10px; text-align:center;}
+  .error-msg.show{display:block;}
+
+  .demo-note{
+    max-width:640px; margin:20px auto 40px; background:var(--yellow-light);
+    border-radius:var(--radius-md); padding:18px 22px;
+  }
+  .demo-note p{font-size:13px; color:var(--ink-soft); margin:0;}
+  .demo-note strong{color:var(--ink);}
+
+  
+  .ap-item{ padding:16px; border-bottom:1px solid #EFE9DB; }
+  .ap-item:last-child{ border-bottom:none; }
+  .ap-status{ display:inline-block; font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px; }
+  .ap-pending{ background:var(--yellow-light); color:var(--coral-dark); }
+  .ap-accepted{ background:var(--green-light); color:var(--green); }
+  .ap-rejected{ background:#F1EEE5; color:var(--ink-soft); }
+  .ap-rule-tag{ display:inline-block; font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px; background:var(--blue-light); color:var(--blue); text-decoration:none; margin-left:6px; }
+
+  .ts-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .ts-picker{display:flex; align-items:center; gap:6px;}
+  .ts-input{width:56px; text-align:center; padding:11px 4px;}
+  .ts-sep{font-family:'Baloo 2'; font-weight:800; color:var(--ink-soft);}
+  .rules-ref-row{display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap;}
+  .rules-ref-row .field{flex:1; min-width:180px; margin-bottom:0;}
+  .rule-hint{font-size:12px; color:var(--ink-soft); margin-top:6px;}
+
+
+  footer{padding:24px 0 40px;text-align:center;font-size:13px;color:var(--ink-soft);}
+  .footer-nav{display:flex;justify-content:center;gap:18px;font-size:13px;font-weight:700;color:var(--ink-soft);margin-bottom:10px; flex-wrap:wrap;}
+  .footer-nav a{text-decoration:none;}
+  .reset-demo-link{display:block; text-align:center; font-size:11px; color:var(--ink-soft); text-decoration:underline; cursor:pointer; margin-top:14px; opacity:0.6;}
+  .reset-demo-link:hover{opacity:1;}
+  .nav-toggle{
+    display:none;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:5px;
+    width:40px;height:40px;
+    border:2px solid var(--ink);
+    border-radius:10px;
+    background:#fff;
+    cursor:pointer;
+    padding:0;
+    flex-shrink:0;
+  }
+  .nav-toggle span{
+    display:block;
+    width:20px;height:2px;
+    background:var(--ink);
+    border-radius:2px;
+    transition:transform 0.2s ease, opacity 0.2s ease;
+  }
+  .nav-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .nav-toggle.open span:nth-child(2){opacity:0;}
+  .nav-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+  @media (max-width:860px){
+    .nav-toggle{display:flex;}
+    .nav-links{
+      display:none;
+      position:absolute;
+      top:100%; left:0; right:0;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:16px;
+      background:var(--cream);
+      border:2px solid var(--ink);
+      border-radius:14px;
+      padding:20px;
+      margin-top:8px;
+      z-index:200;
+      box-shadow:0 14px 30px rgba(43,42,40,0.18);
+    }
+    .nav-links.open{display:flex;}
+  }
+  .join-cta-link{
+    background:var(--coral);
+    color:#fff !important;
+    padding:9px 18px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:800;
+    transition:transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .join-cta-link:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 16px rgba(43,42,40,0.18);
+  }
+  .join-cta-link::after{display:none !important;}
+  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
+  .back-nav-btn:hover{color:var(--coral-dark);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a href="index.html" style="text-decoration:none;">
+      <div class="logo">
+        <div class="logo-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="8" width="14" height="11" rx="4" fill="white"/><rect x="9" y="3" width="2.5" height="6" rx="1.25" fill="white"/><circle cx="10" cy="2.5" r="1.5" fill="white"/><circle cx="9.5" cy="13.5" r="1.8" fill="#FF6B4A"/><circle cx="14.5" cy="13.5" r="1.8" fill="#FF6B4A"/></svg></div>
+        ROcodeFest
+      </div>
+    </a>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <div class="nav-links">
+      <a href="learn-more.html">About</a>
+      <span class="nav-rules-wrap"><a href="rules.html">Rules</a><span class="rules-badge" id="rules-badge"></span></span>
+      <a href="events.html">Events</a>
+      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Contest Day</a>
+      <a href="forum.html">Forum</a>
+      <a href="login.html" id="nav-login-link" style="font-size:13px;">Log in</a>
+      <a href="register.html" id="nav-register-link">Register</a>
+      <a href="join-as.html" class="join-cta-link">Get involved</a>
+    </div>
+  </nav>
+<script>
+(function(){
+  var toggle = document.getElementById("nav-toggle");
+  var links = document.querySelector(".nav-links");
+  if(!toggle || !links) return;
+  toggle.addEventListener("click", function(){
+    var open = links.classList.toggle("open");
+    toggle.classList.toggle("open", open);
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  links.querySelectorAll("a").forEach(function(a){
+    a.addEventListener("click", function(){
+      links.classList.remove("open");
+      toggle.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    });
+  });
+  document.addEventListener("click", function(e){
+    if(links.classList.contains("open") && !links.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)){
+      links.classList.remove("open");
+      toggle.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    }
+  });
+})();
+</script>
+<script>
+(function(){
+  var loginLink = document.getElementById('nav-login-link');
+  if(!loginLink) return;
+  var hasSession = false;
+  ['rocodefest_session','rocodefest_member_session','rocodefest_partner_session'].forEach(function(key){
+    try { if(JSON.parse(localStorage.getItem(key) || 'null')) hasSession = true; } catch(e){}
+  });
+  if(hasSession){ loginLink.style.display = 'none'; }
+})();
+</script>
+
+<script>
+(function(){
+  // TODO: provisional -- contest day gating is a simple date check for now;
+  // the real event window/date will come from the backend once available.
+  // Add ?preview=1 to the URL to preview the Contest Day page/link outside
+  // the event window for visual testing.
+  var contestDayLink = document.getElementById('nav-contest-day-link');
+  if(!contestDayLink) return;
+  var params = new URLSearchParams(window.location.search);
+  var preview = params.get('preview') === '1';
+  var EVENT_DATE = new Date('2026-11-14T00:00:00');
+  var now = new Date();
+  var isContestDay = now.getFullYear() === EVENT_DATE.getFullYear() && now.getMonth() === EVENT_DATE.getMonth() && now.getDate() === EVENT_DATE.getDate();
+  if(isContestDay || preview){ contestDayLink.style.display = ''; }
+})();
+</script>
+  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Go back">&larr; Back</button>
+<script>
+  // TODO: provisional -- prefers the page that actually linked here
+  // (deterministic, avoids bouncing in a back/forward loop); falls back to
+  // browser history, then the homepage if there's nothing to go back to.
+  function goBack(){
+    if(document.referrer && document.referrer.indexOf(window.location.origin) === 0 && document.referrer !== window.location.href){
+      window.location.href = document.referrer;
+    } else if(window.history.length > 1){
+      window.history.back();
+    } else {
+      window.location.href = 'index.html';
+    }
+  }
+</script>
+
+  <section class="page-hero">
+    <div class="eyebrow">Competition day</div>
+    <h1>Appeals system</h1>
+    <p>Each team can submit up to 3 appeals per event. Appeals reference a specific moment in the live feed.</p>
+  </section>
+
+  
+  <div id="no-club-a" class="card" style="text-align:center; display:none;">
+    <p style="color:var(--ink-soft);">Log in with your club account to file appeals.</p>
+    <a class="btn btn-primary" href="login.html">Log in &rarr;</a>
+  </div>
+  <div id="appeal-wrap" style="display:none;">
+    <div class="card">
+      <div class="field"><label>Select your team</label>
+        <select id="ap-team"><option value="">Choose...</option></select></div>
+      <div class="field">
+        <label>Timestamp in the live feed</label>
+        <div class="ts-row">
+          <div class="ts-picker">
+            <input type="number" id="ap-ts-h" class="ts-input" min="0" max="23" placeholder="H">
+            <span class="ts-sep">:</span>
+            <input type="number" id="ap-ts-m" class="ts-input" min="0" max="59" placeholder="MM">
+            <span class="ts-sep">:</span>
+            <input type="number" id="ap-ts-s" class="ts-input" min="0" max="59" placeholder="SS">
+          </div>
+          <a href="livestream.html" target="_blank" rel="noopener" class="btn btn-secondary btn-small">▶ Open live stream</a>
+        </div>
+      </div>
+      <div class="field"><label>Against which score/decision</label><input id="ap-target" placeholder="e.g. Round 2 score"></div>
+      <div class="field"><label>Reason for appeal *</label><textarea id="ap-reason" rows="3" placeholder="Explain what happened and why you believe the score or decision should be reviewed..."></textarea></div>
+      <!-- TODO: placeholder — rule codes are a mock taxonomy for visual testing only; official codes + real linking to the regulations will come once the backend is connected. -->
+      <div class="field rules-ref-row">
+        <div class="field">
+          <label>Rule being appealed (optional)</label>
+          <select id="ap-rule-code"><option value="">— Not sure / other —</option></select>
+        </div>
+        <button type="button" class="btn btn-secondary btn-small" id="ap-ref-rules-btn" title="Mock only — will open the official regulations once the backend is connected">📖 Reference Rules</button>
+      </div>
+      <p class="rule-hint">Mock selector for now — will reference the exact rule (e.g. G4, A21, E2…) once regulations content is backend-driven.</p>
+      <button class="btn btn-primary" style="width:100%; margin-top:14px;" id="ap-btn">File appeal</button>
+      <p class="error-msg" id="ap-error"></p>
+    </div>
+    <h2 style="margin-top:30px;">Your appeals</h2>
+    <div id="ap-list" class="empty-state">No appeals filed.</div>
+  </div>
+    
+
+  <footer>
+    <div class="footer-nav">
+      <a href="news.html">News</a> <a href="resources.html">Resources</a>
+      <a href="founding-teams.html">Teams</a> <a href="organizations.html">Clubs</a>
+      <a href="leaderboard.html">Leaderboard</a> <a href="forum.html">Forum</a>
+      <a href="livestream.html">Live</a> <a href="contact.html">Contact</a>
+    </div>
+    ROcodeFest · Season 1 · Built by students, for students
+    <a class="reset-demo-link" id="reset-demo-link">Reset demo data</a>
+  </footer>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var nav = document.querySelector('nav');
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 10){ nav.classList.add('scrolled'); } else { nav.classList.remove('scrolled'); }
+  });
+  var RULES_VERSION = '2026-07-28';
+  var seen = localStorage.getItem('rocodefest_rules_seen');
+  var badge = document.getElementById('rules-badge');
+  if(badge && seen !== RULES_VERSION){ badge.classList.add('show'); }
+
+  var session2 = null;
+  try { session2 = JSON.parse(localStorage.getItem('rocodefest_session') || 'null'); } catch(e){ session2 = null; }
+  var memberSessionNav = null;
+  try { memberSessionNav = JSON.parse(localStorage.getItem('rocodefest_member_session') || 'null'); } catch(e){ memberSessionNav = null; }
+  var regLink = document.getElementById('nav-register-link');
+  if(session2 && regLink){
+    var savedClubAvatar = localStorage.getItem('rocodefest_avatar_' + session2.clubName);
+    if(savedClubAvatar){ regLink.style.backgroundImage = 'url(' + savedClubAvatar + ')'; regLink.textContent = ''; }
+    else { regLink.textContent = (session2.clubName || '?').trim().charAt(0).toUpperCase(); }
+    regLink.classList.add('profile-avatar');
+    regLink.title = session2.clubName + ' — click to view your club';
+    regLink.href = 'profile.html';
+  } else if(memberSessionNav && regLink){
+    regLink.textContent = (memberSessionNav.memberName || '?').trim().charAt(0).toUpperCase();
+    regLink.classList.add('profile-avatar', 'member-avatar');
+    regLink.title = memberSessionNav.memberName;
+    regLink.href = 'member-profile.html';
+  }
+  var resetLink = document.getElementById('reset-demo-link');
+  if(resetLink){
+    resetLink.addEventListener('click', function(){
+      if(confirm('Clear all ROcodeFest demo data?')){
+        Object.keys(localStorage).forEach(function(key){
+          if(key.indexOf('rocodefest_') === 0){ localStorage.removeItem(key); }
+        });
+        window.location.href = 'index.html';
+      }
+    });
+  }
+
+  // TODO: placeholder — mock rule-code taxonomy for visual testing of the
+  // "Reference Rules" selector only. Official codes will come from the
+  // regulations via the backend once available.
+  var RULE_CODES = [
+    { code:'G1', label:'Same task, every city' },
+    { code:'G2', label:'Team size & eligibility' },
+    { code:'G3', label:'Club structure' },
+    { code:'G4', label:'Conduct' },
+    { code:'E2', label:'Intellectual property' },
+    { code:'A21', label:'Appeals limit (3/day)' },
+    { code:'S1', label:'City challenge (Stage 1)' },
+    { code:'S2', label:'Scoring rubric' },
+    { code:'S3', label:'Advancement' },
+    { code:'S4', label:'The final (Stage 2)' },
+    { code:'S5', label:'Prizes' },
+    { code:'S6', label:'Certificates' }
+  ];
+  var ruleSelect = document.getElementById('ap-rule-code');
+  RULE_CODES.forEach(function(r){
+    var o = document.createElement('option');
+    o.value = r.code;
+    o.textContent = r.code + ' — ' + r.label;
+    ruleSelect.appendChild(o);
+  });
+  // TODO: placeholder — intentionally not navigating anywhere yet. Once the
+  // backend serves real regulations content, this will deep-link to the
+  // selected rule. Flashes the hint text so the button still gives visible
+  // feedback instead of appearing unresponsive.
+  var ruleHintTimer = null;
+  document.getElementById('ap-ref-rules-btn').addEventListener('click', function(){
+    var hint = document.querySelector('.rule-hint');
+    if(!hint) return;
+    if(!hint.getAttribute('data-original')){ hint.setAttribute('data-original', hint.textContent); }
+    hint.textContent = '📖 Mock only for now — this will open the official regulations once the backend is connected.';
+    hint.style.color = 'var(--coral-dark)';
+    hint.style.fontWeight = '700';
+    clearTimeout(ruleHintTimer);
+    ruleHintTimer = setTimeout(function(){
+      hint.textContent = hint.getAttribute('data-original');
+      hint.style.color = '';
+      hint.style.fontWeight = '';
+    }, 2400);
+  });
+
+  function pad2(n){ n = parseInt(n,10) || 0; return (n < 10 ? '0' : '') + n; }
+  function readTimestamp(){
+    var h = parseInt(document.getElementById('ap-ts-h').value, 10) || 0;
+    var m = document.getElementById('ap-ts-m').value;
+    var s = document.getElementById('ap-ts-s').value;
+    if(!m && !s && !h) return '';
+    return h + ':' + pad2(m) + ':' + pad2(s);
+  }
+  function clearTimestamp(){
+    document.getElementById('ap-ts-h').value = '';
+    document.getElementById('ap-ts-m').value = '';
+    document.getElementById('ap-ts-s').value = '';
+  }
+
+  var clubSession = null;
+  try { clubSession = JSON.parse(localStorage.getItem('rocodefest_session') || 'null'); } catch(e){}
+  if(!clubSession){ document.getElementById('no-club-a').style.display = 'block'; }
+  else {
+    document.getElementById('appeal-wrap').style.display = 'block';
+    var teams = []; try { teams = JSON.parse(localStorage.getItem('rocodefest_teams') || '[]'); } catch(e){}
+    var mine = teams.filter(function(t){ return t.clubName === clubSession.clubName; });
+    var sel = document.getElementById('ap-team');
+    mine.forEach(function(t){ var o = document.createElement('option'); o.value = t.teamName; o.textContent = t.teamName; sel.appendChild(o); });
+
+    function getAppeals(){ try { return JSON.parse(localStorage.getItem('rocodefest_appeals') || '[]'); } catch(e){ return []; } }
+    function renderAppeals(){
+      var all = getAppeals().filter(function(a){ return a.club === clubSession.clubName; });
+      var wrap = document.getElementById('ap-list');
+      if(all.length === 0){ wrap.innerHTML = '<div class="empty-state">No appeals filed.</div>'; return; }
+      wrap.innerHTML = '<div class="card">' + all.reverse().map(function(a){
+        var st = a.status || 'pending';
+        var cls = st === 'accepted' ? 'ap-accepted' : st === 'rejected' ? 'ap-rejected' : 'ap-pending';
+        var ruleTag = a.ruleCode ? '<span class="ap-rule-tag">' + a.ruleCode + '</span>' : ''; // TODO: placeholder — will link to the regulations once backend content exists
+        return '<div class="ap-item"><strong>' + a.team + '</strong> <span class="ap-status ' + cls + '">' + st + '</span>' + ruleTag + '<br><span style="font-size:12px;color:var(--ink-soft);">Timestamp: ' + (a.timestamp||'N/A') + ' &middot; Against: ' + (a.target||'N/A') + '</span><p style="font-size:13px;margin:6px 0 0;">' + a.reason + '</p></div>';
+      }).join('') + '</div>';
+    }
+    renderAppeals();
+
+    document.getElementById('ap-btn').addEventListener('click', function(){
+      var team = sel.value; var reason = document.getElementById('ap-reason').value.trim();
+      var errEl = document.getElementById('ap-error');
+      if(!team || !reason){ errEl.textContent = 'Please select a team and explain your appeal.'; errEl.classList.add('show'); return; }
+      var teamAppeals = getAppeals().filter(function(a){ return a.team === team && a.status === 'rejected'; });
+      if(teamAppeals.length >= 3){ errEl.textContent = 'This team has reached the limit of 3 invalid appeals. No further appeals can be filed.'; errEl.classList.add('show'); return; }
+      errEl.classList.remove('show');
+      var appeals = getAppeals();
+      appeals.push({ club:clubSession.clubName, team:team, timestamp:readTimestamp(), target:document.getElementById('ap-target').value.trim(), ruleCode:ruleSelect.value, reason:reason, status:'pending', date:new Date().toISOString() });
+      localStorage.setItem('rocodefest_appeals', JSON.stringify(appeals));
+      document.getElementById('ap-reason').value = ''; clearTimestamp(); document.getElementById('ap-target').value = ''; ruleSelect.value = ''; sel.value = '';
+      renderAppeals();
+    });
+  }
+
+});
+</script>
+</body>
+</html>

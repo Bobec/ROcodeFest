@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Become a Partner — ROcodeFest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF9EF; --ink:#2B2A28; --ink-soft:#6B6660;
+    --blue:#3E9DD1; --blue-light:#E4F3FA;
+    --yellow:#FFC857; --yellow-light:#FFF3D9;
+    --coral:#FF6B4A; --coral-dark:#D8492C;
+    --green:#4CAF7D; --green-light:#E4F5EC;
+    --radius-lg:28px; --radius-md:18px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Nunito',sans-serif;line-height:1.6;}
+  h1,h2,h3{font-family:'Baloo 2',sans-serif;font-weight:700;margin:0;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px;}
+  a{color:inherit;}
+  html{scroll-behavior:smooth;}
+  nav{
+    position:sticky; top:0; z-index:50;
+    display:flex;justify-content:space-between;align-items:center;padding:24px 0;
+    background:var(--cream);
+    transition:box-shadow 0.3s ease;
+  }
+  nav.scrolled{box-shadow:0 2px 14px rgba(43,42,40,0.08);}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;}
+  .logo-dot{width:34px;height:34px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;}
+  .nav-links{display:flex;gap:22px;font-weight:700;font-size:14px;color:var(--ink-soft);align-items:center;}
+  .nav-links a{text-decoration:none; position:relative; transition:color 0.2s ease;}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:2px;background:var(--coral);transition:width 0.25s ease;}
+  .nav-links a:hover{color:var(--coral-dark);}
+  .nav-links a:hover::after{width:100%;}
+  .partner-link{background:var(--ink);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .partner-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
+  .partner-link::after{display:none !important;}
+  .nav-rules-wrap{position:relative;}
+  .rules-badge{position:absolute;top:-4px;right:-10px;width:9px;height:9px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 2px var(--cream);display:none;}
+  .rules-badge.show{display:block;}
+  @media (max-width:860px){ .nav-links{display:none;} }
+
+  .page-hero{padding:30px 0 20px;text-align:center;}
+  .eyebrow{font-weight:800;color:var(--coral-dark);font-size:13px;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:10px;}
+  .page-hero h1{font-size:38px;max-width:640px;margin:0 auto 16px;}
+  .page-hero p{color:var(--ink-soft);font-size:17px;max-width:560px;margin:0 auto;}
+
+  .perks-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:30px 0;}
+  @media (max-width:700px){ .perks-row{grid-template-columns:1fr;} }
+  .perk{background:var(--blue-light); border-radius:var(--radius-md); padding:20px; text-align:center;}
+  .perk .emoji-circle{width:42px;height:42px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:20px;}
+  .perk p{font-size:13px; font-weight:700; margin:0;}
+
+  .form-card{
+    background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg);
+    padding:36px; max-width:560px; margin:10px auto 30px;
+  }
+  .field{margin-bottom:18px; text-align:left;}
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:560px){ .field-row{grid-template-columns:1fr;} }
+  label{display:block; font-weight:700; font-size:13px; margin-bottom:6px; color:var(--ink);}
+  input, textarea, select{
+    width:100%; padding:11px 14px; border-radius:12px;
+    border:2px solid #E4E1D8; font-family:'Nunito',sans-serif; font-size:14px;
+    background:var(--cream); transition:border-color 0.2s ease;
+  }
+  input:focus, textarea:focus, select:focus{ outline:none; border-color:var(--blue); }
+  input.invalid, textarea.invalid{ border-color:var(--coral); }
+  .error{display:none; color:var(--coral-dark); font-size:12px; font-weight:700; margin-top:5px;}
+  .error.show{display:block;}
+  .form-note{font-size:12px; color:var(--ink-soft); text-align:center; margin-top:14px;}
+  .success-panel{display:none; text-align:center; padding:20px 0;}
+  .success-panel.show{display:block;}
+  #partner-form.hide{display:none;}
+  .success-badge{font-size:44px; margin-bottom:10px;}
+  .success-panel h2{font-size:26px; margin-bottom:8px;}
+  .success-panel p{color:var(--ink-soft); margin-bottom:22px;}
+
+  .demo-note{
+    max-width:560px; margin:0 auto 40px; background:var(--yellow-light);
+    border-radius:var(--radius-md); padding:20px 24px;
+  }
+  .demo-note p{font-size:13px; color:var(--ink-soft); margin:0;}
+  .demo-note strong{color:var(--ink);}
+
+  .btn{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;display:inline-block;}
+  .btn-primary{background:var(--coral);color:#fff;}
+  .btn-secondary{background:#fff; color:var(--ink); border:2px solid var(--ink);}
+
+  footer{padding:24px 0 40px;text-align:center;font-size:13px;color:var(--ink-soft);}
+  .footer-nav{display:flex;justify-content:center;gap:22px;font-size:13px;font-weight:700;color:var(--ink-soft);margin-bottom:10px;}
+  .footer-nav a{text-decoration:none;}
+
+  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .speaker-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
+  .speaker-link::after{display:none !important;}
+
+  .profile-avatar{
+    width:32px; height:32px;
+    border-radius:50%;
+    background:var(--coral);
+    color:#fff !important;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:14px;
+    text-decoration:none;
+    transition:transform 0.2s ease, box-shadow 0.2s ease; background-size:cover; background-position:center;
+  }
+  .profile-avatar:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 16px rgba(43,42,40,0.18);
+  }
+  .profile-avatar::after{display:none !important;}
+  .profile-avatar.member-avatar{background:var(--blue);}
+
+
+  .reset-demo-link{
+    display:block; text-align:center; font-size:11px; color:var(--ink-soft);
+    text-decoration:underline; cursor:pointer; margin-top:14px; opacity:0.6;
+  }
+  .reset-demo-link:hover{opacity:1;}
+  .nav-toggle{
+    display:none;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:5px;
+    width:40px;height:40px;
+    border:2px solid var(--ink);
+    border-radius:10px;
+    background:#fff;
+    cursor:pointer;
+    padding:0;
+    flex-shrink:0;
+  }
+  .nav-toggle span{
+    display:block;
+    width:20px;height:2px;
+    background:var(--ink);
+    border-radius:2px;
+    transition:transform 0.2s ease, opacity 0.2s ease;
+  }
+  .nav-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .nav-toggle.open span:nth-child(2){opacity:0;}
+  .nav-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+  @media (max-width:860px){
+    .nav-toggle{display:flex;}
+    .nav-links{
+      display:none;
+      position:absolute;
+      top:100%; left:0; right:0;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:16px;
+      background:var(--cream);
+      border:2px solid var(--ink);
+      border-radius:14px;
+      padding:20px;
+      margin-top:8px;
+      z-index:200;
+      box-shadow:0 14px 30px rgba(43,42,40,0.18);
+    }
+    .nav-links.open{display:flex;}
+  }
+  .join-cta-link{
+    background:var(--coral);
+    color:#fff !important;
+    padding:9px 18px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:800;
+    transition:transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .join-cta-link:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 16px rgba(43,42,40,0.18);
+  }
+  .join-cta-link::after{display:none !important;}
+  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
+  .back-nav-btn:hover{color:var(--coral-dark);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a href="index.html" style="text-decoration:none;">
+      <div class="logo">
+        <div class="logo-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="8" width="14" height="11" rx="4" fill="white"/><rect x="9" y="3" width="2.5" height="6" rx="1.25" fill="white"/><circle cx="10" cy="2.5" r="1.5" fill="white"/><circle cx="9.5" cy="13.5" r="1.8" fill="#FF6B4A"/><circle cx="14.5" cy="13.5" r="1.8" fill="#FF6B4A"/></svg></div>
+        ROcodeFest
+      </div>
+    </a>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <div class="nav-links">
+      <a href="learn-more.html">About</a>
+      <span class="nav-rules-wrap"><a href="rules.html">Rules</a><span class="rules-badge" id="rules-badge"></span></span>
+      <a href="events.html">Events</a>
+      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Contest Day</a>
+      <a href="forum.html">Forum</a>
+      <a href="login.html" id="nav-login-link" style="font-size:13px;">Log in</a>
+      <a href="register.html" id="nav-register-link">Register</a>
+      <a href="join-as.html" class="join-cta-link">Get involved</a>
+    </div>
+  </nav>
+<script>
+(function(){
+  var toggle = document.getElementById("nav-toggle");
+  var links = document.querySelector(".nav-links");
+  if(!toggle || !links) return;
+  toggle.addEventListener("click", function(){
+    var open = links.classList.toggle("open");
+    toggle.classList.toggle("open", open);
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  links.querySelectorAll("a").forEach(function(a){
+    a.addEventListener("click", function(){
+      links.classList.remove("open");
+      toggle.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    });
+  });
+  document.addEventListener("click", function(e){
+    if(links.classList.contains("open") && !links.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)){
+      links.classList.remove("open");
+      toggle.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    }
+  });
+})();
+</script>
+<script>
+(function(){
+  var loginLink = document.getElementById('nav-login-link');
+  if(!loginLink) return;
+  var hasSession = false;
+  ['rocodefest_session','rocodefest_member_session','rocodefest_partner_session'].forEach(function(key){
+    try { if(JSON.parse(localStorage.getItem(key) || 'null')) hasSession = true; } catch(e){}
+  });
+  if(hasSession){ loginLink.style.display = 'none'; }
+})();
+</script>
+
+<script>
+(function(){
+  // TODO: provisional -- contest day gating is a simple date check for now;
+  // the real event window/date will come from the backend once available.
+  // Add ?preview=1 to the URL to preview the Contest Day page/link outside
+  // the event window for visual testing.
+  var contestDayLink = document.getElementById('nav-contest-day-link');
+  if(!contestDayLink) return;
+  var params = new URLSearchParams(window.location.search);
+  var preview = params.get('preview') === '1';
+  var EVENT_DATE = new Date('2026-11-14T00:00:00');
+  var now = new Date();
+  var isContestDay = now.getFullYear() === EVENT_DATE.getFullYear() && now.getMonth() === EVENT_DATE.getMonth() && now.getDate() === EVENT_DATE.getDate();
+  if(isContestDay || preview){ contestDayLink.style.display = ''; }
+})();
+</script>
+  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Go back">&larr; Back</button>
+<script>
+  // TODO: provisional -- prefers the page that actually linked here
+  // (deterministic, avoids bouncing in a back/forward loop); falls back to
+  // browser history, then the homepage if there's nothing to go back to.
+  function goBack(){
+    if(document.referrer && document.referrer.indexOf(window.location.origin) === 0 && document.referrer !== window.location.href){
+      window.location.href = document.referrer;
+    } else if(window.history.length > 1){
+      window.history.back();
+    } else {
+      window.location.href = 'index.html';
+    }
+  }
+</script>
+
+  <section class="page-hero">
+    <div class="eyebrow">Partner with us</div>
+    <h1>Help build season one</h1>
+    <p>ROcodeFest is looking for founding partners — sponsors, organizations, and speakers who want to be part of a first season.</p>
+  </section>
+
+  <div class="perks-row">
+    <div class="perk"><div class="emoji-circle">🏷️</div><p>Logo on the site & event day</p></div>
+    <div class="perk"><div class="emoji-circle">📣</div><p>Featured in press materials</p></div>
+    <div class="perk"><div class="emoji-circle">🤝</div><p>Direct access to founding teams</p></div>
+  </div>
+
+  <div class="form-card">
+    <form id="partner-form" novalidate>
+      <div class="field">
+        <label for="org-name">Organization / company name *</label>
+        <input type="text" id="org-name" required placeholder="e.g. Acme Robotics">
+        <span class="error" id="err-org-name">Please enter an organization name.</span>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="contact-name">Contact name *</label>
+          <input type="text" id="contact-name" required placeholder="Full name">
+          <span class="error" id="err-contact-name">Please enter a name.</span>
+        </div>
+        <div class="field">
+          <label for="partner-type">Partnership type *</label>
+          <select id="partner-type" required>
+            <option value="">Select one</option>
+            <option value="Sponsor">Sponsor</option>
+            <option value="Speaker">Speaker</option>
+            <option value="Media partner">Media partner</option>
+            <option value="Other">Other</option>
+          </select>
+          <span class="error" id="err-partner-type">Please choose an option.</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="partner-email">Contact email *</label>
+        <input type="email" id="partner-email" required placeholder="you@example.com">
+        <span class="error" id="err-partner-email">Please enter a valid email.</span>
+      </div>
+
+      <div class="field">
+        <label for="partner-message">Tell us how you'd like to get involved</label>
+        <textarea id="partner-message" rows="3" placeholder="Optional"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%;">Submit application →</button>
+      <p class="form-note">This is a working demo form — see the note below about how submissions are currently handled.</p>
+    </form>
+
+    <div id="success-panel" class="success-panel">
+      <div class="success-badge">🤝</div>
+      <h2 id="success-heading">Thanks for reaching out!</h2>
+      <p id="success-detail">We'll be in touch soon.</p>
+      <a class="btn btn-primary" href="partner-dashboard.html">Go to your dashboard →</a>
+      <a class="btn btn-secondary" href="contact.html#sponsors">See current partners →</a>
+    </div>
+  </div>
+
+  <div class="demo-note">
+    <p><strong>How this works right now:</strong> like the registration form, this saves applications to your own browser only, as a local demo. To collect real partner applications, this needs to be connected to a shared backend — happy to help set that up once you're ready.</p>
+  </div>
+
+  <footer>
+        <div class="footer-nav">
+      <a href="news.html">News</a> <a href="resources.html">Resources</a>
+      <a href="founding-teams.html">Teams</a> <a href="organizations.html">Clubs</a>
+      <a href="leaderboard.html">Leaderboard</a> <a href="forum.html">Forum</a>
+      <a href="livestream.html">Live</a> <a href="contact.html">Contact</a>
+    </div>
+    ROcodeFest · Season 1 · Built by students, for students
+    <a class="reset-demo-link" id="reset-demo-link">Reset demo data (clears all local test accounts/teams)</a>
+  </footer>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var nav = document.querySelector('nav');
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 10){ nav.classList.add('scrolled'); } else { nav.classList.remove('scrolled'); }
+  });
+
+  var RULES_VERSION = '2026-07-28';
+  var seen = localStorage.getItem('rocodefest_rules_seen');
+  var badge = document.getElementById('rules-badge');
+  if(badge && seen !== RULES_VERSION){ badge.classList.add('show'); }
+
+  // If logged in, swap the Register link for a profile avatar
+  var session2 = null;
+  try { session2 = JSON.parse(localStorage.getItem('rocodefest_session') || 'null'); } catch(e){ session2 = null; }
+  var memberSessionNav = null;
+  try { memberSessionNav = JSON.parse(localStorage.getItem('rocodefest_member_session') || 'null'); } catch(e){ memberSessionNav = null; }
+  var regLink = document.getElementById('nav-register-link');
+  if(session2 && regLink){
+    var initial = (session2.clubName || '?').trim().charAt(0).toUpperCase();
+    var savedClubAvatar = localStorage.getItem('rocodefest_avatar_' + session2.clubName);
+    if(savedClubAvatar){
+      regLink.style.backgroundImage = 'url(' + savedClubAvatar + ')';
+      regLink.textContent = '';
+    } else {
+      regLink.textContent = initial;
+    }
+    regLink.classList.remove('nav-plain-link');
+    regLink.classList.add('profile-avatar');
+    regLink.title = session2.clubName + ' — click to view your club';
+    regLink.href = 'profile.html';
+  } else if(memberSessionNav && regLink){
+    var mInitial = (memberSessionNav.memberName || '?').trim().charAt(0).toUpperCase();
+    regLink.textContent = mInitial;
+    regLink.classList.remove('nav-plain-link');
+    regLink.classList.add('profile-avatar', 'member-avatar');
+    regLink.title = memberSessionNav.memberName + ' — click to view your profile';
+    regLink.href = 'member-profile.html';
+  }
+
+
+  var form = document.getElementById('partner-form');
+  var fields = {
+    'org-name': { el: document.getElementById('org-name'), err: document.getElementById('err-org-name'), validate: function(v){ return v.trim().length > 0; } },
+    'contact-name': { el: document.getElementById('contact-name'), err: document.getElementById('err-contact-name'), validate: function(v){ return v.trim().length > 0; } },
+    'partner-type': { el: document.getElementById('partner-type'), err: document.getElementById('err-partner-type'), validate: function(v){ return v.trim().length > 0; } },
+    'partner-email': { el: document.getElementById('partner-email'), err: document.getElementById('err-partner-email'), validate: function(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); } }
+  };
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var allValid = true;
+
+    Object.keys(fields).forEach(function(key){
+      var f = fields[key];
+      var valid = f.validate(f.el.value);
+      if(!valid){
+        allValid = false;
+        f.el.classList.add('invalid');
+        f.err.classList.add('show');
+      } else {
+        f.el.classList.remove('invalid');
+        f.err.classList.remove('show');
+      }
+    });
+
+    if(!allValid) return;
+
+    var orgName = fields['org-name'].el.value.trim();
+    var contactName = fields['contact-name'].el.value.trim();
+    var partnerType = fields['partner-type'].el.value;
+    var email = fields['partner-email'].el.value.trim();
+    var message = document.getElementById('partner-message').value.trim();
+
+    var existing = [];
+    try {
+      existing = JSON.parse(localStorage.getItem('rocodefest_partners') || '[]');
+    } catch(err) { existing = []; }
+
+    existing.push({
+      orgName: orgName,
+      contactName: contactName,
+      partnerType: partnerType,
+      email: email,
+      message: message,
+      date: new Date().toISOString()
+    });
+
+    localStorage.setItem('rocodefest_partners', JSON.stringify(existing));
+    localStorage.setItem('rocodefest_partner_session', JSON.stringify(existing[existing.length - 1]));
+
+    document.getElementById('success-heading').textContent = 'Thanks, ' + orgName + '!';
+    document.getElementById('success-detail').textContent = 'Your ' + partnerType.toLowerCase() + ' application has been received. We\'ll follow up at ' + email + '.';
+    form.classList.add('hide');
+    document.getElementById('success-panel').classList.add('show');
+  });
+});
+
+  var resetLink = document.getElementById('reset-demo-link');
+  if(resetLink){
+    resetLink.addEventListener('click', function(){
+      if(confirm('This clears all ROcodeFest demo data from this browser (teams, member profiles, requests). Continue?')){
+        Object.keys(localStorage).forEach(function(key){
+          if(key.indexOf('rocodefest_') === 0){ localStorage.removeItem(key); }
+        });
+        window.location.href = 'index.html';
+      }
+    });
+  }
+</script>
+</body>
+</html>

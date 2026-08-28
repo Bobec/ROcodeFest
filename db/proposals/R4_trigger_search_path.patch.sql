@@ -1,0 +1,111 @@
+-- =====================================================================
+-- PROPOSAL R4 — pin search_path on trigger functions
+-- =====================================================================
+-- STATUS: ADOPTED on 2026-08-27. This file is now a RECORD, not a
+-- migration: its contents were folded into 01_oltp_schema.sql and the
+-- pipeline builds them from there. Do NOT run it against a current
+-- database -- it would fail on objects that already exist. It is kept
+-- because the reasoning here is the reasoning behind the schema, and
+-- 01_ carries only the short form of it.
+--
+-- SEVERITY: this one is not a modelling nicety. On the schema as
+-- shipped today, an ordinary client connection cannot insert a
+-- submission at all.
+--
+-- HOW IT WAS FOUND
+-- ----------------
+-- Incidental to the Phase 2 resubmission testing: a probe that ran
+-- statements WITHOUT setting search_path failed, while the same
+-- statements inside the test suites succeeded. Reproduced on a clean
+-- database with no patches applied:
+--
+--   -- search_path = public (a normal application connection)
+--   INSERT INTO oltp.submissions(...) ...
+--   ERROR:  relation "submissions" does not exist
+--   LINE 1: ...ESCE(MAX(version), 0) + 1  FROM submission...
+--
+--   -- search_path = oltp, public
+--   INSERT INTO oltp.submissions(...) ...
+--   OK version 1
+--
+-- CAUSE
+-- -----
+-- 01_oltp_schema.sql sets `SET search_path = oltp, public` for the
+-- LOADING SESSION so its unqualified CREATE statements land in oltp.
+-- That is correct for DDL. But plpgsql resolves table names at
+-- EXECUTION time against the CALLER's search_path, not the one in
+-- effect when the function was created. The trigger bodies query
+-- unqualified names -- `FROM submissions`, `FROM memberships`,
+-- `FROM appeals`, `FROM accounts` -- so they only work for callers who
+-- happen to have oltp on their path.
+--
+-- The existing test suites all set `search_path = ... , oltp, public`
+-- at the top, which is exactly why 213/213 stayed green while this was
+-- broken for everyone else. The suites were not wrong; they simply
+-- never exercised a default connection.
+--
+-- Affected (every trigger function in 01_oltp_schema.sql):
+--   set_updated_at, enforce_subtype_role, enforce_team_capacity,
+--   enforce_appeal_limit, assign_submission_version,
+--   enforce_single_notification_link
+-- (set_updated_at touches no tables, so it is unaffected in practice;
+--  included below for uniformity rather than necessity.)
+--
+-- FIX
+-- ---
+-- Pin the resolution path on the function itself. `SET search_path` in
+-- the function definition makes the setting local to each call and
+-- independent of the caller, which is also the standard hardening
+-- against search_path injection for SECURITY DEFINER-style code.
+--
+-- Two alternatives, both rejected:
+--   * Schema-qualify every reference inside the bodies. Equivalent in
+--     effect, but it is a larger edit and a future body can silently
+--     regress by adding one unqualified name.
+--   * ALTER DATABASE ... SET search_path. Fixes one database, not the
+--     schema; a new deployment or a client overriding search_path
+--     breaks again.
+--
+-- The clause below must be added to each function's definition, e.g.:
+--
+--   CREATE OR REPLACE FUNCTION assign_submission_version()
+--   RETURNS trigger
+--   LANGUAGE plpgsql
+--   SET search_path = oltp, public          -- <== the addition
+--   AS $$ ... $$;
+--
+-- Applied as ALTER so the bodies in 01_oltp_schema.sql are untouched
+-- and the change is reviewable in isolation. If accepted, fold the
+-- clause into the CREATE statements in 01_oltp_schema.sql instead, so a
+-- fresh deploy is correct without needing this file.
+-- =====================================================================
+
+ALTER FUNCTION oltp.set_updated_at()                    SET search_path = oltp, public;
+ALTER FUNCTION oltp.enforce_subtype_role()              SET search_path = oltp, public;
+ALTER FUNCTION oltp.enforce_team_capacity()             SET search_path = oltp, public;
+ALTER FUNCTION oltp.enforce_appeal_limit()              SET search_path = oltp, public;
+ALTER FUNCTION oltp.assign_submission_version()         SET search_path = oltp, public;
+ALTER FUNCTION oltp.enforce_single_notification_link()  SET search_path = oltp, public;
+
+-- =====================================================================
+-- The regression test this needs, once adopted
+-- =====================================================================
+-- The existing suites cannot catch this, because they all set
+-- search_path themselves. A guard must deliberately NOT do so:
+--
+--   RESET search_path;   -- simulate a default client connection
+--   INSERT INTO oltp.submissions(team_id, challenge_id, title,
+--                                submitted_by_account_id)
+--     VALUES (...);      -- must succeed, exercising the version trigger
+--
+-- Same shape for a membership insert (enforce_team_capacity) and an
+-- appeal insert (enforce_appeal_limit). Worth one case per trigger, in
+-- 99_tests.sql Level 8, since each function resolves its own names.
+--
+-- OPEN QUESTION, not decided here: should 02_analytics_schema.sql and
+-- 03_etl.sql get the same treatment? analytics.run_etl and its phase
+-- functions reference oltp.* fully qualified already, and 03_etl.sql
+-- sets search_path at the top for its own DDL -- so they look safe, but
+-- that has NOT been probed with a default connection the way the OLTP
+-- triggers now have. Measure before claiming.
+-- =====================================================================

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team — ROcodeFest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF9EF; --ink:#2B2A28; --ink-soft:#6B6660;
+    --blue:#3E9DD1; --blue-light:#E4F3FA;
+    --yellow:#FFC857; --yellow-light:#FFF3D9;
+    --coral:#FF6B4A; --coral-dark:#D8492C;
+    --green:#4CAF7D; --green-light:#E4F5EC;
+    --purple:#8B7FD1; --purple-light:#ECEAFA;
+    --radius-lg:28px; --radius-md:18px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Nunito',sans-serif;line-height:1.6;}
+  h1,h2,h3{font-family:'Baloo 2',sans-serif;font-weight:700;margin:0;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px;}
+  a{color:inherit;}
+  html{scroll-behavior:smooth;}
+  nav{
+    position:sticky; top:0; z-index:50;
+    display:flex;justify-content:space-between;align-items:center;padding:24px 0;
+    background:var(--cream); transition:box-shadow 0.3s ease;
+  }
+  nav.scrolled{box-shadow:0 2px 14px rgba(43,42,40,0.08);}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;}
+  .logo-dot{width:34px;height:34px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;}
+  .nav-links{display:flex;gap:18px;font-weight:700;font-size:14px;color:var(--ink-soft);align-items:center;}
+  .nav-links a{text-decoration:none; position:relative; transition:color 0.2s ease;}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:2px;background:var(--coral);transition:width 0.25s ease;}
+  .nav-links a:hover{color:var(--coral-dark);}
+  .nav-links a:hover::after{width:100%;}
+  .nav-rules-wrap{position:relative;}
+  .rules-badge{position:absolute;top:-4px;right:-10px;width:9px;height:9px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 2px var(--cream);display:none;}
+  .rules-badge.show{display:block;}
+  .profile-avatar{
+    width:32px; height:32px; border-radius:50%; background:var(--coral); color:#fff !important;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:14px; text-decoration:none;
+    transition:transform 0.2s ease, box-shadow 0.2s ease; background-size:cover; background-position:center;
+  }
+  .profile-avatar:hover{transform:translateY(-2px); box-shadow:0 8px 16px rgba(43,42,40,0.18);}
+  .profile-avatar::after{display:none !important;}
+  .profile-avatar.member-avatar{background:var(--blue);}
+  @media (max-width:860px){ .nav-links{display:none;} }
+
+  .back-link{display:inline-block; font-size:13px; font-weight:800; color:var(--ink-soft); margin:22px 0 6px; text-decoration:none;}
+  .back-link:hover{color:var(--coral-dark);}
+
+  .not-logged-in{
+    text-align:center; padding:70px 20px; background:#fff;
+    border:2px dashed #E4E1D8; border-radius:var(--radius-lg); margin:20px 0 60px;
+  }
+  .not-logged-in p{color:var(--ink-soft); font-size:15px; margin:10px 0 22px;}
+
+  .team-hero{
+    background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg);
+    padding:28px; margin:10px 0 20px;
+  }
+  .th-top{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;}
+  .th-top h1{font-size:26px; margin:6px 0 4px;}
+  .th-top .sub{color:var(--ink-soft); font-size:14px;}
+  .team-cat-badge{
+    display:inline-block; font-size:11px; font-weight:800; padding:3px 12px; border-radius:999px; color:#fff;
+  }
+  .cat-Robotics{background:var(--blue);}
+  .cat-Programming{background:var(--green);}
+  .cat-Design{background:var(--purple);}
+  .cat-Other{background:var(--yellow); color:var(--ink);}
+  .role-pill{
+    font-size:11px; font-weight:800; padding:4px 12px; border-radius:999px;
+    background:var(--ink); color:#fff; align-self:flex-start;
+  }
+  .role-pill.member-role{background:var(--blue);}
+
+  .mini-track{display:flex; justify-content:space-between; position:relative; margin:22px 0 6px;}
+  .mini-track::before{
+    content:""; position:absolute; top:11px; left:12px; right:12px; height:2px; background:#EFE9DB; z-index:0;
+  }
+  .mini-track .mini-fill{
+    position:absolute; top:11px; left:12px; height:2px; background:var(--green); z-index:1; transition:width 0.4s ease;
+  }
+  .mini-step{flex:1; text-align:center; position:relative; z-index:2;}
+  .mini-dot{
+    width:22px; height:22px; border-radius:50%; background:#fff; border:2px solid #EFE9DB;
+    display:flex; align-items:center; justify-content:center; margin:0 auto 4px;
+    font-family:'Baloo 2'; font-weight:800; font-size:10px; color:var(--ink-soft);
+  }
+  .mini-step.done .mini-dot{border-color:var(--green); background:var(--green); color:#fff;}
+  .mini-step.current .mini-dot{border-color:var(--coral); color:var(--coral);}
+  .mini-step p{font-size:10px; font-weight:700; margin:0; color:var(--ink-soft);}
+  .mini-step.done p, .mini-step.current p{color:var(--ink);}
+
+  .section-title{font-size:18px; margin:34px 0 14px;}
+  .card{background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg); padding:26px; margin-bottom:16px;}
+  .empty-small{color:var(--ink-soft); font-size:13px;}
+
+  .field{margin-bottom:16px; text-align:left;}
+  label{display:block; font-weight:700; font-size:13px; margin-bottom:6px; color:var(--ink);}
+  input, textarea, select{
+    width:100%; padding:11px 14px; border-radius:12px;
+    border:2px solid #E4E1D8; font-family:'Nunito',sans-serif; font-size:14px;
+    background:var(--cream); transition:border-color 0.2s ease;
+  }
+  input:focus, textarea:focus, select:focus{ outline:none; border-color:var(--blue); }
+
+  .btn{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;display:inline-block;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .btn:hover{transform:translateY(-3px);box-shadow:0 10px 20px rgba(43,42,40,0.15);}
+  .btn-primary{background:var(--coral);color:#fff;}
+  .btn-secondary{background:#fff; color:var(--ink); border:2px solid var(--ink);}
+  .btn-small{font-size:13px; padding:9px 16px;}
+  .btn-danger{border-color:var(--coral); color:var(--coral-dark);}
+
+  .sub-item{ padding:14px 0; border-bottom:1px solid #EFE9DB; }
+  .sub-item:last-child{ border-bottom:none; }
+  .sub-status{ display:inline-block; font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px; background:var(--green-light); color:var(--green); }
+  .author-tag{ display:inline-block; font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px; background:var(--blue-light); color:var(--blue); margin-left:6px; }
+  .author-tag.club-tag{ background:var(--yellow-light); color:var(--coral-dark); }
+
+  .member-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 0; border-bottom:1px solid #EFE9DB;
+  }
+  .member-row:last-child{border-bottom:none;}
+  .member-row .m-name{font-weight:700; font-size:14px;}
+  .member-row .m-role{font-size:12px; color:var(--ink-soft);}
+  .remove-btn{
+    background:none; border:none; color:var(--coral-dark); font-weight:700; font-size:12px; cursor:pointer;
+    padding:10px; margin:-10px;
+  }
+  .add-member-row{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;}
+  .add-member-row input{
+    flex:1; min-width:140px; padding:10px 14px; border-radius:10px;
+    border:2px solid #E4E1D8; font-family:'Nunito'; font-size:13px; background:var(--cream);
+  }
+  .add-member-row input:focus{outline:none; border-color:var(--blue);}
+
+  .req-row{
+    display:flex; justify-content:space-between; align-items:center;
+    gap:12px; padding:14px 0; border-bottom:1px solid #EFE9DB; flex-wrap:wrap;
+  }
+  .req-row:last-child{border-bottom:none;}
+  .req-info .r-name{font-weight:700; font-size:14px;}
+  .req-info .r-meta{font-size:12px; color:var(--ink-soft);}
+  .req-actions{display:flex; gap:8px;}
+  .accept-btn, .decline-btn{
+    border:none; border-radius:999px; padding:11px 16px; font-size:12px; font-weight:800; cursor:pointer;
+  }
+  .accept-btn{background:var(--green); color:#fff;}
+  .decline-btn{background:#F1EEE5; color:var(--ink-soft);}
+
+  .danger-card{border-color:var(--coral);}
+  .danger-card p{font-size:13px; color:var(--ink-soft); margin:0 0 16px;}
+
+  footer{padding:24px 0 40px;text-align:center;font-size:13px;color:var(--ink-soft);}
+  .footer-nav{display:flex;justify-content:center;gap:18px;font-size:13px;font-weight:700;color:var(--ink-soft);margin-bottom:10px; flex-wrap:wrap;}
+  .footer-nav a{text-decoration:none;}
+  .reset-demo-link{display:block; text-align:center; font-size:11px; color:var(--ink-soft); text-decoration:underline; cursor:pointer; margin-top:14px; opacity:0.6;}
+  .reset-demo-link:hover{opacity:1;}
+
+  .nav-toggle{
+    display:none; flex-direction:column; justify-content:center; align-items:center; gap:5px;
+    width:40px;height:40px; border:2px solid var(--ink); border-radius:10px; background:#fff;
+    cursor:pointer; padding:0; flex-shrink:0;
+  }
+  .nav-toggle span{display:block; width:20px;height:2px; background:var(--ink); border-radius:2px; transition:transform 0.2s ease, opacity 0.2s ease;}
+  .nav-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .nav-toggle.open span:nth-child(2){opacity:0;}
+  .nav-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+  @media (max-width:860px){
+    .nav-toggle{display:flex;}
+    .nav-links{
+      display:none; position:absolute; top:100%; left:0; right:0;
+      flex-direction:column; align-items:flex-start; gap:16px;
+      background:var(--cream); border:2px solid var(--ink); border-radius:14px;
+      padding:20px; margin-top:8px; z-index:200; box-shadow:0 14px 30px rgba(43,42,40,0.18);
+    }
+    .nav-links.open{display:flex;}
+  }
+  @media (max-width:600px){
+    .th-top{flex-direction:column;}
+    .role-pill{align-self:flex-start;}
+  }
+  .join-cta-link{
+    background:var(--coral); color:#fff !important; padding:9px 18px; border-radius:999px;
+    font-size:13px; font-weight:800; transition:transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .join-cta-link:hover{transform:translateY(-2px); box-shadow:0 8px 16px rgba(43,42,40,0.18);}
+  .join-cta-link::after{display:none !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a href="index.html" style="text-decoration:none;">
+      <div class="logo">
+        <div class="logo-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="8" width="14" height="11" rx="4" fill="white"/><rect x="9" y="3" width="2.5" height="6" rx="1.25" fill="white"/><circle cx="10" cy="2.5" r="1.5" fill="white"/><circle cx="9.5" cy="13.5" r="1.8" fill="#FF6B4A"/><circle cx="14.5" cy="13.5" r="1.8" fill="#FF6B4A"/></svg></div>
+        ROcodeFest
+      </div>
+    </a>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <div class="nav-links">
+      <a href="learn-more.html">About</a>
+      <span class="nav-rules-wrap"><a href="rules.html">Rules</a><span class="rules-badge" id="rules-badge"></span></span>
+      <a href="events.html">Events</a>
+      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Contest Day</a>
+      <a href="forum.html">Forum</a>
+      <a href="login.html" id="nav-login-link" style="font-size:13px;">Log in</a>
+      <a href="register.html" id="nav-register-link">Register</a>
+      <a href="join-as.html" class="join-cta-link">Get involved</a>
+    </div>
+  </nav>
+<script>
+(function(){
+  var toggle = document.getElementById("nav-toggle");
+  var links = document.querySelector(".nav-links");
+  if(!toggle || !links) return;
+  toggle.addEventListener("click", function(){
+    var open = links.classList.toggle("open");
+    toggle.classList.toggle("open", open);
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  links.querySelectorAll("a").forEach(function(a){
+    a.addEventListener("click", function(){
+      links.classList.remove("open");
+      toggle.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    });
+  });
+  document.addEventListener("click", function(e){
+    if(links.classList.contains("open") && !links.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)){
+      links.classList.remove("open");
+      toggle.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    }
+  });
+})();
+</script>
+<script>
+(function(){
+  var loginLink = document.getElementById('nav-login-link');
+  if(!loginLink) return;
+  var hasSession = false;
+  ['rocodefest_session','rocodefest_member_session','rocodefest_partner_session'].forEach(function(key){
+    try { if(JSON.parse(localStorage.getItem(key) || 'null')) hasSession = true; } catch(e){}
+  });
+  if(hasSession){ loginLink.style.display = 'none'; }
+})();
+</script>
+
+  <a class="back-link" id="back-link" href="founding-teams.html">&larr; Back to teams</a>
+
+  <div id="team-content" style="display:none;">
+
+    <div class="team-hero">
+      <div class="th-top">
+        <div>
+          <span class="team-cat-badge" id="th-cat">Category</span>
+          <h1 id="th-name">Team name</h1>
+          <div class="sub" id="th-club-line">Club · City</div>
+        </div>
+        <span class="role-pill" id="th-role-pill" style="display:none;"></span>
+      </div>
+      <div class="mini-track" id="th-progress"></div>
+    </div>
+
+    <div id="no-access-banner" class="card" style="display:none; text-align:center;">
+      <p style="margin:0 0 6px; font-weight:700;">You're viewing this team's public page.</p>
+      <p class="empty-small" style="margin:0 0 16px;">Log in as this team's club, or as an accepted member of this team, to manage submissions, join requests, and the roster.</p>
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <a class="btn btn-primary btn-small" href="login.html">Log in as a club &rarr;</a>
+        <a class="btn btn-secondary btn-small" href="join.html">Join as a member &rarr;</a>
+      </div>
+    </div>
+
+    <div id="manage-wrap" style="display:none;">
+
+      <h2 class="section-title">Submissions</h2>
+      <div class="card">
+        <p class="empty-small" id="subs-empty">No submissions yet for this team.</p>
+        <div id="subs-list"></div>
+        <div style="text-align:right; margin-top:14px;">
+          <a class="btn btn-secondary btn-small" id="subs-manage-link" href="submissions.html">Submit / manage submissions &rarr;</a>
+        </div>
+      </div>
+
+      <h2 class="section-title">Join requests</h2>
+      <div class="card" id="requests-card">
+        <p class="empty-small" id="no-requests">No one has asked to join this team yet.</p>
+        <div id="requests-list"></div>
+      </div>
+
+      <h2 class="section-title">Team members</h2>
+      <div class="card">
+        <div id="members-list"></div>
+        <p class="empty-small" id="no-members" style="display:none;">No members on this team's roster yet.</p>
+        <div class="add-member-row">
+          <input type="text" id="new-member-name" placeholder="Member name">
+          <input type="text" id="new-member-role" placeholder="Role (optional, e.g. Captain)">
+          <button class="btn btn-primary btn-small" id="add-member-btn">Add to roster</button>
+        </div>
+      </div>
+
+      <div id="danger-zone" style="display:none;">
+        <h2 class="section-title">Danger zone</h2>
+        <div class="card danger-card">
+          <p>Deleting this team removes it and its roster from ROcodeFest. Submission and appeal history are kept for records. This cannot be undone.</p>
+          <button class="btn btn-secondary btn-small btn-danger" id="delete-team-btn">🗑 Delete team</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-nav">
+      <a href="news.html">News</a> <a href="resources.html">Resources</a>
+      <a href="founding-teams.html">Teams</a> <a href="organizations.html">Clubs</a>
+      <a href="leaderboard.html">Leaderboard</a> <a href="forum.html">Forum</a>
+      <a href="livestream.html">Live</a> <a href="contact.html">Contact</a>
+    </div>
+    ROcodeFest · Season 1 · Built by students, for students
+    <a class="reset-demo-link" id="reset-demo-link">Reset demo data</a>
+  </footer>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var nav = document.querySelector('nav');
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 10){ nav.classList.add('scrolled'); } else { nav.classList.remove('scrolled'); }
+  });
+  var RULES_VERSION = '2026-07-28';
+  var seen = localStorage.getItem('rocodefest_rules_seen');
+  var badge = document.getElementById('rules-badge');
+  if(badge && seen !== RULES_VERSION){ badge.classList.add('show'); }
+
+  var clubSessionNav = null;
+  try { clubSessionNav = JSON.parse(localStorage.getItem('rocodefest_session') || 'null'); } catch(e){}
+  var memberSessionNav = null;
+  try { memberSessionNav = JSON.parse(localStorage.getItem('rocodefest_member_session') || 'null'); } catch(e){}
+  var regLink = document.getElementById('nav-register-link');
+  if(clubSessionNav && regLink){
+    var savedClubAvatar = localStorage.getItem('rocodefest_avatar_' + clubSessionNav.clubName);
+    if(savedClubAvatar){ regLink.style.backgroundImage = 'url(' + savedClubAvatar + ')'; regLink.textContent = ''; }
+    else { regLink.textContent = (clubSessionNav.clubName || '?').trim().charAt(0).toUpperCase(); }
+    regLink.classList.add('profile-avatar');
+    regLink.title = clubSessionNav.clubName + ' — click to view your club';
+    regLink.href = 'profile.html';
+  } else if(memberSessionNav && regLink){
+    regLink.textContent = (memberSessionNav.memberName || '?').trim().charAt(0).toUpperCase();
+    regLink.classList.add('profile-avatar', 'member-avatar');
+    regLink.title = memberSessionNav.memberName;
+    regLink.href = 'member-profile.html';
+  }
+  var resetLink = document.getElementById('reset-demo-link');
+  if(resetLink){
+    resetLink.addEventListener('click', function(){
+      if(confirm('Clear all ROcodeFest demo data?')){
+        Object.keys(localStorage).forEach(function(key){
+          if(key.indexOf('rocodefest_') === 0){ localStorage.removeItem(key); }
+        });
+        window.location.href = 'index.html';
+      }
+    });
+  }
+
+  // ==========================================================================
+  // TODO: placeholder — frontend-only pass. This page renders with mock data
+  // below (no real team lookup, membership verification, or persistence).
+  // Submissions / join requests / members are static sample data so every
+  // section of the UI can be reviewed. Accept/Decline, Add/Remove member,
+  // and Delete team all update this in-memory mock data only — nothing is
+  // written to a real data store. The backend will replace this with real
+  // team records, membership checks, and API calls.
+  // ==========================================================================
+
+  var params = new URLSearchParams(window.location.search);
+  var teamName = params.get('team') || 'Circuit Breakers';
+  var clubName = params.get('club') || 'Acme Robotics Club';
+  var MOCK_TEAM = { category: 'Robotics', city: 'Piatra Neamț', stage: 1 };
+
+  document.getElementById('team-content').style.display = 'block';
+
+  // Simple mock role check for now: any logged-in club is treated as this
+  // team's owner, any logged-in member is treated as a team member. Real
+  // membership verification (does this member actually belong to this team?)
+  // will be added once the backend exists.
+  var role = null;
+  if(clubSessionNav){ role = 'club'; }
+  else if(memberSessionNav){ role = 'member'; }
+
+  document.getElementById('back-link').href = role === 'club' ? 'profile.html' : (role === 'member' ? 'member-profile.html' : 'founding-teams.html');
+  document.getElementById('back-link').textContent = role === 'club' ? '← Back to your club' : (role === 'member' ? '← Back to your profile' : '← Back to teams');
+
+  // ---- Hero ----
+  var catEl = document.getElementById('th-cat');
+  catEl.textContent = MOCK_TEAM.category;
+  catEl.className = 'team-cat-badge cat-' + MOCK_TEAM.category;
+  document.getElementById('th-name').textContent = teamName;
+  document.getElementById('th-club-line').textContent = clubName + ' · ' + MOCK_TEAM.city;
+
+  var rolePill = document.getElementById('th-role-pill');
+  if(role === 'club'){ rolePill.textContent = 'You manage this team (club)'; rolePill.style.display = 'inline-block'; }
+  else if(role === 'member'){ rolePill.textContent = 'You are a member of this team'; rolePill.classList.add('member-role'); rolePill.style.display = 'inline-block'; }
+
+  var stageLabels = ['Registered', 'City challenge', 'The final', 'Results'];
+  var stage = MOCK_TEAM.stage;
+  var pct = (stage / 3) * 100;
+  var stepsHtml = stageLabels.map(function(label, idx){
+    var cls = idx < stage ? 'done' : (idx === stage ? 'current' : '');
+    return '<div class="mini-step ' + cls + '"><div class="mini-dot">' + (idx + 1) + '</div><p>' + label + '</p></div>';
+  }).join('');
+  document.getElementById('th-progress').innerHTML = '<div class="mini-fill" style="width:' + pct + '%;"></div>' + stepsHtml;
+
+  if(!role){
+    document.getElementById('no-access-banner').style.display = 'block';
+    return;
+  }
+  document.getElementById('manage-wrap').style.display = 'block';
+  if(role === 'club'){ document.getElementById('danger-zone').style.display = 'block'; }
+
+  // ---- Submissions (mock, read-only list here — real submit/edit/delete lives on submissions.html) ----
+  var MOCK_SUBMISSIONS = [
+    { title: 'City Challenge Round 1', authorType: 'club', authorName: clubName, date: '2026-06-01T10:00:00Z' },
+    { title: 'Design doc v2', authorType: 'member', authorName: 'Alex P.', date: '2026-06-10T14:30:00Z' }
+  ];
+  function renderSubs(){
+    var wrap = document.getElementById('subs-list');
+    var emptyMsg = document.getElementById('subs-empty');
+    wrap.innerHTML = '';
+    if(MOCK_SUBMISSIONS.length === 0){ emptyMsg.style.display = 'block'; return; }
+    emptyMsg.style.display = 'none';
+    MOCK_SUBMISSIONS.slice().reverse().forEach(function(s){
+      var authorTag = s.authorType === 'club'
+        ? '<span class="author-tag club-tag">Club</span>'
+        : '<span class="author-tag">by ' + s.authorName.replace(/</g,'&lt;') + '</span>';
+      var row = document.createElement('div');
+      row.className = 'sub-item';
+      row.innerHTML = '<strong></strong> <span class="sub-status">Submitted</span>' + authorTag + '<br><span style="font-size:12px;color:var(--ink-soft);"></span>';
+      row.querySelector('strong').textContent = s.title;
+      row.querySelectorAll('span')[1].textContent = new Date(s.date).toLocaleDateString();
+      wrap.appendChild(row);
+    });
+  }
+  renderSubs();
+  document.getElementById('subs-manage-link').href = 'submissions.html?team=' + encodeURIComponent(teamName);
+
+  // ---- Join requests + team roster (mock; actions update in-memory arrays only) ----
+  var mockRequests = [
+    { memberName: 'Jordan K.', city: 'Cluj-Napoca', email: 'jordan@example.com', message: 'Would love to help with the robot build!' },
+    { memberName: 'Sam R.', city: 'Piatra Neamț', email: 'sam@example.com', message: '' }
+  ];
+  var mockMembers = [
+    { name: 'Taylor M.', role: 'Captain' },
+    { name: 'Riley S.', role: teamName }
+  ];
+
+  function renderRequests(){
+    var wrap = document.getElementById('requests-list');
+    var emptyMsg = document.getElementById('no-requests');
+    wrap.innerHTML = '';
+    if(mockRequests.length === 0){ emptyMsg.style.display = 'block'; return; }
+    emptyMsg.style.display = 'none';
+
+    mockRequests.forEach(function(r, idx){
+      var row = document.createElement('div');
+      row.className = 'req-row';
+      row.innerHTML =
+        '<div class="req-info"><div class="r-name"></div><div class="r-meta"></div></div>' +
+        '<div class="req-actions"><button class="accept-btn">Accept</button><button class="decline-btn">Decline</button></div>';
+      row.querySelector('.r-name').textContent = r.memberName;
+      row.querySelector('.r-meta').textContent = r.city + ' · ' + r.email + (r.message ? ' · "' + r.message + '"' : '');
+
+      row.querySelector('.accept-btn').addEventListener('click', function(){
+        mockMembers.push({ name: r.memberName, role: teamName });
+        mockRequests.splice(idx, 1);
+        renderMembers();
+        renderRequests();
+      });
+      row.querySelector('.decline-btn').addEventListener('click', function(){
+        mockRequests.splice(idx, 1);
+        renderRequests();
+      });
+
+      wrap.appendChild(row);
+    });
+  }
+  renderRequests();
+
+  function renderMembers(){
+    var wrap = document.getElementById('members-list');
+    var emptyMsg = document.getElementById('no-members');
+    wrap.innerHTML = '';
+    if(mockMembers.length === 0){ emptyMsg.style.display = 'block'; return; }
+    emptyMsg.style.display = 'none';
+
+    mockMembers.forEach(function(m, idx){
+      var row = document.createElement('div');
+      row.className = 'member-row';
+      row.innerHTML = '<div><div class="m-name"></div><div class="m-role"></div></div><button class="remove-btn">Remove</button>';
+      row.querySelector('.m-name').textContent = m.name;
+      row.querySelector('.m-role').textContent = m.role || teamName;
+      row.querySelector('.remove-btn').addEventListener('click', function(){
+        mockMembers.splice(idx, 1);
+        renderMembers();
+      });
+      wrap.appendChild(row);
+    });
+  }
+  renderMembers();
+
+  document.getElementById('add-member-btn').addEventListener('click', function(){
+    var nameEl = document.getElementById('new-member-name');
+    var roleEl = document.getElementById('new-member-role');
+    var name = nameEl.value.trim();
+    if(!name) return;
+    mockMembers.push({ name: name, role: teamName + (roleEl.value.trim() ? ' — ' + roleEl.value.trim() : '') });
+    nameEl.value = '';
+    roleEl.value = '';
+    renderMembers();
+  });
+
+  // ---- Delete team (mock — visual only, nothing is actually removed) ----
+  if(role === 'club'){
+    document.getElementById('delete-team-btn').addEventListener('click', function(){
+      if(!confirm('Delete "' + teamName + '"? (mock action — no data will actually be removed until the backend is connected)')) return;
+      document.getElementById('manage-wrap').innerHTML =
+        '<div class="card" style="text-align:center;"><p style="margin:0; font-weight:700;">Team deleted ✓</p>' +
+        '<p class="empty-small" style="margin-top:6px;">Mock action only — nothing was actually changed. This will call the backend once it exists.</p></div>';
+    });
+  }
+});
+</script>
+<script>
+(function(){
+  // TODO: provisional -- contest day gating is a simple date check for now;
+  // the real event window/date will come from the backend once available.
+  // Add ?preview=1 to the URL to preview the Contest Day page/link outside
+  // the event window for visual testing.
+  var contestDayLink = document.getElementById('nav-contest-day-link');
+  if(!contestDayLink) return;
+  var params = new URLSearchParams(window.location.search);
+  var preview = params.get('preview') === '1';
+  var EVENT_DATE = new Date('2026-11-14T00:00:00');
+  var now = new Date();
+  var isContestDay = now.getFullYear() === EVENT_DATE.getFullYear() && now.getMonth() === EVENT_DATE.getMonth() && now.getDate() === EVENT_DATE.getDate();
+  if(isContestDay || preview){ contestDayLink.style.display = ''; }
+})();
+</script>
+</body>
+</html>

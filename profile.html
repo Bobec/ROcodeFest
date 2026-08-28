@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Team — ROcodeFest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF9EF; --ink:#2B2A28; --ink-soft:#6B6660;
+    --blue:#3E9DD1; --blue-light:#E4F3FA;
+    --yellow:#FFC857; --yellow-light:#FFF3D9;
+    --coral:#FF6B4A; --coral-dark:#D8492C;
+    --green:#4CAF7D; --green-light:#E4F5EC;
+    --purple:#8B7FD1; --purple-light:#ECEAFA;
+    --radius-lg:28px; --radius-md:18px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Nunito',sans-serif;line-height:1.6;}
+  h1,h2,h3{font-family:'Baloo 2',sans-serif;font-weight:700;margin:0;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px;}
+  a{color:inherit;}
+  html{scroll-behavior:smooth;}
+  nav{
+    position:sticky; top:0; z-index:50;
+    display:flex;justify-content:space-between;align-items:center;padding:24px 0;
+    background:var(--cream);
+    transition:box-shadow 0.3s ease;
+  }
+  nav.scrolled{box-shadow:0 2px 14px rgba(43,42,40,0.08);}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;}
+  .logo-dot{width:34px;height:34px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;}
+  .nav-links{display:flex;gap:18px;font-weight:700;font-size:14px;color:var(--ink-soft);align-items:center;}
+  .nav-links a{text-decoration:none; position:relative; transition:color 0.2s ease;}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:2px;background:var(--coral);transition:width 0.25s ease;}
+  .nav-links a:hover{color:var(--coral-dark);}
+  .nav-links a:hover::after{width:100%;}
+  .partner-link{background:var(--ink);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .partner-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
+  .partner-link::after{display:none !important;}
+  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .speaker-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
+  .speaker-link::after{display:none !important;}
+  .nav-rules-wrap{position:relative;}
+  .rules-badge{position:absolute;top:-4px;right:-10px;width:9px;height:9px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 2px var(--cream);display:none;}
+  .rules-badge.show{display:block;}
+  .profile-avatar{
+    width:32px; height:32px; border-radius:50%; background:var(--coral); color:#fff !important;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:14px; text-decoration:none;
+    transition:transform 0.2s ease, box-shadow 0.2s ease; background-size:cover; background-position:center;
+  }
+  .profile-avatar:hover{transform:translateY(-2px); box-shadow:0 8px 16px rgba(43,42,40,0.18);}
+  .profile-avatar::after{display:none !important;}
+  .profile-avatar.member-avatar{background:var(--blue);}
+
+  @media (max-width:860px){ .nav-links{display:none;} }
+
+  .not-logged-in{
+    text-align:center; padding:70px 20px; background:#fff;
+    border:2px dashed #E4E1D8; border-radius:var(--radius-lg); margin:40px 0 60px;
+  }
+  .not-logged-in p{color:var(--ink-soft); font-size:15px; margin:10px 0 22px;}
+
+  .profile-hero{
+    display:flex; align-items:center; gap:20px;
+    background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg);
+    padding:28px; margin:30px 0 20px;
+  }
+  @media (max-width:600px){ .profile-hero{flex-direction:column; text-align:center;} }
+  .big-avatar{
+    width:72px; height:72px; border-radius:50%; background:var(--coral); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Baloo 2'; font-weight:800; font-size:30px; flex-shrink:0;
+    background-size:cover; background-position:center; position:relative;
+  }
+  .avatar-wrap{position:relative; flex-shrink:0;}
+  .avatar-edit-btn{
+    position:absolute; bottom:-2px; right:-2px;
+    width:26px; height:26px; border-radius:50%;
+    background:var(--ink); color:#fff; border:2px solid var(--cream);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; cursor:pointer; transition:transform 0.2s ease;
+  }
+  .avatar-edit-btn:hover{transform:scale(1.1);}
+  .profile-hero h1{font-size:26px; margin-bottom:4px;}
+  .profile-hero .sub{color:var(--ink-soft); font-size:14px;}
+  .cat-tag{
+    display:inline-block; margin-top:8px; padding:4px 12px; border-radius:999px;
+    font-size:12px; font-weight:800; color:#fff;
+  }
+  .cat-Robotics{background:var(--blue);}
+  .cat-Programming{background:var(--green);}
+  .cat-Design{background:var(--purple);}
+  .cat-Other{background:var(--yellow); color:var(--ink);}
+
+  .section-title{font-size:18px; margin:34px 0 14px;}
+
+  .progress-card{
+    background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg); padding:28px;
+  }
+  .progress-track{display:flex; justify-content:space-between; position:relative; margin:20px 0 10px;}
+  .progress-track::before{
+    content:""; position:absolute; top:18px; left:20px; right:20px;
+    height:3px; background:#EFE9DB; z-index:0;
+  }
+  .progress-track .fill{
+    position:absolute; top:18px; left:20px; height:3px; background:var(--green); z-index:1;
+    transition:width 0.4s ease;
+  }
+  .p-step{flex:1; text-align:center; position:relative; z-index:2;}
+  .p-dot{
+    width:36px; height:36px; border-radius:50%; background:#fff; border:3px solid #EFE9DB;
+    display:flex; align-items:center; justify-content:center; margin:0 auto 8px;
+    font-family:'Baloo 2'; font-weight:800; font-size:14px; color:var(--ink-soft);
+  }
+  .p-step.done .p-dot{border-color:var(--green); background:var(--green); color:#fff;}
+  .p-step.current .p-dot{border-color:var(--coral); color:var(--coral); background:#fff;}
+  .p-step p{font-size:12px; font-weight:700; margin:0; color:var(--ink-soft);}
+  .p-step.done p, .p-step.current p{color:var(--ink);}
+  .progress-actions{text-align:center; margin-top:20px;}
+
+  .team-card-full{
+    background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg);
+    padding:22px; margin-bottom:16px;
+  }
+  .team-card-head{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;
+  }
+  .team-card-head h3{font-size:17px; margin-bottom:4px;}
+  .team-cat-badge{
+    display:inline-block; font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px; color:#fff;
+  }
+  .team-participants{
+    font-size:13px; color:var(--ink-soft); margin-top:10px;
+  }
+  .team-participants strong{color:var(--ink);}
+  .mini-track{display:flex; justify-content:space-between; position:relative; margin:18px 0 6px;}
+  .mini-track::before{
+    content:""; position:absolute; top:11px; left:12px; right:12px; height:2px; background:#EFE9DB; z-index:0;
+  }
+  .mini-track .mini-fill{
+    position:absolute; top:11px; left:12px; height:2px; background:var(--green); z-index:1; transition:width 0.4s ease;
+  }
+  .mini-step{flex:1; text-align:center; position:relative; z-index:2;}
+  .mini-dot{
+    width:22px; height:22px; border-radius:50%; background:#fff; border:2px solid #EFE9DB;
+    display:flex; align-items:center; justify-content:center; margin:0 auto 4px;
+    font-family:'Baloo 2'; font-weight:800; font-size:10px; color:var(--ink-soft);
+  }
+  .mini-step.done .mini-dot{border-color:var(--green); background:var(--green); color:#fff;}
+  .mini-step.current .mini-dot{border-color:var(--coral); color:var(--coral);}
+  .mini-step p{font-size:10px; font-weight:700; margin:0; color:var(--ink-soft);}
+  .mini-step.done p, .mini-step.current p{color:var(--ink);}
+  .team-card-actions{text-align:right; margin-top:12px;}
+
+  .add-team-card{
+    background:linear-gradient(135deg, #fff, var(--cream));
+    border:2px dashed var(--coral); border-radius:var(--radius-lg);
+    padding:24px; margin-top:16px;
+  }
+  .add-team-title{
+    font-family:'Baloo 2'; font-weight:700; font-size:15px; margin:0 0 16px; color:var(--coral-dark);
+  }
+  .field-label{
+    font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.03em;
+    color:var(--ink-soft); margin:0 0 6px;
+  }
+  .field-label:not(:first-of-type){margin-top:16px;}
+  .icon-input{
+    display:flex; align-items:center; gap:8px;
+    background:var(--cream); border:2px solid #E4E1D8; border-radius:12px;
+    padding:0 12px; transition:border-color 0.2s ease;
+  }
+  .icon-input:focus-within{border-color:var(--blue);}
+  .icon-input-glyph{font-size:14px; flex-shrink:0;}
+  .icon-input input{
+    border:none; background:transparent; padding:11px 0; font-family:'Nunito'; font-size:14px; width:100%;
+  }
+  .icon-input input:focus{outline:none;}
+
+  .tag-input-box{
+    display:flex; align-items:center; flex-wrap:wrap; gap:6px;
+    background:var(--cream); border:2px solid #E4E1D8; border-radius:12px;
+    padding:8px 10px; transition:border-color 0.2s ease; min-height:44px;
+  }
+  .tag-input-box:focus-within{border-color:var(--blue);}
+  .tag-input-box input{
+    border:none; background:transparent; font-family:'Nunito'; font-size:13px;
+    flex:1; min-width:120px; padding:4px 2px;
+  }
+  .tag-input-box input:focus{outline:none;}
+  .tag-chip-placeholder{font-size:12px; color:var(--ink-soft); font-style:italic;}
+  .participant-chip{
+    display:flex; align-items:center; gap:6px;
+    background:#fff; border:1.5px solid var(--coral); color:var(--coral-dark);
+    font-size:12px; font-weight:700; padding:5px 6px 5px 12px; border-radius:999px;
+    animation: chipIn 0.2s ease both;
+  }
+  .participant-chip button{
+    border:none; background:var(--coral); color:#fff; width:16px; height:16px; border-radius:50%;
+    font-size:10px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  @keyframes chipIn{ from{ opacity:0; transform:scale(0.8); } to{ opacity:1; transform:scale(1); } }
+  .cat-picker{display:flex; gap:8px; flex-wrap:wrap;}
+  #add-team-btn{width:100%; margin-top:18px;}
+  .cat-chip{
+    font-family:'Nunito'; font-weight:700; font-size:13px;
+    padding:12px 16px; border-radius:999px; border:2px solid #E4E1D8;
+    background:#fff; cursor:pointer; transition:all 0.2s ease;
+  }
+  .cat-chip:hover{transform:translateY(-2px);}
+  .cat-chip.selected{
+    color:#fff; border-color:transparent;
+    box-shadow:0 6px 14px rgba(43,42,40,0.18);
+    transform:translateY(-2px) scale(1.04);
+  }
+
+  @keyframes teamCardIn{
+    from{ opacity:0; transform:translateY(14px) scale(0.98); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  .team-card-full{ animation: teamCardIn 0.45s ease both; }
+
+  .info-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:6px;}
+  @media (max-width:600px){ .info-grid{grid-template-columns:1fr;} }
+  .info-item{background:var(--cream); border-radius:var(--radius-md); padding:16px 18px;}
+  .info-item .label{font-size:11px; text-transform:uppercase; letter-spacing:0.03em; color:var(--ink-soft); font-weight:800;}
+  .info-item .value{font-size:15px; font-weight:700; margin-top:4px;}
+
+  .members-card{
+    background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg); padding:28px;
+  }
+  .member-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 0; border-bottom:1px solid #EFE9DB;
+  }
+  .member-row:last-child{border-bottom:none;}
+  .member-row .m-name{font-weight:700; font-size:14px;}
+  .member-row .m-role{font-size:12px; color:var(--ink-soft);}
+  .remove-btn{
+    background:none; border:none; color:var(--coral-dark); font-weight:700; font-size:12px; cursor:pointer;
+    padding:10px; margin:-10px;
+  }
+  .add-member-row{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;}
+  .add-member-row input{
+    flex:1; min-width:140px; padding:10px 14px; border-radius:10px;
+    border:2px solid #E4E1D8; font-family:'Nunito'; font-size:13px; background:var(--cream);
+  }
+  .add-member-row input:focus{outline:none; border-color:var(--blue);}
+
+  .requests-card{
+    background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg); padding:28px;
+  }
+  .req-row{
+    display:flex; justify-content:space-between; align-items:center;
+    gap:12px; padding:14px 0; border-bottom:1px solid #EFE9DB; flex-wrap:wrap;
+  }
+  .req-row:last-child{border-bottom:none;}
+  .req-info .r-name{font-weight:700; font-size:14px;}
+  .req-info .r-meta{font-size:12px; color:var(--ink-soft);}
+  .req-actions{display:flex; gap:8px;}
+  .accept-btn, .decline-btn{
+    border:none; border-radius:999px; padding:11px 16px; font-size:12px; font-weight:800; cursor:pointer;
+  }
+  .accept-btn{background:var(--green); color:#fff;}
+  .decline-btn{background:#F1EEE5; color:var(--ink-soft);}
+  .empty-small{color:var(--ink-soft); font-size:13px;}
+
+  .btn{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;display:inline-block;}
+  .btn-primary{background:var(--coral);color:#fff;}
+  .btn-secondary{background:#fff; color:var(--ink); border:2px solid var(--ink);}
+  .btn-small{font-size:13px; padding:9px 16px;}
+
+  .logout-row{text-align:center; margin:36px 0 10px;}
+  .logout-row a{font-size:13px; color:var(--ink-soft); text-decoration:underline; cursor:pointer;}
+
+  footer{padding:24px 0 40px;text-align:center;font-size:13px;color:var(--ink-soft);}
+  .footer-nav{display:flex;justify-content:center;gap:22px;font-size:13px;font-weight:700;color:var(--ink-soft);margin-bottom:10px; flex-wrap:wrap;}
+  .footer-nav a{text-decoration:none;}
+
+  .reset-demo-link{
+    display:block; text-align:center; font-size:11px; color:var(--ink-soft);
+    text-decoration:underline; cursor:pointer; margin-top:14px; opacity:0.6;
+  }
+  .reset-demo-link:hover{opacity:1;}
+
+  .fab-stack{
+    position:fixed; bottom:28px; right:24px;
+    display:flex; flex-direction:column; align-items:flex-end; gap:10px; z-index:60;
+  }
+  .fab{
+    height:44px; padding:0 18px; border-radius:999px;
+    background:var(--ink); color:#fff;
+    border:2px solid rgba(255,255,255,0.12); cursor:pointer;
+    display:flex; align-items:center; gap:8px;
+    font-family:'Baloo 2', sans-serif; font-weight:700; font-size:13px; white-space:nowrap;
+    box-shadow:0 8px 24px rgba(43,42,40,0.28), 0 0 0 3px rgba(255,255,255,0.08);
+    transition:transform 0.2s ease, box-shadow 0.2s ease, opacity 0.25s ease;
+  }
+  .fab:hover{ transform:translateY(-3px); box-shadow:0 14px 30px rgba(43,42,40,0.32), 0 0 0 4px rgba(255,255,255,0.14); }
+  .fab:active{ transform:translateY(-1px); }
+  .fab svg{ width:16px; height:16px; flex-shrink:0; }
+  #fab-top{ opacity:0; pointer-events:none; transform:translateY(10px); }
+  #fab-top.show{ opacity:1; pointer-events:auto; transform:translateY(0); }
+  #fab-share{
+    background:var(--coral); border-color:rgba(255,255,255,0.18);
+    animation: fabPulse 3s ease-in-out 1.5s 2;
+  }
+  @keyframes fabPulse{
+    0%,100%{ box-shadow:0 8px 24px rgba(43,42,40,0.28), 0 0 0 3px rgba(255,255,255,0.08); }
+    50%{ box-shadow:0 8px 32px rgba(255,107,74,0.55), 0 0 0 6px rgba(255,107,74,0.18); }
+  }
+  .fab-toast{
+    position:fixed; bottom:38px; right:220px; background:var(--ink); color:#fff;
+    font-size:13px; font-weight:700; padding:10px 16px; border-radius:10px;
+    opacity:0; transform:translateY(6px); transition:opacity 0.25s ease, transform 0.25s ease;
+    pointer-events:none; z-index:60;
+  }
+  .fab-toast.show{opacity:1; transform:translateY(0);}
+  .nav-toggle{
+    display:none;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:5px;
+    width:40px;height:40px;
+    border:2px solid var(--ink);
+    border-radius:10px;
+    background:#fff;
+    cursor:pointer;
+    padding:0;
+    flex-shrink:0;
+  }
+  .nav-toggle span{
+    display:block;
+    width:20px;height:2px;
+    background:var(--ink);
+    border-radius:2px;
+    transition:transform 0.2s ease, opacity 0.2s ease;
+  }
+  .nav-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .nav-toggle.open span:nth-child(2){opacity:0;}
+  .nav-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+  @media (max-width:860px){
+    .nav-toggle{display:flex;}
+    .nav-links{
+      display:none;
+      position:absolute;
+      top:100%; left:0; right:0;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:16px;
+      background:var(--cream);
+      border:2px solid var(--ink);
+      border-radius:14px;
+      padding:20px;
+      margin-top:8px;
+      z-index:200;
+      box-shadow:0 14px 30px rgba(43,42,40,0.18);
+    }
+    .nav-links.open{display:flex;}
+  }
+  @media (max-width:480px){
+    .fab-toast{right:16px; left:16px; bottom:90px; text-align:center;}
+  }
+  .join-cta-link{
+    background:var(--coral);
+    color:#fff !important;
+    padding:9px 18px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:800;
+    transition:transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .join-cta-link:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 16px rgba(43,42,40,0.18);
+  }
+  .join-cta-link::after{display:none !important;}
+  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
+  .back-nav-btn:hover{color:var(--coral-dark);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a href="index.html" style="text-decoration:none;">
+      <div class="logo">
+        <div class="logo-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="8" width="14" height="11" rx="4" fill="white"/><rect x="9" y="3" width="2.5" height="6" rx="1.25" fill="white"/><circle cx="10" cy="2.5" r="1.5" fill="white"/><circle cx="9.5" cy="13.5" r="1.8" fill="#FF6B4A"/><circle cx="14.5" cy="13.5" r="1.8" fill="#FF6B4A"/></svg></div>
+        ROcodeFest
+      </div>
+    </a>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <div class="nav-links">
+      <a href="learn-more.html">About</a>
+      <span class="nav-rules-wrap"><a href="rules.html">Rules</a><span class="rules-badge" id="rules-badge"></span></span>
+      <a href="events.html">Events</a>
+      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Contest Day</a>
+      <a href="forum.html">Forum</a>
+      <a href="login.html" id="nav-login-link" style="font-size:13px;">Log in</a>
+      <a href="register.html" id="nav-register-link">Register</a>
+      <a href="join-as.html" class="join-cta-link">Get involved</a>
+    </div>
+  </nav>
+<script>
+(function(){
+  var toggle = document.getElementById("nav-toggle");
+  var links = document.querySelector(".nav-links");
+  if(!toggle || !links) return;
+  toggle.addEventListener("click", function(){
+    var open = links.classList.toggle("open");
+    toggle.classList.toggle("open", open);
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  links.querySelectorAll("a").forEach(function(a){
+    a.addEventListener("click", function(){
+      links.classList.remove("open");
+      toggle.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    });
+  });
+  document.addEventListener("click", function(e){
+    if(links.classList.contains("open") && !links.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)){
+      links.classList.remove("open");
+      toggle.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    }
+  });
+})();
+</script>
+<script>
+(function(){
+  var loginLink = document.getElementById('nav-login-link');
+  if(!loginLink) return;
+  var hasSession = false;
+  ['rocodefest_session','rocodefest_member_session','rocodefest_partner_session'].forEach(function(key){
+    try { if(JSON.parse(localStorage.getItem(key) || 'null')) hasSession = true; } catch(e){}
+  });
+  if(hasSession){ loginLink.style.display = 'none'; }
+})();
+</script>
+
+<script>
+(function(){
+  // TODO: provisional -- contest day gating is a simple date check for now;
+  // the real event window/date will come from the backend once available.
+  // Add ?preview=1 to the URL to preview the Contest Day page/link outside
+  // the event window for visual testing.
+  var contestDayLink = document.getElementById('nav-contest-day-link');
+  if(!contestDayLink) return;
+  var params = new URLSearchParams(window.location.search);
+  var preview = params.get('preview') === '1';
+  var EVENT_DATE = new Date('2026-11-14T00:00:00');
+  var now = new Date();
+  var isContestDay = now.getFullYear() === EVENT_DATE.getFullYear() && now.getMonth() === EVENT_DATE.getMonth() && now.getDate() === EVENT_DATE.getDate();
+  if(isContestDay || preview){ contestDayLink.style.display = ''; }
+})();
+</script>
+  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Go back">&larr; Back</button>
+<script>
+  // TODO: provisional -- prefers the page that actually linked here
+  // (deterministic, avoids bouncing in a back/forward loop); falls back to
+  // browser history, then the homepage if there's nothing to go back to.
+  function goBack(){
+    if(document.referrer && document.referrer.indexOf(window.location.origin) === 0 && document.referrer !== window.location.href){
+      window.location.href = document.referrer;
+    } else if(window.history.length > 1){
+      window.history.back();
+    } else {
+      window.location.href = 'index.html';
+    }
+  }
+</script>
+
+  <div id="not-logged-in" class="not-logged-in" style="display:none;">
+    <h2 style="font-size:22px;">You're not logged in</h2>
+    <p>Register a club to get your own profile page where you can add teams, track season progress, and manage join requests.</p>
+    <a class="btn btn-primary" href="register.html">Register your club →</a>
+  </div>
+
+  <div id="profile-content" style="display:none;">
+
+    <div class="profile-hero">
+      <div class="avatar-wrap">
+        <div class="big-avatar" id="p-avatar">?</div>
+        <div class="avatar-edit-btn" id="avatar-edit-btn" title="Change club photo">📷</div>
+        <input type="file" id="avatar-file-input" accept="image/*" style="display:none;">
+      </div>
+      <div>
+        <h1 id="p-team-name">Club name</h1>
+        <div class="sub" id="p-org-city">City</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">Your teams</h2>
+    <div id="teams-list"></div>
+    <div class="add-team-card">
+      <p class="add-team-title">✨ Add a new team</p>
+
+      <p class="field-label">Team name</p>
+      <div class="icon-input">
+        <span class="icon-input-glyph">🏷️</span>
+        <input type="text" id="new-team-name" placeholder="e.g. Circuit Breakers">
+      </div>
+
+      <p class="field-label">Category</p>
+      <div class="cat-picker" id="cat-picker">
+        <button type="button" class="cat-chip" data-cat="Robotics" data-color="var(--blue)">🤖 Robotics</button>
+        <button type="button" class="cat-chip" data-cat="Programming" data-color="var(--green)">💻 Programming</button>
+        <button type="button" class="cat-chip" data-cat="Design" data-color="var(--purple)">🎨 Design</button>
+        <button type="button" class="cat-chip" data-cat="Other" data-color="var(--yellow)">✦ Other</button>
+      </div>
+
+      <p class="field-label">Participants</p>
+      <div class="tag-input-box" id="tag-input-box">
+        <span class="tag-chip-placeholder" id="tag-empty-hint">Type a name and press Enter ↵</span>
+        <input type="text" id="new-team-participants" placeholder="">
+      </div>
+
+      <button class="btn btn-primary btn-small" id="add-team-btn">✚ Add team</button>
+    </div>
+
+    <h2 class="section-title">Club info</h2>
+    <div class="progress-card">
+      <div class="info-grid">
+        <div class="info-item"><div class="label">Coordinator</div><div class="value" id="p-coach">—</div></div>
+        <div class="info-item"><div class="label">Contact email</div><div class="value" id="p-email">—</div></div>
+        <div class="info-item"><div class="label">Founding number</div><div class="value" id="p-number">—</div></div>
+        <div class="info-item"><div class="label">Total teams</div><div class="value" id="p-team-count">0</div></div>
+      </div>
+    </div>
+
+    <h2 class="section-title">Club members</h2>
+    <div class="members-card">
+      <div id="members-list"></div>
+      <div class="add-member-row">
+        <input type="text" id="new-member-name" placeholder="Member name">
+        <input type="text" id="new-member-role" placeholder="Role (optional)">
+        <button class="btn btn-primary btn-small" id="add-member-btn">Add</button>
+      </div>
+    </div>
+
+    <h2 class="section-title">Join requests</h2>
+    <div class="requests-card" id="requests-card">
+      <p class="empty-small" id="no-requests">No one has asked to join your teams yet.</p>
+      <div id="requests-list"></div>
+    </div>
+
+    <div class="logout-row">
+      <a id="logout-link">Not your club? Log out</a>
+    </div>
+
+  </div>
+
+  <footer>
+        <div class="footer-nav">
+      <a href="news.html">News</a> <a href="resources.html">Resources</a>
+      <a href="founding-teams.html">Teams</a> <a href="organizations.html">Clubs</a>
+      <a href="leaderboard.html">Leaderboard</a> <a href="forum.html">Forum</a>
+      <a href="livestream.html">Live</a> <a href="contact.html">Contact</a>
+    </div>
+    ROcodeFest · Season 1 · Built by students, for students
+    <a class="reset-demo-link" id="reset-demo-link">Reset demo data (clears all local test accounts/teams)</a>
+  </footer>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var nav = document.querySelector('nav');
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 10){ nav.classList.add('scrolled'); } else { nav.classList.remove('scrolled'); }
+  });
+
+  var RULES_VERSION = '2026-07-28';
+  var seen = localStorage.getItem('rocodefest_rules_seen');
+  var badge = document.getElementById('rules-badge');
+  if(badge && seen !== RULES_VERSION){ badge.classList.add('show'); }
+
+  var session = null;
+  try { session = JSON.parse(localStorage.getItem('rocodefest_session') || 'null'); } catch(e){ session = null; }
+
+  var regLink = document.getElementById('nav-register-link');
+  if(session && regLink){
+    var initial = (session.clubName || '?').trim().charAt(0).toUpperCase();
+    regLink.textContent = initial;
+    regLink.classList.add('profile-avatar');
+    regLink.title = session.clubName + ' — click to view your club';
+    regLink.href = 'profile.html';
+  } else {
+    var memberSessionNav = null;
+    try { memberSessionNav = JSON.parse(localStorage.getItem('rocodefest_member_session') || 'null'); } catch(e){ memberSessionNav = null; }
+    if(memberSessionNav && regLink){
+      var mInitial = (memberSessionNav.memberName || '?').trim().charAt(0).toUpperCase();
+      regLink.textContent = mInitial;
+      regLink.classList.add('profile-avatar', 'member-avatar');
+      regLink.title = memberSessionNav.memberName + ' — click to view your profile';
+      regLink.href = 'member-profile.html';
+    }
+  }
+
+  if(!session){
+    document.getElementById('not-logged-in').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('profile-content').style.display = 'block';
+
+  // Find full club record
+  var clubs = [];
+  try { clubs = JSON.parse(localStorage.getItem('rocodefest_clubs') || '[]'); } catch(e){ clubs = []; }
+  var club = clubs.find(function(c){ return c.clubName === session.clubName; }) || {};
+
+  var avatarKey = 'rocodefest_avatar_' + session.clubName;
+
+  function applyAvatar(){
+    var saved = localStorage.getItem(avatarKey);
+    var bigAvatar = document.getElementById('p-avatar');
+    if(saved){
+      bigAvatar.style.backgroundImage = 'url(' + saved + ')';
+      bigAvatar.textContent = '';
+      if(regLink){
+        regLink.style.backgroundImage = 'url(' + saved + ')';
+        regLink.textContent = '';
+      }
+    } else {
+      bigAvatar.style.backgroundImage = '';
+      bigAvatar.textContent = (club.clubName || '?').charAt(0).toUpperCase();
+      if(regLink){
+        regLink.style.backgroundImage = '';
+        regLink.textContent = (session.clubName || '?').trim().charAt(0).toUpperCase();
+      }
+    }
+  }
+
+  document.getElementById('p-avatar').textContent = (club.clubName || '?').charAt(0).toUpperCase();
+  document.getElementById('p-team-name').textContent = club.clubName || session.clubName;
+  document.getElementById('p-org-city').textContent = club.city || '—';
+  document.getElementById('p-coach').textContent = club.coachName || '—';
+  document.getElementById('p-email').textContent = club.email || '—';
+  document.getElementById('p-number').textContent = '#' + (club.number || '—');
+
+  // Teams
+  function getTeams(){
+    try { return JSON.parse(localStorage.getItem('rocodefest_teams') || '[]'); } catch(e){ return []; }
+  }
+  function saveTeams(list){
+    localStorage.setItem('rocodefest_teams', JSON.stringify(list));
+  }
+  function myTeams(){
+    return getTeams().filter(function(t){ return t.clubName === session.clubName; });
+  }
+  var catColors = { Robotics:'var(--blue)', Programming:'var(--green)', Design:'var(--purple)', Other:'var(--yellow)' };
+
+  var stageLabels = ['Registered', 'City challenge', 'The final', 'Results'];
+
+  function getTeamProgress(teamName){
+    var key = 'rocodefest_progress_' + session.clubName + '_' + teamName;
+    return parseInt(localStorage.getItem(key) || '0', 10);
+  }
+  function setTeamProgress(teamName, stage){
+    var key = 'rocodefest_progress_' + session.clubName + '_' + teamName;
+    localStorage.setItem(key, stage);
+  }
+
+  function renderTeams(){
+    var mine = myTeams();
+    var wrap = document.getElementById('teams-list');
+    wrap.innerHTML = '';
+    document.getElementById('p-team-count').textContent = mine.length;
+
+    if(mine.length === 0){
+      wrap.innerHTML = '<p class="empty-small">No teams added yet — add your first team below (e.g. a Robotics team and a Programming team).</p>';
+      return;
+    }
+
+    mine.forEach(function(t){
+      var stage = getTeamProgress(t.teamName);
+      var pct = (stage / 3) * 100;
+      var participants = t.participants || [];
+
+      var card = document.createElement('div');
+      card.className = 'team-card-full';
+
+      var stepsHtml = stageLabels.map(function(label, idx){
+        var cls = idx < stage ? 'done' : (idx === stage ? 'current' : '');
+        return '<div class="mini-step ' + cls + '"><div class="mini-dot">' + (idx + 1) + '</div><p>' + label + '</p></div>';
+      }).join('');
+
+      card.innerHTML =
+        '<div class="team-card-head">' +
+          '<div><h3></h3><span class="team-cat-badge" style="background:' + (catColors[t.category] || 'var(--ink-soft)') + '"></span></div>' +
+          '<button class="remove-btn" data-name="' + t.teamName.replace(/"/g,'&quot;') + '">Remove</button>' +
+        '</div>' +
+        '<div class="team-participants"><strong>Participants:</strong> <span class="p-list"></span></div>' +
+        '<div class="mini-track"><div class="mini-fill" style="width:' + pct + '%;"></div>' + stepsHtml + '</div>' +
+        '<div class="team-card-actions"><a class="btn btn-secondary btn-small" href="team.html?club=' + encodeURIComponent(session.clubName) + '&team=' + encodeURIComponent(t.teamName) + '">Manage team →</a> <button class="btn btn-secondary btn-small advance-team-btn" ' + (stage >= 3 ? 'disabled' : '') + '>' + (stage >= 3 ? 'Season complete 🎉' : 'Mark next stage complete (demo) →') + '</button></div>';
+
+      card.querySelector('h3').textContent = t.teamName;
+      card.querySelector('.team-cat-badge').textContent = t.category;
+      card.querySelector('.p-list').textContent = participants.length > 0 ? participants.join(', ') : 'None added yet';
+
+      card.querySelector('.remove-btn').addEventListener('click', function(){
+        var name = t.teamName;
+        var all = getTeams().filter(function(x){ return !(x.clubName === session.clubName && x.teamName === name); });
+        saveTeams(all);
+        renderTeams();
+      });
+
+      var advanceBtn = card.querySelector('.advance-team-btn');
+      if(!advanceBtn.disabled){
+        advanceBtn.addEventListener('click', function(){
+          var current = getTeamProgress(t.teamName);
+          if(current < 3){
+            setTeamProgress(t.teamName, current + 1);
+            renderTeams();
+          }
+        });
+      }
+
+      wrap.appendChild(card);
+    });
+  }
+  renderTeams();
+
+  var selectedCategory = 'Robotics';
+  var catChips = document.querySelectorAll('.cat-chip');
+  catChips.forEach(function(chip){
+    if(chip.getAttribute('data-cat') === selectedCategory){
+      chip.classList.add('selected');
+      chip.style.background = chip.getAttribute('data-color');
+    }
+    chip.addEventListener('click', function(){
+      catChips.forEach(function(c){
+        c.classList.remove('selected');
+        c.style.background = '#fff';
+      });
+      chip.classList.add('selected');
+      chip.style.background = chip.getAttribute('data-color');
+      selectedCategory = chip.getAttribute('data-cat');
+    });
+  });
+
+  // Participant tag input
+  var pendingParticipants = [];
+  var tagBox = document.getElementById('tag-input-box');
+  var tagInput = document.getElementById('new-team-participants');
+  var tagEmptyHint = document.getElementById('tag-empty-hint');
+
+  function renderTags(){
+    tagBox.querySelectorAll('.participant-chip').forEach(function(el){ el.remove(); });
+    tagEmptyHint.style.display = pendingParticipants.length === 0 ? 'inline' : 'none';
+    pendingParticipants.forEach(function(name, idx){
+      var chip = document.createElement('span');
+      chip.className = 'participant-chip';
+      chip.innerHTML = '<span></span><button type="button">×</button>';
+      chip.querySelector('span').textContent = name;
+      chip.querySelector('button').addEventListener('click', function(){
+        pendingParticipants.splice(idx, 1);
+        renderTags();
+      });
+      tagBox.insertBefore(chip, tagInput);
+    });
+  }
+
+  tagBox.addEventListener('click', function(){ tagInput.focus(); });
+
+  tagInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ','){
+      e.preventDefault();
+      var val = tagInput.value.trim();
+      if(val){
+        pendingParticipants.push(val);
+        tagInput.value = '';
+        renderTags();
+      }
+    } else if(e.key === 'Backspace' && tagInput.value === '' && pendingParticipants.length > 0){
+      pendingParticipants.pop();
+      renderTags();
+    }
+  });
+
+  document.getElementById('add-team-btn').addEventListener('click', function(){
+    var nameEl = document.getElementById('new-team-name');
+    var name = nameEl.value.trim();
+    if(!name) return;
+
+    // catch any name still sitting in the input but not yet tagged
+    var leftover = tagInput.value.trim();
+    if(leftover){ pendingParticipants.push(leftover); tagInput.value = ''; }
+
+    var all = getTeams();
+    all.push({
+      clubName: session.clubName,
+      teamName: name,
+      category: selectedCategory,
+      participants: pendingParticipants.slice(),
+      date: new Date().toISOString()
+    });
+    saveTeams(all);
+    nameEl.value = '';
+    pendingParticipants = [];
+    renderTags();
+    renderTeams();
+  });
+
+  // Members
+  var membersKey = 'rocodefest_members_' + session.clubName;
+  function getMembers(){
+    try { return JSON.parse(localStorage.getItem(membersKey) || '[]'); } catch(e){ return []; }
+  }
+  function saveMembers(list){
+    localStorage.setItem(membersKey, JSON.stringify(list));
+  }
+  function renderMembers(){
+    var list = getMembers();
+    var wrap = document.getElementById('members-list');
+    wrap.innerHTML = '';
+    if(list.length === 0){
+      wrap.innerHTML = '<p class="empty-small">No members added yet — add your teammates below.</p>';
+      return;
+    }
+    list.forEach(function(m, i){
+      var row = document.createElement('div');
+      row.className = 'member-row';
+      row.innerHTML =
+        '<div><div class="m-name"></div><div class="m-role"></div></div>' +
+        '<button class="remove-btn" data-idx="' + i + '">Remove</button>';
+      row.querySelector('.m-name').textContent = m.name;
+      row.querySelector('.m-role').textContent = m.role || '';
+      wrap.appendChild(row);
+    });
+    wrap.querySelectorAll('.remove-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var idx = parseInt(btn.getAttribute('data-idx'), 10);
+        var list = getMembers();
+        list.splice(idx, 1);
+        saveMembers(list);
+        renderMembers();
+      });
+    });
+  }
+  renderMembers();
+
+  document.getElementById('add-member-btn').addEventListener('click', function(){
+    var nameEl = document.getElementById('new-member-name');
+    var roleEl = document.getElementById('new-member-role');
+    var name = nameEl.value.trim();
+    if(!name) return;
+    var list = getMembers();
+    list.push({ name: name, role: roleEl.value.trim() });
+    saveMembers(list);
+    nameEl.value = '';
+    roleEl.value = '';
+    renderMembers();
+  });
+
+  // Join requests directed at this team
+  function getRequests(){
+    try { return JSON.parse(localStorage.getItem('rocodefest_join_requests') || '[]'); } catch(e){ return []; }
+  }
+  function saveRequests(list){
+    localStorage.setItem('rocodefest_join_requests', JSON.stringify(list));
+  }
+  function renderRequests(){
+    var all = getRequests();
+    var myTeamNames = myTeams().map(function(t){ return t.teamName; });
+    var mine = all.filter(function(r){ return myTeamNames.indexOf(r.teamChoice) !== -1 && (r.status || 'pending') === 'pending'; });
+    var wrap = document.getElementById('requests-list');
+    var emptyMsg = document.getElementById('no-requests');
+    wrap.innerHTML = '';
+
+    if(mine.length === 0){
+      emptyMsg.style.display = 'block';
+      return;
+    }
+    emptyMsg.style.display = 'none';
+
+    mine.forEach(function(r){
+      var row = document.createElement('div');
+      row.className = 'req-row';
+      row.innerHTML =
+        '<div class="req-info"><div class="r-name"></div><div class="r-meta"></div></div>' +
+        '<div class="req-actions"><button class="accept-btn">Accept</button><button class="decline-btn">Decline</button></div>';
+      row.querySelector('.r-name').textContent = r.memberName + ' → ' + r.teamChoice;
+      row.querySelector('.r-meta').textContent = r.city + ' · ' + r.email + (r.message ? ' · "' + r.message + '"' : '');
+
+      row.querySelector('.accept-btn').addEventListener('click', function(){
+        var list = getMembers();
+        list.push({ name: r.memberName, role: r.teamChoice });
+        saveMembers(list);
+        renderMembers();
+        var allReq = getRequests().map(function(x){
+          if(x.memberName === r.memberName && x.date === r.date){ x.status = 'accepted'; }
+          return x;
+        });
+        saveRequests(allReq);
+        renderRequests();
+      });
+      row.querySelector('.decline-btn').addEventListener('click', function(){
+        var allReq = getRequests().map(function(x){
+          if(x.memberName === r.memberName && x.date === r.date){ x.status = 'declined'; }
+          return x;
+        });
+        saveRequests(allReq);
+        renderRequests();
+      });
+
+      wrap.appendChild(row);
+    });
+  }
+  renderRequests();
+
+  applyAvatar();
+
+  document.getElementById('avatar-edit-btn').addEventListener('click', function(){
+    document.getElementById('avatar-file-input').click();
+  });
+
+  document.getElementById('avatar-file-input').addEventListener('change', function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+
+    var reader = new FileReader();
+    reader.onload = function(evt){
+      var img = new Image();
+      img.onload = function(){
+        var size = 160;
+        var canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        var ctx = canvas.getContext('2d');
+
+        var minSide = Math.min(img.width, img.height);
+        var sx = (img.width - minSide) / 2;
+        var sy = (img.height - minSide) / 2;
+        ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        try {
+          localStorage.setItem(avatarKey, dataUrl);
+          applyAvatar();
+        } catch(err){
+          alert('Could not save this image — try a smaller photo.');
+        }
+      };
+      img.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById('logout-link').addEventListener('click', function(){
+    localStorage.removeItem('rocodefest_session');
+    window.location.href = 'index.html';
+  });
+});
+
+  var resetLink = document.getElementById('reset-demo-link');
+  if(resetLink){
+    resetLink.addEventListener('click', function(){
+      if(confirm('This clears all ROcodeFest demo data from this browser (teams, member profiles, requests). Continue?')){
+        Object.keys(localStorage).forEach(function(key){
+          if(key.indexOf('rocodefest_') === 0){ localStorage.removeItem(key); }
+        });
+        window.location.href = 'index.html';
+      }
+    });
+  }
+</script>
+  <div class="fab-stack">
+    <button class="fab" id="fab-share" title="Share ROcodeFest" aria-label="Share">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>
+      Share
+    </button>
+    <button class="fab" id="fab-top" title="Back to top" aria-label="Back to top">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+      Top
+    </button>
+  </div>
+  <div class="fab-toast" id="fab-toast">Link copied!</div>
+</body>
+</html>
