@@ -313,7 +313,6 @@
       <a href="livestream.html">Live</a> <a href="contact.html">Contact</a>
     </div>
     ROcodeFest · Season 1 · Built by students, for students
-    <a class="reset-demo-link" id="reset-demo-link">Reset demo data</a>
   </footer>
 </div>
 
@@ -362,15 +361,12 @@ document.addEventListener('DOMContentLoaded', function(){
         })
         .catch(function(){});
     }
-  var resetLink = document.getElementById('reset-demo-link');
-  if(resetLink){
-    resetLink.addEventListener('click', function(){
-      if(confirm('Clear all ROcodeFest demo data?')){
-        Object.keys(localStorage).forEach(function(key){
-          if(key.indexOf('rocodefest_') === 0){ localStorage.removeItem(key); }
-        });
-        window.location.href = 'index.html';
-      }
+  // A "Reset demo data" link stood here. It cleared every rocodefest_*
+  // key from this browser, and its confirm text promised to remove
+  // teams, member profiles and requests. None of those live in the
+  // browser now -- they are rows, and one visitor cannot clear them by
+  // clicking a footer link. All it could still wipe is whether the
+  // rules badge has been seen.
     });
   }
 

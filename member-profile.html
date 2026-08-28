@@ -354,7 +354,6 @@
       <a href="livestream.html">Live</a> <a href="contact.html">Contact</a>
     </div>
     ROcodeFest · Season 1 · Built by students, for students
-    <a class="reset-demo-link" id="reset-demo-link">Reset demo data (clears all local test accounts/teams)</a>
   </footer>
 </div>
 
@@ -419,22 +418,29 @@ document.addEventListener('DOMContentLoaded', function(){
   // so the rest of the page reads as it did.
   function getTeams(){
     return allTeams.map(function(t){
-      return { teamName: t.teamName, category: t.category, clubName: t.clubName, city: t.clubCity || '' };
+      return { id: t.id, teamName: t.teamName, category: t.category,
+               clubName: t.clubName, city: t.clubCity || '' };
     });
   }
-  function findTeamClub(teamName){
-    var t = getTeams().find(function(x){ return x.teamName === teamName; });
-    return t ? t.clubName : '';
-  }
-  function getRequests(){
-    try { return JSON.parse(localStorage.getItem('rocodefest_join_requests') || '[]'); } catch(e){ return []; }
-  }
-  function saveRequests(list){
-    localStorage.setItem('rocodefest_join_requests', JSON.stringify(list));
+  // My own requests, from the server. They used to be filtered out of a
+  // shared localStorage array by matching on email, which is why a
+  // member saw an empty list on any computer but the one they had asked
+  // from -- and why the club, reading its own browser, saw nothing at
+  // all.
+  //
+  // Kept in a variable and re-fetched after a change, so the two
+  // renders below always draw the same answer.
+  var myRequests = [];
+
+  function loadRequests(){
+    return fetch('/api/join-requests/mine', { credentials: 'same-origin' })
+      .then(function(r){ return r.ok ? r.json() : { requests: [] }; })
+      .then(function(d){ myRequests = (d && d.requests) || []; })
+      .catch(function(){ myRequests = []; });
   }
 
-  function myRequestedTeamNames(){
-    return getRequests().filter(function(r){ return r.email === memberSession.email; }).map(function(r){ return r.teamChoice; });
+  function myRequestedTeamIds(){
+    return myRequests.map(function(r){ return String(r.teamId); });
   }
 
   function renderSuggestions(){
@@ -449,8 +455,10 @@ document.addEventListener('DOMContentLoaded', function(){
     }
     emptyMsg.style.display = 'none';
 
-    var already = myRequestedTeamNames();
-    var candidates = teams.filter(function(t){ return already.indexOf(t.teamName) === -1; });
+    // Matched on the team's id. Matching on the name meant two teams
+    // called the same thing in different clubs counted as one.
+    var already = myRequestedTeamIds();
+    var candidates = teams.filter(function(t){ return already.indexOf(String(t.id)) === -1; });
 
     // Prioritize same-city matches, then everything else, cap at 4
     var sameCity = candidates.filter(function(t){ return t.city && t.city.toLowerCase() === memberSession.city.toLowerCase(); });
@@ -475,19 +483,26 @@ document.addEventListener('DOMContentLoaded', function(){
 
       var btn = card.querySelector('.join-btn');
       btn.addEventListener('click', function(){
-        var existing = getRequests();
-        existing.push({
-          memberName: memberSession.memberName,
-          email: memberSession.email,
-          city: memberSession.city,
-          message: memberSession.message || '',
-          teamChoice: t.teamName,
-          status: 'pending',
-          date: new Date().toISOString()
-        });
-        saveRequests(existing);
-        renderSuggestions();
-        renderMyRequests();
+        btn.disabled = true;
+        // Only the team is sent. Who is asking comes from the session,
+        // so this cannot be used to request on someone else's behalf.
+        fetch('/api/join-requests', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ teamId: t.id })
+        })
+          .then(function(r){ return r.json().then(function(dd){ return { ok: r.ok, d: dd }; }); })
+          .then(function(rr){
+            if(!rr.ok){ btn.textContent = rr.d.error || 'Cererea nu a reușit'; return; }
+            // Re-read rather than assume: the answer the server holds
+            // is the one both lists below have to agree with.
+            return loadRequests().then(function(){
+              renderSuggestions();
+              renderMyRequests();
+            });
+          })
+          .catch(function(){ btn.disabled = false; btn.textContent = 'Încearcă din nou'; });
       });
 
       grid.appendChild(card);
@@ -495,7 +510,9 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   function renderMyRequests(){
-    var mine = getRequests().filter(function(r){ return r.email === memberSession.email; });
+    // Already scoped to me: the endpoint filters by the session's own
+    // account, so there is nothing to filter here.
+    var mine = myRequests;
     var wrap = document.getElementById('my-requests-list');
     var emptyMsg = document.getElementById('no-my-requests');
     wrap.innerHTML = '';
@@ -506,28 +523,31 @@ document.addEventListener('DOMContentLoaded', function(){
     }
     emptyMsg.style.display = 'none';
 
-    mine.slice().reverse().forEach(function(r){
+    // Already newest-first from the query; no reverse needed.
+    mine.forEach(function(r){
       var status = r.status || 'pending';
       var row = document.createElement('div');
       row.className = 'req-item';
       var viewLink = '';
       if(status === 'accepted'){
-        var teamClub = findTeamClub(r.teamChoice);
-        if(teamClub){
-          viewLink = '<a class="empty-small" style="text-decoration:underline; margin-left:10px;" href="team.html?club=' + encodeURIComponent(teamClub) + '&team=' + encodeURIComponent(r.teamChoice) + '">View team →</a>';
-        }
+        // The club name arrives with the request. Looking it up in the
+        // team list by name is what findTeamClub used to do, and it
+        // could not tell two teams with the same name apart.
+        viewLink = '<a class="empty-small" style="text-decoration:underline; margin-left:10px;" href="team.html?club=' + encodeURIComponent(r.clubName) + '&team=' + encodeURIComponent(r.teamName) + '">View team →</a>';
       }
       row.innerHTML =
         '<div class="rq-name"></div>' +
         '<span><span class="status-tag status-' + status + '"></span>' + viewLink + '</span>';
-      row.querySelector('.rq-name').textContent = r.teamChoice;
+      row.querySelector('.rq-name').textContent = r.teamName;
       row.querySelector('.status-tag').textContent = status.charAt(0).toUpperCase() + status.slice(1);
       wrap.appendChild(row);
     });
   }
 
-  renderSuggestions();
-  renderMyRequests();
+  loadRequests().then(function(){
+    renderSuggestions();
+    renderMyRequests();
+  });
 
   document.getElementById('logout-link').addEventListener('click', function(){
     fetch('/auth/logout', { method:'POST', credentials:'same-origin' });
@@ -537,17 +557,12 @@ document.addEventListener('DOMContentLoaded', function(){
     .catch(function(){});
 });
 
-  var resetLink = document.getElementById('reset-demo-link');
-  if(resetLink){
-    resetLink.addEventListener('click', function(){
-      if(confirm('This clears all ROcodeFest demo data from this browser (teams, member profiles, requests). Continue?')){
-        Object.keys(localStorage).forEach(function(key){
-          if(key.indexOf('rocodefest_') === 0){ localStorage.removeItem(key); }
-        });
-        window.location.href = 'index.html';
-      }
-    });
-  }
+  // A "Reset demo data" link stood here. It cleared every rocodefest_*
+  // key from this browser, and its confirm text promised to remove
+  // teams, member profiles and requests. None of those are in the
+  // browser any more -- they are rows, and one visitor cannot clear
+  // them by clicking a link in a footer. All it would have wiped is
+  // whether the rules badge has been seen.
 </script>
 </body>
 </html>

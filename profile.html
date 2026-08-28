@@ -503,19 +503,27 @@
       </div>
 
       <p class="field-label">Category</p>
-      <div class="cat-picker" id="cat-picker">
-        <button type="button" class="cat-chip" data-cat="Robotics" data-color="var(--blue)">🤖 Robotics</button>
-        <button type="button" class="cat-chip" data-cat="Programming" data-color="var(--green)">💻 Programming</button>
-        <button type="button" class="cat-chip" data-cat="Design" data-color="var(--purple)">🎨 Design</button>
-        <button type="button" class="cat-chip" data-cat="Other" data-color="var(--yellow)">✦ Other</button>
+      <!--
+        Filled from /api/teams/categories rather than written out here.
+        Four chips were hardcoded, and a category added to the table
+        would not have appeared, while one removed would still have been
+        offered and the insert refused.
+      -->
+      <div class="cat-picker" id="cat-picker"></div>
+
+      <p class="field-label">Participation code</p>
+      <div class="icon-input">
+        <span class="icon-input-glyph">#️⃣</span>
+        <input type="text" id="new-team-code" placeholder="e.g. CB-2026">
       </div>
 
-      <p class="field-label">Participants</p>
-      <div class="tag-input-box" id="tag-input-box">
-        <span class="tag-chip-placeholder" id="tag-empty-hint">Type a name and press Enter ↵</span>
-        <input type="text" id="new-team-participants" placeholder="">
-      </div>
+      <!--
+        A "Participants" tag box stood here, collecting typed-in names.
+        They were not accounts and appeared nowhere else on the site. A
+        team is filled by accepting join requests.
+      -->
 
+      <p class="error" id="add-team-error" style="display:none; color:var(--coral-dark); font-size:13px; font-weight:700; margin-top:10px;"></p>
       <button class="btn btn-primary btn-small" id="add-team-btn">✚ Add team</button>
     </div>
 
@@ -532,11 +540,17 @@
     <h2 class="section-title">Club members</h2>
     <div class="members-card">
       <div id="members-list"></div>
-      <div class="add-member-row">
-        <input type="text" id="new-member-name" placeholder="Member name">
-        <input type="text" id="new-member-role" placeholder="Role (optional)">
-        <button class="btn btn-primary btn-small" id="add-member-btn">Add</button>
-      </div>
+      <!--
+        A "Member name / Role / Add" row stood here. It wrote a typed-in
+        name into this browser's own localStorage, and that was all it
+        did: the person named could not sign in, could not submit, and
+        appeared nowhere else on the site. A member is an account now,
+        and joins a team by asking -- so the way to add one is to accept
+        the request below, and there is nothing to type here.
+      -->
+      <p class="empty-small" style="margin:14px 0 0;">
+        Membrii se adaugă acceptând cererile de înscriere de mai jos.
+      </p>
     </div>
 
     <h2 class="section-title">Join requests</h2>
@@ -559,7 +573,6 @@
       <a href="livestream.html">Live</a> <a href="contact.html">Contact</a>
     </div>
     ROcodeFest · Season 1 · Built by students, for students
-    <a class="reset-demo-link" id="reset-demo-link">Reset demo data (clears all local test accounts/teams)</a>
   </footer>
 </div>
 
@@ -657,231 +670,229 @@ document.addEventListener('DOMContentLoaded', function(){
   document.getElementById('p-number').textContent = '#' + (club.foundingNumber || '—');
 
   // Teams
-  function getTeams(){
-    try { return JSON.parse(localStorage.getItem('rocodefest_teams') || '[]'); } catch(e){ return []; }
-  }
-  function saveTeams(list){
-    localStorage.setItem('rocodefest_teams', JSON.stringify(list));
-  }
-  function myTeams(){
-    return getTeams().filter(function(t){ return t.clubName === session.clubName; });
-  }
-  var catColors = { Robotics:'var(--blue)', Programming:'var(--green)', Design:'var(--purple)', Other:'var(--yellow)' };
+  //
+  // /api/teams/mine is scoped to the session's club, so there is no
+  // "which of these are mine" filter here any more -- that comparison
+  // was on club NAME, and a club renaming itself lost every team it had.
+  var teams = [];
 
-  var stageLabels = ['Registered', 'City challenge', 'The final', 'Results'];
+  function loadTeams(){
+    return fetch('/api/teams/mine', { credentials: 'same-origin' })
+      .then(function(r){ return r.ok ? r.json() : { teams: [] }; })
+      .then(function(d){ teams = (d && d.teams) || []; })
+      .catch(function(){ teams = []; });
+  }
 
-  function getTeamProgress(teamName){
-    var key = 'rocodefest_progress_' + session.clubName + '_' + teamName;
-    return parseInt(localStorage.getItem(key) || '0', 10);
+  // The category list is read from the server too, so adding a category
+  // is a change to a table rather than to four pages.
+  var categories = [];
+  function loadCategories(){
+    return fetch('/api/teams/categories', { credentials: 'same-origin' })
+      .then(function(r){ return r.json(); })
+      .then(function(d){ categories = (d && d.categories) || []; })
+      .catch(function(){ categories = []; });
   }
-  function setTeamProgress(teamName, stage){
-    var key = 'rocodefest_progress_' + session.clubName + '_' + teamName;
-    localStorage.setItem(key, stage);
-  }
+
+  var catColors = { ROBOTICS:'var(--blue)', PROGRAMMING:'var(--green)', DESIGN:'var(--purple)', OTHER:'var(--yellow)' };
 
   function renderTeams(){
-    var mine = myTeams();
     var wrap = document.getElementById('teams-list');
     wrap.innerHTML = '';
-    document.getElementById('p-team-count').textContent = mine.length;
+    document.getElementById('p-team-count').textContent = teams.length;
 
-    if(mine.length === 0){
-      wrap.innerHTML = '<p class="empty-small">No teams added yet — add your first team below (e.g. a Robotics team and a Programming team).</p>';
+    if(teams.length === 0){
+      wrap.innerHTML = '<p class="empty-small">Nicio echipă încă — adaugă prima mai jos.</p>';
       return;
     }
 
-    mine.forEach(function(t){
-      var stage = getTeamProgress(t.teamName);
-      var pct = (stage / 3) * 100;
-      var participants = t.participants || [];
-
+    teams.forEach(function(t){
       var card = document.createElement('div');
       card.className = 'team-card-full';
 
-      var stepsHtml = stageLabels.map(function(label, idx){
-        var cls = idx < stage ? 'done' : (idx === stage ? 'current' : '');
-        return '<div class="mini-step ' + cls + '"><div class="mini-dot">' + (idx + 1) + '</div><p>' + label + '</p></div>';
-      }).join('');
-
+      // The four-stage track that stood here read
+      // rocodefest_progress_<club>_<team>, a counter this browser wrote
+      // and this browser read. Nothing else in the site could see it,
+      // which is why the partner dashboard showed every team as
+      // "Registered" forever. It is gone rather than reconnected: there
+      // is no definition yet of what makes a team reach a stage.
+      //
+      // What is shown instead is true and checkable: who is on the
+      // team, how full it is, and the code it competes under.
       card.innerHTML =
         '<div class="team-card-head">' +
           '<div><h3></h3><span class="team-cat-badge" style="background:' + (catColors[t.category] || 'var(--ink-soft)') + '"></span></div>' +
-          '<button class="remove-btn" data-name="' + t.teamName.replace(/"/g,'&quot;') + '">Remove</button>' +
+          '<button class="remove-btn">Remove</button>' +
         '</div>' +
-        '<div class="team-participants"><strong>Participants:</strong> <span class="p-list"></span></div>' +
-        '<div class="mini-track"><div class="mini-fill" style="width:' + pct + '%;"></div>' + stepsHtml + '</div>' +
-        '<div class="team-card-actions"><a class="btn btn-secondary btn-small" href="team.html?club=' + encodeURIComponent(session.clubName) + '&team=' + encodeURIComponent(t.teamName) + '">Manage team →</a> <button class="btn btn-secondary btn-small advance-team-btn" ' + (stage >= 3 ? 'disabled' : '') + '>' + (stage >= 3 ? 'Season complete 🎉' : 'Mark next stage complete (demo) →') + '</button></div>';
+        '<div class="team-participants"><strong>Membri:</strong> <span class="p-list"></span></div>' +
+        '<div class="team-card-actions"><a class="btn btn-secondary btn-small" href="team.html?club=' + encodeURIComponent(session.clubName) + '&team=' + encodeURIComponent(t.teamName) + '">Manage team →</a></div>';
 
       card.querySelector('h3').textContent = t.teamName;
-      card.querySelector('.team-cat-badge').textContent = t.category;
-      card.querySelector('.p-list').textContent = participants.length > 0 ? participants.join(', ') : 'None added yet';
+      card.querySelector('.team-cat-badge').textContent = t.categoryLabel || t.category;
+
+      var onThisTeam = clubMembers.filter(function(m){ return String(m.teamId) === String(t.id); });
+      card.querySelector('.p-list').textContent =
+        (onThisTeam.length > 0 ? onThisTeam.map(function(m){ return m.memberName; }).join(', ') : 'Niciunul încă') +
+        ' (' + t.memberCount + '/' + t.maxMembers + ') · cod ' + t.participationCode;
 
       card.querySelector('.remove-btn').addEventListener('click', function(){
-        var name = t.teamName;
-        var all = getTeams().filter(function(x){ return !(x.clubName === session.clubName && x.teamName === name); });
-        saveTeams(all);
-        renderTeams();
+        // Not implemented on the server yet. Removing a team is not a
+        // delete -- teams carry scores, submissions and memberships --
+        // so it needs is_active and a decision about what happens to
+        // them. Saying so beats a button that quietly does nothing.
+        alert('Retragerea unei echipe nu este încă disponibilă. Scrie-ne și o facem manual.');
       });
-
-      var advanceBtn = card.querySelector('.advance-team-btn');
-      if(!advanceBtn.disabled){
-        advanceBtn.addEventListener('click', function(){
-          var current = getTeamProgress(t.teamName);
-          if(current < 3){
-            setTeamProgress(t.teamName, current + 1);
-            renderTeams();
-          }
-        });
-      }
 
       wrap.appendChild(card);
     });
   }
-  renderTeams();
 
-  var selectedCategory = 'Robotics';
-  var catChips = document.querySelectorAll('.cat-chip');
-  catChips.forEach(function(chip){
-    if(chip.getAttribute('data-cat') === selectedCategory){
-      chip.classList.add('selected');
-      chip.style.background = chip.getAttribute('data-color');
-    }
-    chip.addEventListener('click', function(){
-      catChips.forEach(function(c){
-        c.classList.remove('selected');
-        c.style.background = '#fff';
+  var selectedCategoryId = null;
+
+  // Drawn from the table, so a chip always names a category that exists
+  // and always carries its real id. The colours and glyphs stay here:
+  // they are presentation, and the table has no opinion about them.
+  var CAT_STYLE = {
+    ROBOTICS:    { color: 'var(--blue)',   glyph: '🤖' },
+    PROGRAMMING: { color: 'var(--green)',  glyph: '💻' },
+    DESIGN:      { color: 'var(--purple)', glyph: '🎨' },
+    OTHER:       { color: 'var(--yellow)', glyph: '✦' }
+  };
+
+  function renderCategoryPicker(){
+    var picker = document.getElementById('cat-picker');
+    picker.innerHTML = '';
+    categories.forEach(function(cat, i){
+      var style = CAT_STYLE[cat.code] || { color: 'var(--ink-soft)', glyph: '•' };
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'cat-chip';
+      chip.textContent = style.glyph + ' ' + cat.label;
+      chip.addEventListener('click', function(){
+        picker.querySelectorAll('.cat-chip').forEach(function(c){
+          c.classList.remove('selected');
+          c.style.background = '#fff';
+        });
+        chip.classList.add('selected');
+        chip.style.background = style.color;
+        selectedCategoryId = cat.id;
       });
-      chip.classList.add('selected');
-      chip.style.background = chip.getAttribute('data-color');
-      selectedCategory = chip.getAttribute('data-cat');
-    });
-  });
-
-  // Participant tag input
-  var pendingParticipants = [];
-  var tagBox = document.getElementById('tag-input-box');
-  var tagInput = document.getElementById('new-team-participants');
-  var tagEmptyHint = document.getElementById('tag-empty-hint');
-
-  function renderTags(){
-    tagBox.querySelectorAll('.participant-chip').forEach(function(el){ el.remove(); });
-    tagEmptyHint.style.display = pendingParticipants.length === 0 ? 'inline' : 'none';
-    pendingParticipants.forEach(function(name, idx){
-      var chip = document.createElement('span');
-      chip.className = 'participant-chip';
-      chip.innerHTML = '<span></span><button type="button">×</button>';
-      chip.querySelector('span').textContent = name;
-      chip.querySelector('button').addEventListener('click', function(){
-        pendingParticipants.splice(idx, 1);
-        renderTags();
-      });
-      tagBox.insertBefore(chip, tagInput);
+      picker.appendChild(chip);
+      // Preselect the first, as the page used to preselect Robotics.
+      if(i === 0){ chip.classList.add('selected'); chip.style.background = style.color; selectedCategoryId = cat.id; }
     });
   }
 
-  tagBox.addEventListener('click', function(){ tagInput.focus(); });
+  // The "participants" tag input that stood here collected typed-in
+  // names alongside the team. They were not accounts, so nobody typed
+  // in could sign in, submit, or appear anywhere else -- and the
+  // members who HAD registered and been accepted were not among them.
+  // A team is filled by accepting join requests; there is nothing to
+  // type here.
 
-  tagInput.addEventListener('keydown', function(e){
-    if(e.key === 'Enter' || e.key === ','){
-      e.preventDefault();
-      var val = tagInput.value.trim();
-      if(val){
-        pendingParticipants.push(val);
-        tagInput.value = '';
-        renderTags();
-      }
-    } else if(e.key === 'Backspace' && tagInput.value === '' && pendingParticipants.length > 0){
-      pendingParticipants.pop();
-      renderTags();
-    }
-  });
-
-  document.getElementById('add-team-btn').addEventListener('click', function(){
+  var addTeamBtn = document.getElementById('add-team-btn');
+  addTeamBtn.addEventListener('click', function(){
     var nameEl = document.getElementById('new-team-name');
+    var codeEl = document.getElementById('new-team-code');
+    var errEl  = document.getElementById('add-team-error');
     var name = nameEl.value.trim();
-    if(!name) return;
+    var code = codeEl.value.trim();
 
-    // catch any name still sitting in the input but not yet tagged
-    var leftover = tagInput.value.trim();
-    if(leftover){ pendingParticipants.push(leftover); tagInput.value = ''; }
+    function fail(msg){ errEl.textContent = msg; errEl.style.display = 'block'; }
+    errEl.style.display = 'none';
 
-    var all = getTeams();
-    all.push({
-      clubName: session.clubName,
-      teamName: name,
-      category: selectedCategory,
-      participants: pendingParticipants.slice(),
-      date: new Date().toISOString()
-    });
-    saveTeams(all);
-    nameEl.value = '';
-    pendingParticipants = [];
-    renderTags();
-    renderTeams();
+    if(!name){ return fail('Dă echipei un nume.'); }
+    if(!selectedCategoryId){ return fail('Alege o categorie.'); }
+    if(!code){ return fail('Codul de participare este obligatoriu.'); }
+
+    addTeamBtn.disabled = true;
+    fetch('/api/teams', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ teamName: name, categoryId: selectedCategoryId, participationCode: code })
+    })
+      .then(function(r){ return r.json().then(function(dd){ return { ok: r.ok, d: dd }; }); })
+      .then(function(rr){
+        addTeamBtn.disabled = false;
+        if(!rr.ok){
+          // The messages come from the server, which knows which
+          // constraint refused: a duplicate code and a duplicate name
+          // within the club are different problems with different fixes.
+          return fail(rr.d.error || 'Echipa nu a putut fi creată.');
+        }
+        nameEl.value = '';
+        codeEl.value = '';
+        return loadTeams().then(renderTeams);
+      })
+      .catch(function(){ addTeamBtn.disabled = false; fail('Serverul nu răspunde.'); });
   });
 
   // Members
-  var membersKey = 'rocodefest_members_' + session.clubName;
-  function getMembers(){
-    try { return JSON.parse(localStorage.getItem(membersKey) || '[]'); } catch(e){ return []; }
+  //
+  // This was rocodefest_members_<clubName>: a list of names typed into a
+  // box, in the club's own browser. A name on that list was not an
+  // account -- it could not sign in, could not submit anything, and did
+  // not appear anywhere else on the site. Meanwhile the member who HAD
+  // registered and been accepted was not on it, because nothing ever
+  // put them there.
+  //
+  // The list is the club's real memberships now: people with accounts,
+  // on teams, arrived at by accepting a join request.
+  var clubMembers = [];
+
+  function loadMembers(){
+    return fetch('/api/memberships/club', { credentials: 'same-origin' })
+      .then(function(r){ return r.ok ? r.json() : { members: [] }; })
+      .then(function(d){ clubMembers = (d && d.members) || []; })
+      .catch(function(){ clubMembers = []; });
   }
-  function saveMembers(list){
-    localStorage.setItem(membersKey, JSON.stringify(list));
-  }
+
   function renderMembers(){
-    var list = getMembers();
     var wrap = document.getElementById('members-list');
     wrap.innerHTML = '';
-    if(list.length === 0){
-      wrap.innerHTML = '<p class="empty-small">No members added yet — add your teammates below.</p>';
+    if(clubMembers.length === 0){
+      wrap.innerHTML = '<p class="empty-small">Niciun membru încă — membrii apar aici după ce le accepți cererea de înscriere.</p>';
       return;
     }
-    list.forEach(function(m, i){
+    clubMembers.forEach(function(m){
       var row = document.createElement('div');
       row.className = 'member-row';
       row.innerHTML =
         '<div><div class="m-name"></div><div class="m-role"></div></div>' +
-        '<button class="remove-btn" data-idx="' + i + '">Remove</button>';
-      row.querySelector('.m-name').textContent = m.name;
-      row.querySelector('.m-role').textContent = m.role || '';
+        '<button class="remove-btn">Remove</button>';
+      row.querySelector('.m-name').textContent = m.memberName;
+      row.querySelector('.m-role').textContent = m.teamName + (m.roleTitle ? ' · ' + m.roleTitle : '');
+      // The id, not a position in an array. Removing by index meant a
+      // list that had changed since it was drawn removed the wrong row.
+      row.querySelector('.remove-btn').addEventListener('click', function(){
+        fetch('/api/memberships/' + m.id, { method: 'DELETE', credentials: 'same-origin' })
+          .then(function(){ return loadMembers(); })
+          .then(renderMembers)
+          .catch(function(){});
+      });
       wrap.appendChild(row);
     });
-    wrap.querySelectorAll('.remove-btn').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        var idx = parseInt(btn.getAttribute('data-idx'), 10);
-        var list = getMembers();
-        list.splice(idx, 1);
-        saveMembers(list);
-        renderMembers();
-      });
-    });
   }
-  renderMembers();
 
-  document.getElementById('add-member-btn').addEventListener('click', function(){
-    var nameEl = document.getElementById('new-member-name');
-    var roleEl = document.getElementById('new-member-role');
-    var name = nameEl.value.trim();
-    if(!name) return;
-    var list = getMembers();
-    list.push({ name: name, role: roleEl.value.trim() });
-    saveMembers(list);
-    nameEl.value = '';
-    roleEl.value = '';
-    renderMembers();
-  });
+  // Join requests directed at this club's teams
+  //
+  // This is the half that never met the other one. A member's request
+  // was pushed into the MEMBER's localStorage, and this page read the
+  // CLUB's -- so both sides worked and no club ever saw a request from
+  // anyone. /api/join-requests/incoming is scoped to the session's club
+  // by the query, so there is no filtering to do here and no team-name
+  // comparison to get wrong.
+  var incoming = [];
 
-  // Join requests directed at this team
-  function getRequests(){
-    try { return JSON.parse(localStorage.getItem('rocodefest_join_requests') || '[]'); } catch(e){ return []; }
+  function loadRequests(){
+    return fetch('/api/join-requests/incoming', { credentials: 'same-origin' })
+      .then(function(r){ return r.ok ? r.json() : { requests: [] }; })
+      .then(function(d){ incoming = (d && d.requests) || []; })
+      .catch(function(){ incoming = []; });
   }
-  function saveRequests(list){
-    localStorage.setItem('rocodefest_join_requests', JSON.stringify(list));
-  }
+
   function renderRequests(){
-    var all = getRequests();
-    var myTeamNames = myTeams().map(function(t){ return t.teamName; });
-    var mine = all.filter(function(r){ return myTeamNames.indexOf(r.teamChoice) !== -1 && (r.status || 'pending') === 'pending'; });
+    var mine = incoming.filter(function(r){ return r.status === 'pending'; });
     var wrap = document.getElementById('requests-list');
     var emptyMsg = document.getElementById('no-requests');
     wrap.innerHTML = '';
@@ -898,34 +909,59 @@ document.addEventListener('DOMContentLoaded', function(){
       row.innerHTML =
         '<div class="req-info"><div class="r-name"></div><div class="r-meta"></div></div>' +
         '<div class="req-actions"><button class="accept-btn">Accept</button><button class="decline-btn">Decline</button></div>';
-      row.querySelector('.r-name').textContent = r.memberName + ' → ' + r.teamChoice;
-      row.querySelector('.r-meta').textContent = r.city + ' · ' + r.email + (r.message ? ' · "' + r.message + '"' : '');
+      row.querySelector('.r-name').textContent = r.memberName + ' → ' + r.teamName;
+      row.querySelector('.r-meta').textContent = (r.memberCity || '—') + ' · ' + r.memberEmail + (r.message ? ' · "' + r.message + '"' : '');
 
-      row.querySelector('.accept-btn').addEventListener('click', function(){
-        var list = getMembers();
-        list.push({ name: r.memberName, role: r.teamChoice });
-        saveMembers(list);
-        renderMembers();
-        var allReq = getRequests().map(function(x){
-          if(x.memberName === r.memberName && x.date === r.date){ x.status = 'accepted'; }
-          return x;
-        });
-        saveRequests(allReq);
-        renderRequests();
-      });
-      row.querySelector('.decline-btn').addEventListener('click', function(){
-        var allReq = getRequests().map(function(x){
-          if(x.memberName === r.memberName && x.date === r.date){ x.status = 'declined'; }
-          return x;
-        });
-        saveRequests(allReq);
-        renderRequests();
-      });
+      // Accepting is one call. It used to be two local writes -- push a
+      // name onto the members list, then mark the request accepted --
+      // which could half-happen, and matched the request by member name
+      // plus timestamp because there was no id to use. The server does
+      // both in one transaction, and a team that filled up in the
+      // meantime rolls the whole thing back.
+      function decide(verb, btn){
+        btn.disabled = true;
+        fetch('/api/join-requests/' + r.id + '/' + verb, {
+          method: 'POST', credentials: 'same-origin'
+        })
+          .then(function(resp){ return resp.json().then(function(dd){ return { ok: resp.ok, d: dd }; }); })
+          .then(function(rr){
+            if(!rr.ok){
+              btn.disabled = false;
+              row.querySelector('.r-meta').textContent = rr.d.error || 'Nu a mers.';
+              return;
+            }
+            // Re-read both lists: accepting changes the members too.
+            return Promise.all([loadRequests(), loadMembers()]).then(function(){
+              renderRequests();
+              renderMembers();
+            });
+          })
+          .catch(function(){ btn.disabled = false; });
+      }
+
+      var acceptBtn = row.querySelector('.accept-btn');
+      var declineBtn = row.querySelector('.decline-btn');
+      acceptBtn.addEventListener('click', function(){ decide('accept', acceptBtn); });
+      declineBtn.addEventListener('click', function(){ decide('reject', declineBtn); });
 
       wrap.appendChild(row);
     });
   }
-  renderRequests();
+  // ---------------------------------------------------------------
+  // One bootstrap, rather than each block fetching as it is defined
+  // ---------------------------------------------------------------
+  // Order matters in exactly one place: a team card lists the members
+  // on it, so the members have to be in hand before the teams are
+  // drawn. Everything else is independent, so it all goes out at once
+  // and the page fills in when the slowest of them answers.
+  Promise.all([loadTeams(), loadCategories(), loadMembers(), loadRequests()])
+    .then(function(){
+      renderCategoryPicker();
+      renderMembers();
+      renderTeams();
+      renderRequests();
+    })
+    .catch(function(){});
 
   applyAvatar();
 
@@ -995,15 +1031,12 @@ document.addEventListener('DOMContentLoaded', function(){
     });
 });
 
-  var resetLink = document.getElementById('reset-demo-link');
-  if(resetLink){
-    resetLink.addEventListener('click', function(){
-      if(confirm('This clears all ROcodeFest demo data from this browser (teams, member profiles, requests). Continue?')){
-        Object.keys(localStorage).forEach(function(key){
-          if(key.indexOf('rocodefest_') === 0){ localStorage.removeItem(key); }
-        });
-        window.location.href = 'index.html';
-      }
+  // A "Reset demo data" link stood here. It cleared every rocodefest_*
+  // key from this browser, and its confirm text promised to remove
+  // teams, member profiles and requests. None of those live in the
+  // browser now -- they are rows, and one visitor cannot clear them by
+  // clicking a footer link. All it could still wipe is whether the
+  // rules badge has been seen.
     });
   }
 </script>

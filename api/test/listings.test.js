@@ -102,6 +102,32 @@ test('/api/teams aduce clubul cu fiecare echipa, ca sa nu mai uneasca browserul'
   assert.equal(t.memberCount, 0);
 });
 
+test('id-urile vin ca siruri, si paginile trebuie sa le compare ca siruri', async () => {
+  // team_id and account_id are BIGINT. node-postgres returns bigint as a
+  // string on purpose: a JavaScript number cannot hold one exactly past
+  // 2^53, so parsing it would silently corrupt large ids rather than
+  // fail. It looks like an inconsistency next to clubNumber, which is a
+  // plain integer column and does come back as a number.
+  //
+  // This is asserted so that nobody "fixes" it into a number, and so
+  // that organizations.html comparing t.clubId === club.id keeps
+  // comparing two strings. Turning one side into a number would make
+  // that === silently false and every club would show no teams.
+  const c = h.client();
+  await oneClubOneTeam(c, 'iduri@test.ro', 'Clubul Id');
+
+  const club = (await c.get('/api/clubs')).body.clubs[0];
+  const team = (await c.get('/api/teams')).body.teams[0];
+
+  assert.equal(typeof club.id, 'string', 'account_id este BIGINT');
+  assert.equal(typeof team.id, 'string', 'team_id este BIGINT');
+  assert.equal(typeof team.clubId, 'string');
+  assert.equal(team.clubId, club.id, 'compararea pe care o face organizations.html');
+
+  assert.equal(typeof club.number, 'number', 'founding_number este integer');
+  assert.equal(typeof team.clubNumber, 'number');
+});
+
 test('/api/teams este public: un vizitator nesemnat vede lista', async () => {
   const owner = h.client();
   await oneClubOneTeam(owner);
