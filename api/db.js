@@ -43,6 +43,12 @@ const SQLSTATE = {
   // just checking for a rejection.
   '22003': { status: 400, message: 'Valoare numerică în afara intervalului permis.' },
   '22001': { status: 400, message: 'Text prea lung pentru acest câmp.' },
+  // Same family, found the same way: an appeal whose livestream moment
+  // was typed as words rather than a duration raised 22007, which was
+  // not in this map, so the API answered 500 to something the person
+  // filling in the form could have fixed in two seconds.
+  '22007': { status: 400, message: 'Dată sau durată scrisă într-un format nerecunoscut.' },
+  '22008': { status: 400, message: 'Dată sau durată în afara intervalului permis.' },
 };
 
 // Business-rule triggers RAISE EXCEPTION, which arrives as P0001. Those

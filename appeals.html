@@ -401,31 +401,28 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   }
 
-  // TODO: placeholder — mock rule-code taxonomy for visual testing of the
-  // "Reference Rules" selector only. Official codes will come from the
-  // regulations via the backend once available.
-  var RULE_CODES = [
-    { code:'G1', label:'Same task, every city' },
-    { code:'G2', label:'Team size & eligibility' },
-    { code:'G3', label:'Club structure' },
-    { code:'G4', label:'Conduct' },
-    { code:'E2', label:'Intellectual property' },
-    { code:'A21', label:'Appeals limit (3/day)' },
-    { code:'S1', label:'City challenge (Stage 1)' },
-    { code:'S2', label:'Scoring rubric' },
-    { code:'S3', label:'Advancement' },
-    { code:'S4', label:'The final (Stage 2)' },
-    { code:'S5', label:'Prizes' },
-    { code:'S6', label:'Certificates' }
-  ];
+  // The twelve rule codes that stood here were written into the page,
+  // and the rules table has no rows behind any of them -- so every code
+  // in the dropdown named a rule that does not exist, and citing one
+  // could never have produced an appeal.
+  //
+  // They come from the table now. While it is empty the picker offers
+  // only "not sure / other", which is the truthful state: the
+  // regulations have not been loaded yet, and an appeal without a
+  // citation is still a valid appeal -- rule_id is nullable.
   var ruleSelect = document.getElementById('ap-rule-code');
-  RULE_CODES.forEach(function(r){
-    var o = document.createElement('option');
-    o.value = r.code;
-    o.textContent = r.code + ' — ' + r.label;
-    ruleSelect.appendChild(o);
-  });
-  // TODO: placeholder — intentionally not navigating anywhere yet. Once the
+  fetch('/api/appeals/rules', { credentials: 'same-origin' })
+    .then(function(r){ return r.ok ? r.json() : { rules: [] }; })
+    .then(function(d){
+      (d.rules || []).forEach(function(r){
+        var o = document.createElement('option');
+        o.value = r.id;
+        o.textContent = r.code + ' — ' + r.title;
+        ruleSelect.appendChild(o);
+      });
+    })
+    .catch(function(){});
+ // TODO: placeholder — intentionally not navigating anywhere yet. Once the
   // backend serves real regulations content, this will deep-link to the
   // selected rule. Flashes the hint text so the button still gives visible
   // feedback instead of appearing unresponsive.
@@ -482,34 +479,69 @@ document.addEventListener('DOMContentLoaded', function(){
   else {
     document.getElementById('appeal-wrap').style.display = 'block';
     var sel = document.getElementById('ap-team');
-    mine.forEach(function(t){ var o = document.createElement('option'); o.value = t.teamName; o.textContent = t.teamName; sel.appendChild(o); });
+    // The id, not the name -- the server has no way to tell two teams
+    // with the same name apart, nor should it have to.
+    mine.forEach(function(t){ var o = document.createElement('option'); o.value = t.id; o.textContent = t.teamName; sel.appendChild(o); });
 
-    function getAppeals(){ try { return JSON.parse(localStorage.getItem('rocodefest_appeals') || '[]'); } catch(e){ return []; } }
+    var appeals = [];
+    function loadAppeals(){
+      return fetch('/api/appeals', { credentials: 'same-origin' })
+        .then(function(r){ return r.ok ? r.json() : { appeals: [] }; })
+        .then(function(d){ appeals = (d && d.appeals) || []; })
+        .catch(function(){ appeals = []; });
+    }
+
     function renderAppeals(){
-      var all = getAppeals().filter(function(a){ return a.club === clubSession.clubName; });
       var wrap = document.getElementById('ap-list');
-      if(all.length === 0){ wrap.innerHTML = '<div class="empty-state">No appeals filed.</div>'; return; }
-      wrap.innerHTML = '<div class="card">' + all.reverse().map(function(a){
+      // Already scoped to my club and newest-first by the query.
+      if(appeals.length === 0){ wrap.innerHTML = '<div class="empty-state">No appeals filed.</div>'; return; }
+      wrap.innerHTML = '<div class="card">' + appeals.map(function(a){
         var st = a.status || 'pending';
         var cls = st === 'accepted' ? 'ap-accepted' : st === 'rejected' ? 'ap-rejected' : 'ap-pending';
-        var ruleTag = a.ruleCode ? '<span class="ap-rule-tag">' + a.ruleCode + '</span>' : ''; // TODO: placeholder — will link to the regulations once backend content exists
-        return '<div class="ap-item"><strong>' + a.team + '</strong> <span class="ap-status ' + cls + '">' + st + '</span>' + ruleTag + '<br><span style="font-size:12px;color:var(--ink-soft);">Timestamp: ' + (a.timestamp||'N/A') + ' &middot; Against: ' + (a.target||'N/A') + '</span><p style="font-size:13px;margin:6px 0 0;">' + a.reason + '</p></div>';
+        // The rule now comes from the rules table, with its real title.
+        var ruleTag = a.ruleCode ? '<span class="ap-rule-tag" title="' + (a.ruleTitle||'').replace(/"/g,'&quot;') + '">' + a.ruleCode + '</span>' : '';
+        return '<div class="ap-item"><strong>' + a.teamName.replace(/</g,'&lt;') + '</strong> <span class="ap-status ' + cls + '">' + st + '</span>' + ruleTag + '<br><span style="font-size:12px;color:var(--ink-soft);">Timestamp: ' + (a.timestamp || 'N/A') + '</span><p style="font-size:13px;margin:6px 0 0;">' + a.reason.replace(/</g,'&lt;') + '</p></div>';
       }).join('') + '</div>';
     }
-    renderAppeals();
 
-    document.getElementById('ap-btn').addEventListener('click', function(){
-      var team = sel.value; var reason = document.getElementById('ap-reason').value.trim();
+    loadAppeals().then(renderAppeals);
+
+    var apBtn = document.getElementById('ap-btn');
+    apBtn.addEventListener('click', function(){
+      var teamId = sel.value; var reason = document.getElementById('ap-reason').value.trim();
       var errEl = document.getElementById('ap-error');
-      if(!team || !reason){ errEl.textContent = 'Please select a team and explain your appeal.'; errEl.classList.add('show'); return; }
-      var teamAppeals = getAppeals().filter(function(a){ return a.team === team && a.status === 'rejected'; });
-      if(teamAppeals.length >= 3){ errEl.textContent = 'This team has reached the limit of 3 invalid appeals. No further appeals can be filed.'; errEl.classList.add('show'); return; }
+      if(!teamId || !reason){ errEl.textContent = 'Please select a team and explain your appeal.'; errEl.classList.add('show'); return; }
       errEl.classList.remove('show');
-      var appeals = getAppeals();
-      appeals.push({ club:clubSession.clubName, team:team, timestamp:readTimestamp(), target:document.getElementById('ap-target').value.trim(), ruleCode:ruleSelect.value, reason:reason, status:'pending', date:new Date().toISOString() });
-      localStorage.setItem('rocodefest_appeals', JSON.stringify(appeals));
-      document.getElementById('ap-reason').value = ''; clearTimestamp(); document.getElementById('ap-target').value = ''; ruleSelect.value = ''; sel.value = '';
-      renderAppeals();
+
+      // The "three rejected appeals and you may file no more" check that
+      // stood here counted entries in this browser's own array, so it
+      // reset with site data and applied to nobody else.
+      //
+      // The rule itself is real -- enforce_appeal_limit, in the schema,
+      // per team. This page was keeping a second copy of it. The copy is
+      // gone; the refusal comes back from the server with the team and
+      // the limit named in it.
+      apBtn.disabled = true;
+      fetch('/api/appeals', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          teamId: teamId,
+          reason: reason,
+          ruleId: ruleSelect.value || null,
+          timestamp: readTimestamp()
+        })
+      })
+        .then(function(r){ return r.json().then(function(dd){ return { ok: r.ok, d: dd }; }); })
+        .then(function(rr){
+          apBtn.disabled = false;
+          if(!rr.ok){ errEl.textContent = rr.d.error || 'Contestația nu a putut fi trimisă.'; errEl.classList.add('show'); return; }
+          document.getElementById('ap-reason').value = ''; clearTimestamp();
+          document.getElementById('ap-target').value = ''; ruleSelect.value = ''; sel.value = '';
+          return loadAppeals().then(renderAppeals);
+        })
+        .catch(function(){ apBtn.disabled = false; errEl.textContent = 'Serverul nu răspunde.'; errEl.classList.add('show'); });
     });
   }
 
