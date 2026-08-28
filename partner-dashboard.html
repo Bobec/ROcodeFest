@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function(){
   // role whose key no navigation bar read, a key nothing cleared,
   // and two keys where one sign-out cleared one. There is one
   // session now and it carries its own role.
-('/auth/me', { credentials: 'same-origin' })
+fetch('/auth/me', { credentials: 'same-origin' })
     .then(function(r){ return r.json(); })
     .then(function(d){
     var a = d && d.account;

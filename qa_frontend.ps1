@@ -117,6 +117,36 @@ Check "S" "S1 every page asks the SERVER who is signed in" `
     ($pagesAskingApi -eq $pagesWithNav) `
     "$pagesAskingApi of $pagesWithNav pages call /auth/me"
 
+# The check above asks whether a page calls /auth/me AT ALL, and a page
+# passes it on its first call. Five pages had a SECOND call further down
+# with the word "fetch" missing -- ('/auth/me', {...}).then(...) -- which
+# is a comma expression yielding an object, so it parses, node --check
+# accepts it, S1 passed on the good call above it, and the page threw
+# "then is not a function" at runtime and rendered nothing.
+#
+# So every mention of the endpoint has to be a call, not just one of
+# them. This is the shape of vacuity the SQL suites guard against: an
+# assertion that is satisfied without the thing it names being true.
+$callPattern = "fetch\(\s*'/auth/me'"
+$mangled  = @()
+$allRefs  = 0
+$realCalls = 0
+foreach ($p in ($src.Keys | Sort-Object)) {
+    # Only QUOTED occurrences: the endpoint is named in prose in a few
+    # comments, and a comment is not a broken call.
+    $all  = ([regex]::Matches($src[$p], "'/auth/me'")).Count
+    $real = ([regex]::Matches($src[$p], $callPattern)).Count
+    $allRefs   += $all
+    $realCalls += $real
+    if ($all -gt $real) { $mangled += ("{0} ({1})" -f $p, ($all - $real)) }
+}
+$mangledDetail = if ($mangled.Count -eq 0) { "all $realCalls references are calls" }
+                 else { "not a call: " + ($mangled -join ', ') }
+Check "S" "S1 every mention of /auth/me is an actual fetch call" `
+    "a call missing its fetch still parses, and still passes the check above on a sibling call" `
+    ($mangled.Count -eq 0) `
+    $mangledDetail
+
 # Reading a session key in the browser is now the defect, not the norm:
 # there is one session, it is httpOnly, and page script cannot see it.
 $stillReadingKeys = $src.Keys | Where-Object {
