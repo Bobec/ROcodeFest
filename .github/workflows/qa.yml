@@ -1,0 +1,77 @@
+name: QA
+
+# The database suites already decide their own verdict: db/run_qa.ps1 exits
+# non-zero on a regression, and also when a known issue starts passing or
+# reports fewer findings than db/qa_known_issues.txt excuses. So this
+# workflow does not re-implement any judgement -- it provides a Postgres
+# and calls the runner.
+#
+# The point of running it here is that the suites are otherwise manual. A
+# gate nobody runs between changes is not a gate, and this repository has
+# already seen a defect (the search_path class) hide behind 213 green
+# assertions for the whole life of the project.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# a second push to the same branch makes the first run irrelevant
+concurrency:
+  group: qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  database:
+    name: database suites
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        # Pinned to the major version the schema requires. Several
+        # constraints need 15 or newer -- ON DELETE SET NULL (column) on
+        # memberships, in particular -- and the project is developed
+        # against 18, so anything older would fail while loading 01_.
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        # without the health check the first psql can race the server's
+        # startup and fail for a reason that has nothing to do with the tests
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Report the environment
+        run: |
+          psql --version
+          pwsh --version
+          PGPASSWORD=postgres psql -h localhost -U postgres -tAc "SELECT version();"
+        # A version mismatch between client and server is the first thing
+        # to suspect if a suite fails here but passes locally, so it is
+        # printed before anything runs rather than dug out afterwards.
+
+      - name: Run every suite
+        env:
+          PGPASSWORD: postgres
+        # citext and dblink are created by the SQL itself (01_ and
+        # qa_concurrency respectively) and both ship with the official
+        # image, so there is nothing to install.
+        #
+        # -PsqlPath overrides the Windows default in the runner's param
+        # block; everything else it needs comes from PGPASSWORD.
+        run: pwsh ./db/run_qa.ps1 -PsqlPath psql -User postgres -DbHost localhost -Port 5432
+
+# NOT COVERED HERE, deliberately
+# -----------------------------
+# The 29 static pages in the repository root have no tests of any kind.
+# The cheapest real check would be that every local href and src resolves
+# to a file that exists, which needs no dependencies -- but it is a
+# separate piece of work and does not belong in the commit that first
+# makes the database suites automatic.
