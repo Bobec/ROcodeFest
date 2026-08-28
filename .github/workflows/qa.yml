@@ -68,10 +68,26 @@ jobs:
         # block; everything else it needs comes from PGPASSWORD.
         run: pwsh ./db/run_qa.ps1 -PsqlPath psql -User postgres -DbHost localhost -Port 5432
 
-# NOT COVERED HERE, deliberately
-# -----------------------------
-# The 29 static pages in the repository root have no tests of any kind.
-# The cheapest real check would be that every local href and src resolves
-# to a file that exists, which needs no dependencies -- but it is a
-# separate piece of work and does not belong in the commit that first
-# makes the database suites automatic.
+  frontend:
+    name: static pages
+    runs-on: ubuntu-latest
+    # No database, no browser, no dependencies -- this is static analysis
+    # over the page source, so it needs nothing but pwsh and finishes in
+    # under a second. It runs as its own job rather than a second step of
+    # the one above, so a database failure and a page failure are told
+    # apart at a glance.
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check the pages against each other
+        run: pwsh ./qa_frontend.ps1
+
+# WHAT NEITHER JOB COVERS
+# -----------------------
+# The behaviour of the page scripts. Every page carries inline JavaScript
+# with event handlers and localStorage, and none of it is executed by
+# either job -- doing so needs a headless browser, which is a dependency
+# and a decision rather than an oversight.
+#
+# What IS covered is the contract the pages keep with each other: the
+# links between them, the session keys they agree on, and the storage
+# keys they share. Those are where the findings turned out to be.
