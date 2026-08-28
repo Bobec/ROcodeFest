@@ -101,6 +101,7 @@ function client() {
     post:  (p, b) => call('POST', p, b),
     put:   (p, b) => call('PUT', p, b),
     patch: (p, b) => call('PATCH', p, b),
+    del:   (p)    => call('DELETE', p),
     // convenience: register and stay signed in
     async registerClub(email, clubName, password = 'parola-de-test-1') {
       const r = await call('POST', '/auth/register', { role: 'club', email, password, clubName });

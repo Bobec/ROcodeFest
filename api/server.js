@@ -45,6 +45,7 @@ app.use('/api/me',      require('./routes/me'));
 app.use('/api/stats',   require('./routes/stats'));
 app.use('/api/join-requests', require('./routes/joinRequests'));
 app.use('/api/memberships',   require('./routes/memberships'));
+app.use('/api/submissions',   require('./routes/submissions'));
 
 // Readiness, not liveness: it answers whether the database is reachable,
 // because a process that is up but cannot query is not serving anything.

@@ -305,6 +305,14 @@
     <div class="card">
       <div class="field"><label>Select your team</label>
         <select id="sub-team"><option value="">Choose...</option></select></div>
+      <!--
+        challenge_id is NOT NULL on submissions, and this form had no
+        challenge field at all -- so nothing it produced could ever have
+        become a row. Filled from the active season, scoped to the
+        chosen team's category.
+      -->
+      <div class="field"><label>Challenge *</label>
+        <select id="sub-challenge"><option value="">Alege mai întâi echipa…</option></select></div>
       <div class="field"><label>Submission title *</label><input id="sub-title" placeholder="e.g. City Challenge Round 1"></div>
       <div class="field"><label>Description</label><textarea id="sub-desc" rows="3" placeholder="Describe what you are submitting..."></textarea></div>
       <div class="field"><label>Link (GitHub, Google Drive, etc.)</label><input id="sub-link" placeholder="https://..."></div>
@@ -418,16 +426,19 @@ document.addEventListener('DOMContentLoaded', function(){
     if(role === 'club'){
       document.getElementById('sub-session-line').innerHTML = 'Submitting as club <strong>' + clubSession.clubName.replace(/</g,'&lt;') + '</strong>. As the club, you can view and manage every submission across your teams.';
       document.getElementById('sub-list-hint').textContent = 'All submissions from any of your club\'s teams.';
-      myTeamOptions = myTeams.map(function(t){ return { teamName:t.teamName, clubName:t.clubName, category:t.category }; });
+      myTeamOptions = myTeams.map(function(t){ return { id:t.id, teamName:t.teamName, clubName:t.clubName, category:t.category }; });
     } else {
       document.getElementById('sub-session-line').innerHTML = 'Submitting as member <strong>' + memberSession.memberName.replace(/</g,'&lt;') + '</strong>. Members can submit for their own team(s), and edit or delete only what they personally submitted.';
       document.getElementById('sub-list-hint').textContent = 'Submissions you personally sent, across any team you belong to.';
-      myTeamOptions = myTeams.map(function(t){ return { teamName:t.teamName, clubName:t.clubName, category:t.category }; });
+      myTeamOptions = myTeams.map(function(t){ return { id:t.id, teamName:t.teamName, clubName:t.clubName, category:t.category }; });
     }
 
     myTeamOptions.forEach(function(t){
       var o = document.createElement('option');
-      o.value = t.teamName;
+      // The id, not the name. The name went into the request before,
+      // and the server has no way to tell two teams called the same
+      // thing apart -- nor should it have to.
+      o.value = t.id;
       o.setAttribute('data-club', t.clubName);
       o.textContent = t.teamName + ' (' + t.category + ')';
       sel.appendChild(o);
@@ -435,39 +446,92 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Preselect team from ?team= query param (e.g. linked from a team page)
     var qTeam = new URLSearchParams(window.location.search).get('team');
-    if(qTeam && myTeamOptions.some(function(t){ return t.teamName === qTeam; })){ sel.value = qTeam; }
+    if(qTeam){
+      var match = myTeamOptions.filter(function(t){ return t.teamName === qTeam; })[0];
+      if(match){ sel.value = match.id; }
+    }
 
-    function getSubs(){ try { return JSON.parse(localStorage.getItem('rocodefest_submissions') || '[]'); } catch(e){ return []; } }
-    function saveSubs(list){ localStorage.setItem('rocodefest_submissions', JSON.stringify(list)); }
+    // Which challenge this submission answers. challenge_id is NOT NULL
+    // and this page had no picker at all, so nothing it produced could
+    // ever have become a row.
+    var chSel = document.getElementById('sub-challenge');
 
+    function loadChallenges(){
+      chSel.innerHTML = '';
+      if(!sel.value){ return Promise.resolve(); }
+      return fetch('/api/submissions/challenges?teamId=' + encodeURIComponent(sel.value),
+                   { credentials: 'same-origin' })
+        .then(function(r){ return r.ok ? r.json() : { challenges: [] }; })
+        .then(function(d){
+          var list = (d && d.challenges) || [];
+          if(list.length === 0){
+            var none = document.createElement('option');
+            none.value = '';
+            none.textContent = 'Nicio probă deschisă în sezonul activ';
+            chSel.appendChild(none);
+            return;
+          }
+          list.forEach(function(c){
+            var o = document.createElement('option');
+            o.value = c.id;
+            // Shown rather than hidden: a team that missed a deadline
+            // needs to see what it missed.
+            o.textContent = c.name + (c.closed ? ' (termen depășit)' : '');
+            o.disabled = c.closed;
+            chSel.appendChild(o);
+          });
+        })
+        .catch(function(){});
+    }
+
+    sel.addEventListener('change', loadChallenges);
+
+    // The submissions themselves
+    var subs = [];
+    function loadSubs(){
+      return fetch('/api/submissions', { credentials: 'same-origin' })
+        .then(function(r){ return r.ok ? r.json() : { submissions: [] }; })
+        .then(function(d){ subs = (d && d.submissions) || []; })
+        .catch(function(){ subs = []; });
+    }
+
+    // The server decides this too -- PATCH and DELETE are scoped in
+    // their WHERE clause. This only decides whether to DRAW the
+    // buttons, so someone is not offered a control that answers 404.
     function canManage(s){
-      if(role === 'club'){ return s.club === clubSession.clubName; }
-      return !!s.id && s.authorType === 'member' && s.authorEmail === memberSession.email;
+      if(role === 'club'){ return true; }   // the listing is already only my club's
+      return String(s.authorId) === String(a.id);
     }
 
     function renderSubs(){
-      var all = role === 'club'
-        ? getSubs().filter(function(s){ return s.club === clubSession.clubName; })
-        : getSubs().filter(function(s){ return s.authorType === 'member' && s.authorEmail === memberSession.email; });
       var wrap = document.getElementById('sub-list');
-      if(all.length === 0){ wrap.innerHTML = '<div class="empty-state">No submissions yet.</div>'; return; }
-      wrap.innerHTML = '<div class="card">' + all.slice().reverse().map(function(s){
-        var authorTag = s.authorType === 'club'
+      if(subs.length === 0){ wrap.innerHTML = '<div class="empty-state">No submissions yet.</div>'; return; }
+      // Already newest-first from the query.
+      wrap.innerHTML = '<div class="card">' + subs.map(function(s){
+        var authorTag = s.authorRole === 'club'
           ? '<span class="author-tag club-tag">Club</span>'
           : '<span class="author-tag">by ' + (s.authorName || 'member').replace(/</g,'&lt;') + '</span>';
         var actions = canManage(s)
           ? '<div class="sub-actions"><button class="link-btn" data-act="edit" data-id="' + s.id + '">Edit</button><button class="link-btn danger" data-act="delete" data-id="' + s.id + '">Delete</button></div>'
           : '';
-        return '<div class="sub-item" data-item-id="' + (s.id || '') + '"><strong>' + s.title.replace(/</g,'&lt;') + '</strong> <span class="sub-status status-submitted">Submitted</span>' + authorTag + '<br><span style="font-size:12px;color:var(--ink-soft);">' + s.team.replace(/</g,'&lt;') + ' &middot; ' + new Date(s.date).toLocaleDateString() + '</span>' + (s.desc ? '<p style="font-size:13px;margin:6px 0 0;">' + s.desc.replace(/</g,'&lt;') + '</p>' : '') + (s.link ? '<br><a href="' + s.link.replace(/"/g,'&quot;') + '" style="font-size:12px;color:var(--blue);">' + s.link.replace(/</g,'&lt;') + '</a>' : '') + actions + '</div>';
+        var version = s.version > 1 ? ' <span class="author-tag">v' + s.version + '</span>' : '';
+        return '<div class="sub-item" data-item-id="' + s.id + '"><strong>' + s.title.replace(/</g,'&lt;') + '</strong> <span class="sub-status status-submitted">Submitted</span>' + authorTag + version + '<br><span style="font-size:12px;color:var(--ink-soft);">' + s.teamName.replace(/</g,'&lt;') + ' &middot; ' + s.challengeName.replace(/</g,'&lt;') + ' &middot; ' + new Date(s.createdAt).toLocaleDateString() + '</span>' + (s.description ? '<p style="font-size:13px;margin:6px 0 0;">' + s.description.replace(/</g,'&lt;') + '</p>' : '') + (s.linkUrl ? '<br><a href="' + s.linkUrl.replace(/"/g,'&quot;') + '" style="font-size:12px;color:var(--blue);">' + s.linkUrl.replace(/</g,'&lt;') + '</a>' : '') + actions + '</div>';
       }).join('') + '</div>';
 
       wrap.querySelectorAll('.link-btn').forEach(function(btn){
         btn.addEventListener('click', function(){
-          var id = parseInt(btn.getAttribute('data-id'), 10);
+          var id = btn.getAttribute('data-id');
           if(btn.getAttribute('data-act') === 'delete'){
             if(!confirm('Delete this submission? This cannot be undone.')) return;
-            saveSubs(getSubs().filter(function(s){ return s.id !== id; }));
-            renderSubs();
+            fetch('/api/submissions/' + id, { method: 'DELETE', credentials: 'same-origin' })
+              .then(function(r){ return r.json().then(function(dd){ return { ok: r.ok, d: dd }; }); })
+              .then(function(rr){
+                // Only the latest version of a chain can go, and the
+                // server says so rather than the page guessing.
+                if(!rr.ok){ alert(rr.d.error || 'Nu s-a putut șterge.'); return; }
+                return loadSubs().then(renderSubs);
+              })
+              .catch(function(){});
           } else {
             openEditForm(id);
           }
@@ -477,53 +541,90 @@ document.addEventListener('DOMContentLoaded', function(){
 
     function openEditForm(id){
       var item = wrap_query('[data-item-id="' + id + '"]');
-      var s = getSubs().find(function(x){ return x.id === id; });
+      var s = subs.filter(function(x){ return String(x.id) === String(id); })[0];
       if(!item || !s) return;
       item.insertAdjacentHTML('beforeend',
         '<div class="sub-edit-form">' +
           '<div class="field"><label>Title</label><input type="text" class="e-title" value="' + s.title.replace(/"/g,'&quot;') + '"></div>' +
-          '<div class="field"><label>Description</label><textarea class="e-desc" rows="2">' + s.desc + '</textarea></div>' +
-          '<div class="field"><label>Link</label><input type="text" class="e-link" value="' + (s.link||'').replace(/"/g,'&quot;') + '"></div>' +
+          '<div class="field"><label>Description</label><textarea class="e-desc" rows="2">' + (s.description || '') + '</textarea></div>' +
+          '<div class="field"><label>Link</label><input type="text" class="e-link" value="' + (s.linkUrl||'').replace(/"/g,'&quot;') + '"></div>' +
+          '<p class="error-msg e-err"></p>' +
           '<div style="display:flex; gap:10px;"><button class="btn btn-primary btn-small e-save">Save changes</button><button class="btn btn-secondary btn-small e-cancel">Cancel</button></div>' +
         '</div>');
       item.querySelector('.e-cancel').addEventListener('click', renderSubs);
       item.querySelector('.e-save').addEventListener('click', function(){
         var title = item.querySelector('.e-title').value.trim();
         if(!title) return;
-        var list = getSubs().map(function(x){
-          if(x.id === id){ x.title = title; x.desc = item.querySelector('.e-desc').value.trim(); x.link = item.querySelector('.e-link').value.trim(); }
-          return x;
-        });
-        saveSubs(list);
-        renderSubs();
+        // Only the three descriptive fields. The team, the challenge
+        // and the version are refused by
+        // enforce_submission_lineage_immutable, so they are not offered
+        // and the refusal never has to happen.
+        fetch('/api/submissions/' + id, {
+          method: 'PATCH',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: title,
+            description: item.querySelector('.e-desc').value.trim(),
+            linkUrl: item.querySelector('.e-link').value.trim()
+          })
+        })
+          .then(function(r){ return r.json().then(function(dd){ return { ok: r.ok, d: dd }; }); })
+          .then(function(rr){
+            var err = item.querySelector('.e-err');
+            if(!rr.ok){ err.textContent = rr.d.error || 'Nu s-a putut salva.'; err.classList.add('show'); return; }
+            return loadSubs().then(renderSubs);
+          })
+          .catch(function(){});
       });
     }
     function wrap_query(sel2){ return document.getElementById('sub-list').querySelector(sel2); }
 
-    renderSubs();
+    Promise.all([loadSubs(), loadChallenges()]).then(renderSubs);
 
-    document.getElementById('sub-btn').addEventListener('click', function(){
-      var team = sel.value; var title = document.getElementById('sub-title').value.trim();
-      if(!team || !title){ document.getElementById('sub-error').classList.add('show'); return; }
-      document.getElementById('sub-error').classList.remove('show');
-      var teamClub = sel.options[sel.selectedIndex].getAttribute('data-club') || (clubSession && clubSession.clubName);
-      var subs = getSubs();
-      var entry = {
-        id: Date.now(),
-        club: teamClub,
-        team: team,
-        title: title,
-        desc: document.getElementById('sub-desc').value.trim(),
-        link: document.getElementById('sub-link').value.trim(),
-        date: new Date().toISOString(),
-        authorType: role
-      };
-      if(role === 'club'){ entry.authorName = clubSession.clubName; }
-      else { entry.authorName = memberSession.memberName; entry.authorEmail = memberSession.email; }
-      subs.push(entry);
-      saveSubs(subs);
-      document.getElementById('sub-title').value = ''; document.getElementById('sub-desc').value = ''; document.getElementById('sub-link').value = '';
-      renderSubs();
+    var subBtn = document.getElementById('sub-btn');
+    subBtn.addEventListener('click', function(){
+      var teamId = sel.value;
+      var challengeId = chSel.value;
+      var title = document.getElementById('sub-title').value.trim();
+      var errEl = document.getElementById('sub-error');
+      if(!teamId || !challengeId || !title){ errEl.textContent = 'Alege echipa și proba, și dă lucrării un titlu.'; errEl.classList.add('show'); return; }
+      errEl.classList.remove('show');
+
+      subBtn.disabled = true;
+      // Who is submitting is not sent. The server takes it from the
+      // session -- submitted_by_account_id is a bare FK, so the
+      // database checks the account exists and never that it has
+      // anything to do with the team. That check lives in the API.
+      fetch('/api/submissions', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          teamId: teamId,
+          challengeId: challengeId,
+          title: title,
+          description: document.getElementById('sub-desc').value.trim(),
+          linkUrl: document.getElementById('sub-link').value.trim()
+        })
+      })
+        .then(function(r){ return r.json().then(function(dd){ return { ok: r.ok, d: dd }; }); })
+        .then(function(rr){
+          subBtn.disabled = false;
+          if(!rr.ok){
+            // The resubmission gate speaks here: a second version needs
+            // a review on the previous one asking for it, and the
+            // server's message says so with the numbers in it.
+            errEl.textContent = rr.d.error || 'Lucrarea nu a putut fi trimisă.';
+            errEl.classList.add('show');
+            return;
+          }
+          document.getElementById('sub-title').value = '';
+          document.getElementById('sub-desc').value = '';
+          document.getElementById('sub-link').value = '';
+          return loadSubs().then(renderSubs);
+        })
+        .catch(function(){ subBtn.disabled = false; errEl.textContent = 'Serverul nu răspunde.'; errEl.classList.add('show'); });
     });
   }
 
