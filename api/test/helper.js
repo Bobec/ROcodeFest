@@ -49,6 +49,20 @@ async function assertSchemaPresent() {
     `oltp has ${r.rows[0].n} tables -- load db/01_oltp_schema.sql into ` +
     `${process.env.PGDATABASE || 'rocodefest'} before running these tests`
   );
+
+  // Sessions live in app.session now. Without it the very first sign-in
+  // fails inside the session middleware, which reports as a 500 on a
+  // route that looks unrelated -- so it is worth saying plainly here
+  // instead of being deduced from a stack trace.
+  const sess = await pool.query(
+    `SELECT count(*)::int AS n FROM information_schema.tables
+      WHERE table_schema = 'app' AND table_name = 'session'`
+  );
+  assert.equal(
+    sess.rows[0].n, 1,
+    `app.session is missing -- load db/00_app_schema.sql into ` +
+    `${process.env.PGDATABASE || 'rocodefest'} as well`
+  );
 }
 
 // accounts is the root of every cascade in this schema, so one truncate
@@ -97,6 +111,18 @@ function client() {
     return { status: res.status, body: data };
   }
   return {
+    // The session id itself, decoded from the cookie. Needed by the
+    // session-store tests, which have to look the session up in the
+    // table by the same id the browser is holding -- otherwise they
+    // would prove only that SOME row exists, not that it is this one.
+    //
+    // express-session signs the cookie as s:<sid>.<signature>, so the
+    // id is what sits between the prefix and the first dot.
+    sid() {
+      if (!cookie) return null;
+      const raw = decodeURIComponent(cookie.split('=').slice(1).join('='));
+      return raw.startsWith('s:') ? raw.slice(2).split('.')[0] : raw;
+    },
     get:   (p)    => call('GET', p),
     post:  (p, b) => call('POST', p, b),
     put:   (p, b) => call('PUT', p, b),

@@ -21,7 +21,39 @@ if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
   process.exit(1);
 }
 
+// ---------------------------------------------------------------------
+// Sessions live in the database, not in this process
+// ---------------------------------------------------------------------
+// express-session's default store keeps them in memory, which has three
+// consequences and none of them are exotic:
+//
+//   * every restart signs everybody out -- so every deploy would
+//   * two instances cannot share a session, so a request landing on the
+//     wrong one arrives as a stranger
+//   * memory grows with the number of sessions and nothing prunes it
+//
+// The store reuses the pool from db.js rather than opening its own.
+// Sessions are read on every single request, so a second pool would
+// double the connections this process holds for no benefit.
+//
+// app.session is created by db/00_app_schema.sql for a fresh database
+// and by db/migrations/0001_session_store.sql for one that already has
+// data. createTableIfMissing is deliberately NOT used: a table appearing
+// as a side effect of a process starting is a schema change nobody
+// reviewed, and it would be invisible to the migration bookkeeping.
+const pgSession = require('connect-pg-simple')(session);
+
 app.use(session({
+  store: new pgSession({
+    pool: db.pool,
+    schemaName: 'app',
+    tableName: 'session',
+    // Sweep expired rows every 15 minutes. The default is every minute,
+    // which is a lot of writes for a table that will hold hundreds of
+    // rows, and the sweep is not what keeps an expired session from
+    // being honoured -- the store checks expire on read.
+    pruneSessionInterval: 60 * 15,
+  }),
   name: 'rocodefest.sid',
   secret: process.env.SESSION_SECRET || 'dev-only-not-a-secret',
   resave: false,
@@ -32,10 +64,6 @@ app.use(session({
     secure: process.env.NODE_ENV === 'production',
     maxAge: 1000 * 60 * 60 * 8,      // a festival day
   },
-  // The default store keeps sessions in memory: everyone is signed out
-  // when the process restarts, and it does not survive more than one
-  // instance. Fine for development, and stated here rather than
-  // discovered in production.
 }));
 
 app.use('/auth',        require('./routes/auth'));

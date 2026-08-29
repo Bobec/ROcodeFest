@@ -104,6 +104,7 @@ jobs:
           PGPASSWORD: postgres
         run: |
           createdb -h localhost -U postgres rocodefest_test
+          psql -h localhost -U postgres -d rocodefest_test -v ON_ERROR_STOP=1 -q -f db/00_app_schema.sql
           psql -h localhost -U postgres -d rocodefest_test -v ON_ERROR_STOP=1 -q -f db/01_oltp_schema.sql
 
       - name: Install
@@ -118,6 +119,95 @@ jobs:
           PGPASSWORD: postgres
           PGDATABASE: rocodefest_test
         run: npm test
+
+  migrations:
+    name: migrations reach the same schema
+    runs-on: ubuntu-latest
+    # A database with data in it cannot be rebuilt, so db/migrations/
+    # exists to bring an old one forward. That leaves two descriptions of
+    # the same schema -- the from-scratch files and the migration chain --
+    # and nothing makes them agree by itself. Somebody adds a column to
+    # 01_oltp_schema.sql and forgets the migration, or writes the
+    # migration and forgets the schema file, and the first anyone hears
+    # of it is a deploy that behaves differently from every test.
+    #
+    # So this job builds BOTH and compares the structure:
+    #
+    #   A   the current commit, from scratch
+    #   B   the PREVIOUS commit, from scratch, then migrated forward
+    #
+    # If the migrations are right, B ends up identical to A. Git supplies
+    # the "before" for free, so no frozen copy of the schema has to be
+    # kept in the repository and kept honest.
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      # depth 2, because the whole job is a comparison with HEAD~1
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Build A -- current schema, from scratch
+        env:
+          PGPASSWORD: postgres
+        run: |
+          createdb -h localhost -U postgres schema_a
+          for f in 00_app_schema.sql 01_oltp_schema.sql 02_analytics_schema.sql 03_etl.sql; do
+            psql -h localhost -U postgres -d schema_a -v ON_ERROR_STOP=1 -q -f "db/$f"
+          done
+
+      - name: Build B -- previous schema, then migrate forward
+        env:
+          PGPASSWORD: postgres
+        run: |
+          createdb -h localhost -U postgres schema_b
+          mkdir -p /tmp/prev
+          # The first commit that introduced migrations has no 00_ in its
+          # parent, and a file that did not exist yet is not an error --
+          # it is exactly the state a migration is supposed to repair.
+          for f in 00_app_schema.sql 01_oltp_schema.sql 02_analytics_schema.sql 03_etl.sql; do
+            if git cat-file -e "HEAD~1:db/$f" 2>/dev/null; then
+              git show "HEAD~1:db/$f" > "/tmp/prev/$f"
+              psql -h localhost -U postgres -d schema_b -v ON_ERROR_STOP=1 -q -f "/tmp/prev/$f"
+            else
+              echo "HEAD~1 nu avea db/$f -- se sare"
+            fi
+          done
+          pwsh db/migrate.ps1 -Database schema_b
+        # If HEAD~1 cannot be resolved at all -- the very first commit on
+        # a branch built with a shallow clone -- the job fails loudly
+        # rather than passing on a comparison it did not make.
+
+      - name: Compare the structures
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d schema_a -q -f db/schema_fingerprint.sql > /tmp/a.txt
+          psql -h localhost -U postgres -d schema_b -q -f db/schema_fingerprint.sql > /tmp/b.txt
+          echo "A (de la zero):        $(wc -l < /tmp/a.txt) linii"
+          echo "B (migrat inainte):    $(wc -l < /tmp/b.txt) linii"
+          if diff -u /tmp/a.txt /tmp/b.txt; then
+            echo ""
+            echo "Cele doua cai dau aceeasi structura."
+          else
+            echo ""
+            echo "DIVERGENTA: migrarile nu duc schema precedenta la cea curenta."
+            echo "  < lipseste dintr-o baza migrata (migrare uitata)"
+            echo "  > exista in plus intr-o baza migrata (fisier de schema uitat)"
+            exit 1
+          fi
 
   frontend:
     name: static pages

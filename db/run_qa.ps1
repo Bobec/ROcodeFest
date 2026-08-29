@@ -56,10 +56,14 @@ $suites = @(
   @{ name="lifecycle";     file="qa_lifecycle.sql";               schemas=@("01") },
   # the domain that had ONE case in the whole ledger before this suite,
   # and that one was about a view's provenance rather than about partners
-  @{ name="partners";      file="qa_partners.sql";                schemas=@("01") }
+  @{ name="partners";      file="qa_partners.sql";                schemas=@("01") },
+  # The bookkeeping behind the two ways of building this database. It is
+  # the only suite that loads 00_: every other one tests the
+  # competition, and this one tests the plumbing underneath it.
+  @{ name="migrations";    file="qa_migrations.sql";              schemas=@("00","01") }
 )
 
-$schemaFiles = @{ "01"="01_oltp_schema.sql"; "02"="02_analytics_schema.sql"; "03"="03_etl.sql" }
+$schemaFiles = @{ "00"="00_app_schema.sql"; "01"="01_oltp_schema.sql"; "02"="02_analytics_schema.sql"; "03"="03_etl.sql" }
 $results = @()
 $started = Get-Date
 
@@ -122,6 +126,53 @@ function Get-OpenFindingCount($lines) {
   $m = [regex]::Match($text, 'live-failures=(\d+).*?gaps=(\d+)')
   if ($m.Success) { return [int]$m.Groups[1].Value + [int]$m.Groups[2].Value }
   return $null
+}
+
+# ---------------------------------------------------------------------
+# Preflight: the migration files and the stamps agree
+# ---------------------------------------------------------------------
+# qa_migrations.sql checks everything about the bookkeeping that can be
+# seen from INSIDE a database. It cannot see db/migrations/, because SQL
+# cannot read a directory -- so the one comparison that matters most is
+# made here instead.
+#
+# The failure this prevents: somebody adds a migration file and forgets
+# to fold its effect into the schema files (so a fresh build lacks the
+# change), or folds a change into the schema files and forgets the
+# migration (so an existing database never gets it). Either way the two
+# ways of building this database stop agreeing, and the first anyone
+# hears of it is a deploy that behaves differently from every test.
+#
+# Run before the suites, because a repository in that state is not worth
+# testing.
+$migDir = Join-Path $db 'migrations'
+$appFile = Join-Path $db '00_app_schema.sql'
+if ((Test-Path $migDir) -and (Test-Path $appFile)) {
+  $files = @(Get-ChildItem -Path $migDir -Filter '*.sql' | ForEach-Object { $_.BaseName } | Sort-Object)
+  $appText = [System.IO.File]::ReadAllText($appFile)
+  $stamps = @([regex]::Matches($appText, "\('([0-9]{4}_[a-z0-9_]+)'\s*,\s*NULL\)") |
+              ForEach-Object { $_.Groups[1].Value } | Sort-Object)
+
+  $missingStamp = @($files | Where-Object { $stamps -notcontains $_ })
+  $missingFile  = @($stamps | Where-Object { $files  -notcontains $_ })
+
+  if ($missingStamp.Count -gt 0 -or $missingFile.Count -gt 0) {
+    Write-Host ""
+    Write-Host "=============== MIGRARI: LISTELE NU SE POTRIVESC ===============" -ForegroundColor Red
+    if ($missingStamp.Count -gt 0) {
+      Write-Host "  Fisier de migrare fara stampila in 00_app_schema.sql:" -ForegroundColor Red
+      $missingStamp | ForEach-Object { Write-Host "    $_" }
+      Write-Host "  O baza construita de la zero NU va avea aceasta schimbare."
+    }
+    if ($missingFile.Count -gt 0) {
+      Write-Host "  Stampila fara fisier de migrare:" -ForegroundColor Red
+      $missingFile | ForEach-Object { Write-Host "    $_" }
+      Write-Host "  O baza existenta NU va primi niciodata aceasta schimbare."
+    }
+    Write-Host ""
+    exit 1
+  }
+  Write-Host ("migrari: {0} fisier(e), {0} stampila(e), listele se potrivesc" -f $files.Count) -ForegroundColor DarkGray
 }
 
 foreach ($s in $suites) {
