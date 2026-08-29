@@ -314,6 +314,52 @@ Check "K" "K2 only the documented exception is kept in the browser" `
 
 
 # =====================================================================
+# J — the inline scripts actually parse
+# =====================================================================
+# Every page carries its logic in inline <script> blocks, and a block
+# that does not parse does not run: the browser reports it to a console
+# nobody has open and renders the page as though the script were absent.
+# Nothing else in this file would notice, because every other check
+# reads the source as TEXT -- a page can satisfy all of them while being
+# completely inert.
+#
+# This lived in a scratchpad script for a while and reported "syntax OK"
+# on every run. It took a parameter listing the files to check, it was
+# always invoked with none, and an empty list means an empty loop means
+# no failures -- so it passed 29 pages by checking zero of them. That is
+# the vacuity trap the SQL suites are built around, in the tool meant to
+# catch it, which is why it now lives here behind a precondition that
+# counts what it looked at.
+#
+# It found 13 broken pages the first time it ran for real: a scripted
+# removal of the "Reset demo data" block stopped at the first line that
+# was only a closing brace, leaving two orphaned ones behind.
+$scriptBlocks = 0
+$unparseable  = @()
+$tmpJs = Join-Path $env:TEMP "rocodefest_qa_block.js"
+
+foreach ($name in ($src.Keys | Sort-Object)) {
+    # Inline blocks only -- a <script src=...> has no body to parse here.
+    $blocks = [regex]::Matches($src[$name], '(?s)<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>')
+    for ($i = 0; $i -lt $blocks.Count; $i++) {
+        $scriptBlocks++
+        [System.IO.File]::WriteAllText($tmpJs, $blocks[$i].Groups[1].Value, (New-Object System.Text.UTF8Encoding $false))
+        & node --check $tmpJs 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) { $unparseable += ("{0} (blocul {1})" -f $name, ($i + 1)) }
+    }
+}
+if (Test-Path $tmpJs) { Remove-Item $tmpJs -Force }
+
+Pre "J" "J1 there are inline scripts to parse" ($scriptBlocks -gt 0) `
+    "$scriptBlocks inline script block(s) across $($pages.Count) pages"
+
+Check "J" "J1 every inline script parses" `
+    "a block that does not parse does not run, and every other check here reads the source as text" `
+    ($unparseable.Count -eq 0) `
+    $(if ($unparseable.Count -eq 0) { "all $scriptBlocks blocks parse" }
+      else { "nu se parseaza: " + ($unparseable -join ", ") })
+
+# =====================================================================
 # P — page structure
 # =====================================================================
 $noTitle    = $src.Keys | Where-Object { $src[$_] -notmatch '<title[^>]*>\s*\S' }
