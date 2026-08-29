@@ -306,7 +306,7 @@
       <p>One day, one arena — here's exactly how the final unfolds, minute by minute.</p>
     </section>
 
-    <div class="demo-note"><p><strong>Preview:</strong> sample program for visual review only. The confirmed run-of-show will be published closer to the event once the backend/CMS is connected.</p></div>
+    <p class="demo-note" id="agenda-season-line" style="font-size:13px;"></p>
 
     <div class="agenda-track" id="agenda-track"></div>
 
@@ -409,28 +409,73 @@ document.addEventListener('DOMContentLoaded', function(){
   // clicking a footer link. All it could still wipe is whether the
   // rules badge has been seen.
 
-  // TODO: provisional — mock program for visual layout only; the confirmed
-  // schedule will be populated from the backend once it's available.
-  var AGENDA = [
-    { time:'07:30', title:'Doors open', desc:'Arrive early to beat the line at check-in.', loc:'Main entrance' },
-    { time:'08:00', title:'Check-in & team setup', desc:'Badge pickup, robot inspection, and pit area setup.', loc:'Main Hall' },
-    { time:'09:00', title:'Opening ceremony', desc:'Welcome remarks, speaker intro, and a quick rules recap.', loc:'Main Stage' },
-    { time:'10:00', title:'Qualification rounds', desc:'City-challenge finalists compete head-to-head, live-streamed.', loc:'Arena · Track A' },
-    { time:'12:30', title:'Lunch & networking', desc:'Food trucks, sponsor booths, and mentor meetups.', loc:'Courtyard' },
-    { time:'13:30', title:'Semi-finals', desc:'Top 8 teams advance to head-to-head elimination rounds.', loc:'Arena · Track A' },
-    { time:'15:30', title:'Finals', desc:'Top teams face off live for the Season 1 title.', loc:'Main Stage' },
-    { time:'16:30', title:'Judging & deliberation', desc:'Judges finalize scores while attendees browse demo booths.', loc:"Judges' room" },
-    { time:'17:00', title:'Awards ceremony', desc:'Prizes, certificates, and closing remarks.', loc:'Main Stage' }
-  ];
-
+  // The run of show, from the server. Nine items were written into this
+  // page as a "sample program", and events.html carried a second,
+  // shorter copy of the same day -- two hand-maintained timetables that
+  // already disagreed with each other about when lunch was.
+  //
+  // /api/schedule merges two streams: the matches, which carry their own
+  // scheduled_at, and the schedule_items an organiser adds for the
+  // opening, the breaks and the awards. Matches are not copied into that
+  // table, so moving one moves it here with nothing to keep in sync.
   var track = document.getElementById('agenda-track');
-  track.innerHTML = AGENDA.map(function(item){
-    return '<div class="agenda-item">' +
-      '<div class="agenda-time-col"><div class="agenda-time">' + item.time + '</div></div>' +
-      '<div class="agenda-dot-col"><div class="agenda-dot"></div></div>' +
-      '<div class="agenda-card"><h3>' + item.title.replace(/</g,'&lt;') + '</h3><p>' + item.desc.replace(/</g,'&lt;') + '</p><span class="agenda-loc">' + item.loc.replace(/</g,'&lt;') + '</span></div>' +
-    '</div>';
-  }).join('');
+  var KIND_LABEL = {
+    opening: 'Deschidere', match: 'Meci', break: 'Pauză',
+    talk: 'Prezentare', awards: 'Premiere', other: ''
+  };
+
+  function hhmm(iso){
+    var d = new Date(iso);
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  fetch('/api/schedule', { credentials: 'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var items = (d && d.items) || [];
+      var head = document.getElementById('agenda-season-line');
+
+      if(items.length === 0){
+        // An empty programme and a failed request are different things,
+        // and the visitor has to be able to tell which one they got.
+        track.innerHTML = '<div class="agenda-item"><div class="agenda-time-col"></div>' +
+          '<div class="agenda-dot-col"><div class="agenda-dot"></div></div>' +
+          '<div class="agenda-card"><h3>Programul nu este încă publicat</h3>' +
+          '<p>Apare aici pe măsură ce organizatorii îl completează.</p></div></div>';
+        if(head){ head.textContent = d && d.season ? d.season.name : ''; }
+        return;
+      }
+
+      if(head && d.season){
+        head.textContent = 'Programul zilei · ' + d.season.name;
+      }
+
+      track.innerHTML = items.map(function(item){
+        var label = KIND_LABEL[item.kind] || '';
+        var title = item.title + (item.kind === 'match' && item.matchStatus === 'completed' ? ' ✓' : '');
+        var detail = item.detail ||
+          (item.kind === 'match'
+            ? (item.matchStatus === 'in_progress' ? 'În desfășurare acum.' :
+               item.matchStatus === 'completed'   ? 'Încheiat — punctajele intră în clasament.' :
+               'Programat.')
+            : '');
+        var loc = item.location || '';
+        return '<div class="agenda-item">' +
+          '<div class="agenda-time-col"><div class="agenda-time">' + hhmm(item.startsAt) + '</div></div>' +
+          '<div class="agenda-dot-col"><div class="agenda-dot"></div></div>' +
+          '<div class="agenda-card"><h3>' + String(title).replace(/</g,'&lt;') + '</h3>' +
+          (detail ? '<p>' + String(detail).replace(/</g,'&lt;') + '</p>' : '') +
+          (loc ? '<span class="agenda-loc">' + String(loc).replace(/</g,'&lt;') + '</span>' : '') +
+          (label ? ' <span class="agenda-loc">' + label + '</span>' : '') +
+          '</div></div>';
+      }).join('');
+    })
+    .catch(function(){
+      track.innerHTML = '<div class="agenda-item"><div class="agenda-time-col"></div>' +
+        '<div class="agenda-dot-col"><div class="agenda-dot"></div></div>' +
+        '<div class="agenda-card"><h3>Programul nu a putut fi încărcat</h3>' +
+        '<p>Reîncarcă pagina.</p></div></div>';
+    });
 });
 </script>
 </body>

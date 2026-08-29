@@ -449,7 +449,7 @@ document.addEventListener('DOMContentLoaded', function(){
       // their own team's card, or a Manage link if it's their own team.
       var actionHtml;
       if(clubSession && clubSession.clubName === t.clubName){
-        actionHtml = '<a class="btn btn-secondary btn-small" style="margin-top:12px; width:100%; text-align:center; box-sizing:border-box;" href="team.html?club=' + encodeURIComponent(t.clubName) + '&team=' + encodeURIComponent(t.teamName) + '">Manage team →</a>';
+        actionHtml = '<a class="btn btn-secondary btn-small" style="margin-top:12px; width:100%; text-align:center; box-sizing:border-box;" href="team.html?id=' + encodeURIComponent(t.id) + '">Manage team →</a>';
       } else if(clubSession){
         actionHtml = '';
       } else {
@@ -458,7 +458,7 @@ document.addEventListener('DOMContentLoaded', function(){
         actionHtml = '<button class="join-btn" style="margin-top:12px; width:100%; font-family:\'Baloo 2\',sans-serif; font-weight:700; font-size:13px; padding:9px 0; border-radius:999px; border:2px solid var(--ink); background:' + (done ? '#F1EEE5' : '#fff') + '; cursor:' + (done ? 'default' : 'pointer') + ';" ' + (done ? 'disabled' : '') + '>' + label + '</button>';
       }
 
-      var teamHref = 'team.html?club=' + encodeURIComponent(t.clubName) + '&team=' + encodeURIComponent(t.teamName);
+      var teamHref = 'team.html?id=' + encodeURIComponent(t.id);
       card.innerHTML = '<span class="badge-num">#' + t.displayNumber + '</span>' +
         '<h3><a href="' + teamHref + '" style="text-decoration:none;">' + t.teamName.replace(/</g,'&lt;') + '</a></h3>' +
         '<p>' + t.clubName.replace(/</g,'&lt;') + ' · ' + (t.clubCity || '—').replace(/</g,'&lt;') + ' · ' + t.category + '</p>' +

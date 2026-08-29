@@ -314,11 +314,17 @@
       <div class="card">
         <div id="members-list"></div>
         <p class="empty-small" id="no-members" style="display:none;">No members on this team's roster yet.</p>
-        <div class="add-member-row">
-          <input type="text" id="new-member-name" placeholder="Member name">
-          <input type="text" id="new-member-role" placeholder="Role (optional, e.g. Captain)">
-          <button class="btn btn-primary btn-small" id="add-member-btn">Add to roster</button>
-        </div>
+        <!--
+          An "Add to roster" row stood here, collecting a typed-in name
+          and role. Neither was an account: the person named could not
+          sign in, could not submit, and appeared nowhere else on the
+          site, while the member who HAD registered and been accepted
+          was not on the list at all. A team is filled by accepting the
+          join requests above.
+        -->
+        <p class="empty-small" style="margin:14px 0 0;">
+          Membrii se adaugă acceptând cererile de înscriere de mai sus.
+        </p>
       </div>
 
       <div id="danger-zone" style="display:none;">
@@ -393,169 +399,265 @@ document.addEventListener('DOMContentLoaded', function(){
   // clicking a footer link. All it could still wipe is whether the
   // rules badge has been seen.
 
-  // ==========================================================================
-  // TODO: placeholder — frontend-only pass. This page renders with mock data
-  // below (no real team lookup, membership verification, or persistence).
-  // Submissions / join requests / members are static sample data so every
-  // section of the UI can be reviewed. Accept/Decline, Add/Remove member,
-  // and Delete team all update this in-memory mock data only — nothing is
-  // written to a real data store. The backend will replace this with real
-  // team records, membership checks, and API calls.
-  // ==========================================================================
+  // =================================================================
+  // One team's page
+  // =================================================================
+  // This page rendered entirely from mock data: a made-up category and
+  // city, two invented submissions, two invented join requests, two
+  // invented members. Accept, Decline, Add, Remove and Delete all
+  // rearranged those arrays in memory and wrote nothing anywhere.
+  //
+  // It was also addressed by NAME -- team.html?club=X&team=Y -- which
+  // cannot identify a team: two clubs may have teams called the same
+  // thing, and a rename breaks every link. It takes ?id= now, and the
+  // four pages that link here were changed to match.
+
+  function esc(s){ return String(s == null ? '' : s).replace(/</g, '&lt;'); }
+
+  function api(path, options){
+    var opts = options || {};
+    opts.credentials = 'same-origin';
+    if(opts.body){ opts.headers = { 'Content-Type': 'application/json' }; opts.body = JSON.stringify(opts.body); }
+    return fetch(path, opts).then(function(r){
+      return r.json().catch(function(){ return {}; })
+        .then(function(d){ return { ok: r.ok, status: r.status, d: d }; });
+    });
+  }
 
   var params = new URLSearchParams(window.location.search);
-  var teamName = params.get('team') || 'Circuit Breakers';
-  var clubName = params.get('club') || 'Acme Robotics Club';
-  var MOCK_TEAM = { category: 'Robotics', city: 'Piatra Neamț', stage: 1 };
+  var teamId = params.get('id');
 
-  document.getElementById('team-content').style.display = 'block';
+  var me = null, team = null, members = [], requests = [], subs = [];
 
-  // Simple mock role check for now: any logged-in club is treated as this
-  // team's owner, any logged-in member is treated as a team member. Real
-  // membership verification (does this member actually belong to this team?)
-  // will be added once the backend exists.
-  var role = null;
-  if(clubSessionNav){ role = 'club'; }
-  else if(memberSessionNav){ role = 'member'; }
-
-  document.getElementById('back-link').href = role === 'club' ? 'profile.html' : (role === 'member' ? 'member-profile.html' : 'founding-teams.html');
-  document.getElementById('back-link').textContent = role === 'club' ? '← Back to your club' : (role === 'member' ? '← Back to your profile' : '← Back to teams');
-
-  // ---- Hero ----
-  var catEl = document.getElementById('th-cat');
-  catEl.textContent = MOCK_TEAM.category;
-  catEl.className = 'team-cat-badge cat-' + MOCK_TEAM.category;
-  document.getElementById('th-name').textContent = teamName;
-  document.getElementById('th-club-line').textContent = clubName + ' · ' + MOCK_TEAM.city;
-
-  var rolePill = document.getElementById('th-role-pill');
-  if(role === 'club'){ rolePill.textContent = 'You manage this team (club)'; rolePill.style.display = 'inline-block'; }
-  else if(role === 'member'){ rolePill.textContent = 'You are a member of this team'; rolePill.classList.add('member-role'); rolePill.style.display = 'inline-block'; }
-
-  var stageLabels = ['Registered', 'City challenge', 'The final', 'Results'];
-  var stage = MOCK_TEAM.stage;
-  var pct = (stage / 3) * 100;
-  var stepsHtml = stageLabels.map(function(label, idx){
-    var cls = idx < stage ? 'done' : (idx === stage ? 'current' : '');
-    return '<div class="mini-step ' + cls + '"><div class="mini-dot">' + (idx + 1) + '</div><p>' + label + '</p></div>';
-  }).join('');
-  document.getElementById('th-progress').innerHTML = '<div class="mini-fill" style="width:' + pct + '%;"></div>' + stepsHtml;
-
-  if(!role){
-    document.getElementById('no-access-banner').style.display = 'block';
-    return;
+  function load(){
+    return Promise.all([
+      api('/auth/me').then(function(r){ me = (r.d && r.d.account) || null; }),
+      api('/api/teams').then(function(r){
+        var all = (r.d && r.d.teams) || [];
+        team = all.filter(function(t){ return String(t.id) === String(teamId); })[0] || null;
+      })
+    ]).then(function(){
+      if(!team) return;
+      // Members are public -- this is a page about a team, and who is on
+      // it is the first thing anyone wants to know.
+      return api('/api/memberships?teamId=' + encodeURIComponent(team.id))
+        .then(function(r){ members = (r.d && r.d.members) || []; });
+    });
   }
-  document.getElementById('manage-wrap').style.display = 'block';
-  if(role === 'club'){ document.getElementById('danger-zone').style.display = 'block'; }
 
-  // ---- Submissions (mock, read-only list here — real submit/edit/delete lives on submissions.html) ----
-  var MOCK_SUBMISSIONS = [
-    { title: 'City Challenge Round 1', authorType: 'club', authorName: clubName, date: '2026-06-01T10:00:00Z' },
-    { title: 'Design doc v2', authorType: 'member', authorName: 'Alex P.', date: '2026-06-10T14:30:00Z' }
-  ];
+  // These two are scoped to the caller by the server, so they simply
+  // come back empty for anyone who may not see them. No role check here
+  // decides what is fetched -- the server does.
+  function loadPrivate(){
+    return Promise.all([
+      api('/api/join-requests/incoming')
+        .then(function(r){
+          requests = ((r.d && r.d.requests) || []).filter(function(q){
+            return String(q.teamId) === String(team.id) && q.status === 'pending';
+          });
+        })
+        .catch(function(){ requests = []; }),
+      api('/api/submissions')
+        .then(function(r){
+          subs = ((r.d && r.d.submissions) || []).filter(function(s){
+            return String(s.teamId) === String(team.id);
+          });
+        })
+        .catch(function(){ subs = []; })
+    ]);
+  }
+
+  function renderHero(){
+    var catEl = document.getElementById('th-cat');
+    catEl.textContent = team.categoryLabel || team.category;
+    catEl.className = 'team-cat-badge cat-' + (team.categoryLabel || 'Other');
+    document.getElementById('th-name').textContent = team.teamName;
+    document.getElementById('th-club-line').textContent =
+      team.clubName + (team.clubCity ? ' · ' + team.clubCity : '') +
+      ' · cod ' + team.participationCode;
+
+    var rolePill = document.getElementById('th-role-pill');
+    if(role === 'club'){
+      rolePill.textContent = 'Administrezi această echipă';
+      rolePill.style.display = 'inline-block';
+    } else if(role === 'member'){
+      rolePill.textContent = 'Faci parte din această echipă';
+      rolePill.classList.add('member-role');
+      rolePill.style.display = 'inline-block';
+    }
+
+    // The four-stage track that stood here was driven by a made-up
+    // number. There is no definition yet of what makes a team reach a
+    // stage, so the space shows what is true instead: how full the team
+    // is against its category's limit.
+    document.getElementById('th-progress').innerHTML =
+      '<p style="font-size:13px; color:var(--ink-soft); margin:0;">' +
+      members.length + ' din ' + team.maxMembers + ' locuri ocupate' +
+      '</p>';
+  }
+
   function renderSubs(){
     var wrap = document.getElementById('subs-list');
     var emptyMsg = document.getElementById('subs-empty');
     wrap.innerHTML = '';
-    if(MOCK_SUBMISSIONS.length === 0){ emptyMsg.style.display = 'block'; return; }
+    if(subs.length === 0){ emptyMsg.style.display = 'block'; return; }
     emptyMsg.style.display = 'none';
-    MOCK_SUBMISSIONS.slice().reverse().forEach(function(s){
-      var authorTag = s.authorType === 'club'
+    subs.forEach(function(s){
+      var authorTag = s.authorRole === 'club'
         ? '<span class="author-tag club-tag">Club</span>'
-        : '<span class="author-tag">by ' + s.authorName.replace(/</g,'&lt;') + '</span>';
+        : '<span class="author-tag">de ' + esc(s.authorName) + '</span>';
       var row = document.createElement('div');
       row.className = 'sub-item';
-      row.innerHTML = '<strong></strong> <span class="sub-status">Submitted</span>' + authorTag + '<br><span style="font-size:12px;color:var(--ink-soft);"></span>';
+      row.innerHTML = '<strong></strong> <span class="sub-status">Trimisă</span>' + authorTag +
+        '<br><span style="font-size:12px;color:var(--ink-soft);"></span>';
       row.querySelector('strong').textContent = s.title;
-      row.querySelectorAll('span')[1].textContent = new Date(s.date).toLocaleDateString();
+      row.querySelectorAll('span')[1].textContent =
+        s.challengeName + ' · v' + s.version + ' · ' + new Date(s.createdAt).toLocaleDateString();
       wrap.appendChild(row);
     });
   }
-  renderSubs();
-  document.getElementById('subs-manage-link').href = 'submissions.html?team=' + encodeURIComponent(teamName);
-
-  // ---- Join requests + team roster (mock; actions update in-memory arrays only) ----
-  var mockRequests = [
-    { memberName: 'Jordan K.', city: 'Cluj-Napoca', email: 'jordan@example.com', message: 'Would love to help with the robot build!' },
-    { memberName: 'Sam R.', city: 'Piatra Neamț', email: 'sam@example.com', message: '' }
-  ];
-  var mockMembers = [
-    { name: 'Taylor M.', role: 'Captain' },
-    { name: 'Riley S.', role: teamName }
-  ];
 
   function renderRequests(){
     var wrap = document.getElementById('requests-list');
     var emptyMsg = document.getElementById('no-requests');
     wrap.innerHTML = '';
-    if(mockRequests.length === 0){ emptyMsg.style.display = 'block'; return; }
+    if(requests.length === 0){ emptyMsg.style.display = 'block'; return; }
     emptyMsg.style.display = 'none';
 
-    mockRequests.forEach(function(r, idx){
+    requests.forEach(function(r){
       var row = document.createElement('div');
       row.className = 'req-row';
       row.innerHTML =
         '<div class="req-info"><div class="r-name"></div><div class="r-meta"></div></div>' +
         '<div class="req-actions"><button class="accept-btn">Accept</button><button class="decline-btn">Decline</button></div>';
       row.querySelector('.r-name').textContent = r.memberName;
-      row.querySelector('.r-meta').textContent = r.city + ' · ' + r.email + (r.message ? ' · "' + r.message + '"' : '');
+      row.querySelector('.r-meta').textContent =
+        (r.memberCity || '—') + ' · ' + r.memberEmail + (r.message ? ' · "' + r.message + '"' : '');
 
-      row.querySelector('.accept-btn').addEventListener('click', function(){
-        mockMembers.push({ name: r.memberName, role: teamName });
-        mockRequests.splice(idx, 1);
-        renderMembers();
-        renderRequests();
-      });
-      row.querySelector('.decline-btn').addEventListener('click', function(){
-        mockRequests.splice(idx, 1);
-        renderRequests();
-      });
+      // Accepting is one call that marks the request AND creates the
+      // membership in one transaction. It used to push a name onto an
+      // array and splice another.
+      function decide(verb, btn){
+        btn.disabled = true;
+        api('/api/join-requests/' + r.id + '/' + verb, { method: 'POST' })
+          .then(function(res){
+            if(!res.ok){
+              btn.disabled = false;
+              row.querySelector('.r-meta').textContent = res.d.error || 'Nu a mers.';
+              return;
+            }
+            return refresh();
+          })
+          .catch(function(){ btn.disabled = false; });
+      }
+      var acc = row.querySelector('.accept-btn');
+      var dec = row.querySelector('.decline-btn');
+      acc.addEventListener('click', function(){ decide('accept', acc); });
+      dec.addEventListener('click', function(){ decide('reject', dec); });
 
       wrap.appendChild(row);
     });
   }
-  renderRequests();
 
   function renderMembers(){
     var wrap = document.getElementById('members-list');
     var emptyMsg = document.getElementById('no-members');
     wrap.innerHTML = '';
-    if(mockMembers.length === 0){ emptyMsg.style.display = 'block'; return; }
+    if(members.length === 0){ emptyMsg.style.display = 'block'; return; }
     emptyMsg.style.display = 'none';
 
-    mockMembers.forEach(function(m, idx){
+    members.forEach(function(m){
       var row = document.createElement('div');
       row.className = 'member-row';
-      row.innerHTML = '<div><div class="m-name"></div><div class="m-role"></div></div><button class="remove-btn">Remove</button>';
-      row.querySelector('.m-name').textContent = m.name;
-      row.querySelector('.m-role').textContent = m.role || teamName;
-      row.querySelector('.remove-btn').addEventListener('click', function(){
-        mockMembers.splice(idx, 1);
-        renderMembers();
-      });
+      row.innerHTML = '<div><div class="m-name"></div><div class="m-role"></div></div>' +
+        (role === 'club' ? '<button class="remove-btn">Remove</button>' : '');
+      row.querySelector('.m-name').textContent = m.memberName;
+      row.querySelector('.m-role').textContent =
+        (m.roleTitle || 'membru') + (m.memberCity ? ' · ' + m.memberCity : '');
+
+      var rm = row.querySelector('.remove-btn');
+      if(rm){
+        // Ending a membership sets left_at; it does not delete the row.
+        // Scores, submissions and forum posts from that season were made
+        // by someone who was on the team at the time.
+        rm.addEventListener('click', function(){
+          rm.disabled = true;
+          api('/api/memberships/' + m.id, { method: 'DELETE' })
+            .then(function(res){
+              if(!res.ok){ rm.disabled = false; alert(res.d.error || 'Nu s-a putut scoate.'); return; }
+              return refresh();
+            })
+            .catch(function(){ rm.disabled = false; });
+        });
+      }
       wrap.appendChild(row);
     });
   }
-  renderMembers();
 
-  document.getElementById('add-member-btn').addEventListener('click', function(){
-    var nameEl = document.getElementById('new-member-name');
-    var roleEl = document.getElementById('new-member-role');
-    var name = nameEl.value.trim();
-    if(!name) return;
-    mockMembers.push({ name: name, role: teamName + (roleEl.value.trim() ? ' — ' + roleEl.value.trim() : '') });
-    nameEl.value = '';
-    roleEl.value = '';
-    renderMembers();
+  var role = null;
+
+  function refresh(){
+    return load().then(function(){
+      if(!team) return;
+      return (role ? loadPrivate() : Promise.resolve()).then(function(){
+        renderHero(); renderMembers(); renderRequests(); renderSubs();
+      });
+    });
+  }
+
+  load().then(function(){
+    if(!team){
+      document.getElementById('team-content').style.display = 'block';
+      document.getElementById('th-name').textContent = 'Echipa nu a fost găsită';
+      document.getElementById('th-club-line').textContent =
+        teamId ? 'Linkul poate fi vechi — echipele se caută după id acum.' : 'Lipsește ?id= din adresă.';
+      document.getElementById('no-access-banner').style.display = 'block';
+      return;
+    }
+
+    // Which role the VIEWER has on THIS team, not "any club is treated
+    // as the owner" as before. A club that is not this team's club sees
+    // the page as a visitor, which is what it is to them.
+    if(me && me.role === 'club' && String(me.id) === String(team.clubId)) role = 'club';
+    else if(me && me.role === 'member') role = 'member';
+
+    document.getElementById('team-content').style.display = 'block';
+    var back = document.getElementById('back-link');
+    back.href = role === 'club' ? 'profile.html'
+              : (role === 'member' ? 'member-profile.html' : 'founding-teams.html');
+    back.textContent = role === 'club' ? '← Înapoi la club'
+              : (role === 'member' ? '← Înapoi la profil' : '← Înapoi la echipe');
+
+    document.getElementById('subs-manage-link').href =
+      'submissions.html?team=' + encodeURIComponent(team.teamName);
+
+    if(!role){
+      renderHero();
+      renderMembers();
+      document.getElementById('no-access-banner').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('manage-wrap').style.display = 'block';
+    if(role === 'club'){ document.getElementById('danger-zone').style.display = 'block'; }
+
+    return loadPrivate().then(function(){
+      renderHero(); renderMembers(); renderRequests(); renderSubs();
+    });
   });
 
-  // ---- Delete team (mock — visual only, nothing is actually removed) ----
-  if(role === 'club'){
+  // The "Add member" row is gone for the same reason it went from
+  // profile.html: a typed-in name is not an account, so the person named
+  // could not sign in, submit, or appear anywhere else. A team is filled
+  // by accepting the requests above.
+
+  if(document.getElementById('delete-team-btn')){
     document.getElementById('delete-team-btn').addEventListener('click', function(){
-      if(!confirm('Delete "' + teamName + '"? (mock action — no data will actually be removed until the backend is connected)')) return;
-      document.getElementById('manage-wrap').innerHTML =
-        '<div class="card" style="text-align:center;"><p style="margin:0; font-weight:700;">Team deleted ✓</p>' +
-        '<p class="empty-small" style="margin-top:6px;">Mock action only — nothing was actually changed. This will call the backend once it exists.</p></div>';
+      // Not built on the server, and saying so beats a button that
+      // announces success and changes nothing -- which is what this one
+      // used to do. A team carries scores, submissions and memberships,
+      // so removing one needs a decision about what happens to them.
+      alert('Retragerea unei echipe nu este încă disponibilă. Scrie-ne și o facem manual.');
     });
   }
 });

@@ -724,7 +724,7 @@ document.addEventListener('DOMContentLoaded', function(){
           '<button class="remove-btn">Remove</button>' +
         '</div>' +
         '<div class="team-participants"><strong>Membri:</strong> <span class="p-list"></span></div>' +
-        '<div class="team-card-actions"><a class="btn btn-secondary btn-small" href="team.html?club=' + encodeURIComponent(session.clubName) + '&team=' + encodeURIComponent(t.teamName) + '">Manage team →</a></div>';
+        '<div class="team-card-actions"><a class="btn btn-secondary btn-small" href="team.html?id=' + encodeURIComponent(t.id) + '">Manage team →</a></div>';
 
       card.querySelector('h3').textContent = t.teamName;
       card.querySelector('.team-cat-badge').textContent = t.categoryLabel || t.category;

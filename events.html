@@ -377,25 +377,26 @@
   <div style="max-width:680px; margin:0 auto 40px;">
     <div class="center-card reveal" style="text-align:left; padding:24px; margin-bottom:16px;">
       <h3 style="font-size:18px; margin-bottom:12px;">📅 Season timeline</h3>
-      <div style="border-left:3px solid var(--coral); padding-left:18px;">
-        <div style="margin-bottom:18px;"><strong style="color:var(--coral-dark);">Registration opens</strong><br><span style="font-size:14px; color:var(--ink-soft);">Now — teams and clubs can register anytime before the city-challenge deadline.</span></div>
-        <div style="margin-bottom:18px;"><strong style="color:var(--blue);">City challenge deadline</strong><br><span style="font-size:14px; color:var(--ink-soft);">TBA — all teams complete the same mission in their own city by this date.</span></div>
-        <div style="margin-bottom:18px;"><strong style="color:var(--green);">Results and advancement</strong><br><span style="font-size:14px; color:var(--ink-soft);">TBA — top-scoring teams from each city are announced and invited to the final.</span></div>
-        <div><strong style="color:var(--coral);">The final — Piatra Neamț</strong><br><span style="font-size:14px; color:var(--ink-soft);">November 14, 2026 — live competition, judging, awards ceremony, and live stream.</span></div>
-      </div>
+      <!--
+        Four sentences stood here, two of them reading "TBA" and one
+        naming a date typed by hand. Every one of them is already a date
+        in the database: the season carries its own start and end, and
+        each challenge carries its submission deadline. Nothing on this
+        page is invented any more, and nothing needs editing when a date
+        moves.
+      -->
+      <div id="season-timeline" style="border-left:3px solid var(--coral); padding-left:18px;"></div>
     </div>
 
     <div class="center-card reveal" style="text-align:left; padding:24px; margin-bottom:16px;">
-      <h3 style="font-size:18px; margin-bottom:12px;">🏟️ Final day agenda (Piatra Neamț)</h3>
-      <table style="width:100%; font-size:14px; border-collapse:collapse;">
-        <tr style="border-bottom:1px solid #EFE9DB;"><td style="padding:8px 0; font-weight:700; width:100px;">08:00</td><td style="padding:8px 0;">Check-in and team setup</td></tr>
-        <tr style="border-bottom:1px solid #EFE9DB;"><td style="padding:8px 0; font-weight:700;">09:00</td><td style="padding:8px 0;">Opening ceremony and speaker presentations</td></tr>
-        <tr style="border-bottom:1px solid #EFE9DB;"><td style="padding:8px 0; font-weight:700;">10:00</td><td style="padding:8px 0;">Competition rounds begin (live-streamed)</td></tr>
-        <tr style="border-bottom:1px solid #EFE9DB;"><td style="padding:8px 0; font-weight:700;">12:30</td><td style="padding:8px 0;">Lunch break and networking</td></tr>
-        <tr style="border-bottom:1px solid #EFE9DB;"><td style="padding:8px 0; font-weight:700;">13:30</td><td style="padding:8px 0;">Semi-final and final rounds</td></tr>
-        <tr style="border-bottom:1px solid #EFE9DB;"><td style="padding:8px 0; font-weight:700;">16:00</td><td style="padding:8px 0;">Judging and deliberation</td></tr>
-        <tr><td style="padding:8px 0; font-weight:700;">17:00</td><td style="padding:8px 0;">Awards ceremony, certificates, and closing</td></tr>
-      </table>
+      <h3 style="font-size:18px; margin-bottom:12px;">🏟️ Final day agenda</h3>
+      <!--
+        A seven-row table stood here and contest-day.html carried a
+        second, longer copy of the same day. Two hand-maintained
+        timetables disagree eventually, and these two already did about
+        when lunch was. Both read /api/schedule now.
+      -->
+      <div id="day-agenda" style="font-size:14px;"></div>
       <div style="text-align:right; margin-top:14px;"><a class="btn btn-secondary btn-small" href="contest-day.html">Full contest-day program →</a></div>
     </div>
 
@@ -546,6 +547,74 @@ document.addEventListener('DOMContentLoaded', function(){
   // browser any more -- they are rows, and one visitor cannot clear
   // them by clicking a link in a footer. All it would have wiped is
   // whether the rules badge has been seen.
+</script>
+
+<script>
+(function(){
+  // The timeline and the agenda, both from /api/schedule. The endpoint
+  // returns the active season, the challenge deadlines as milestones,
+  // and the merged run of show -- so this page and contest-day.html
+  // cannot drift apart, because there is only one source.
+  function esc(x){ return String(x == null ? "" : x).replace(/</g,"&lt;"); }
+  function day(iso){
+    return iso ? new Date(iso).toLocaleDateString(undefined, { day:"numeric", month:"long", year:"numeric" }) : "";
+  }
+  function hhmm(iso){
+    return new Date(iso).toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+  }
+
+  var tl = document.getElementById("season-timeline");
+  var ag = document.getElementById("day-agenda");
+  if(!tl || !ag) return;
+
+  fetch("/api/schedule", { credentials: "same-origin" })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(!d || !d.season){
+        tl.innerHTML = "<p style=\"font-size:14px; color:var(--ink-soft); margin:0;\">Niciun sezon activ momentan.</p>";
+        ag.innerHTML = "";
+        return;
+      }
+
+      var rows = [];
+      rows.push({ color:"var(--coral-dark)", label:"Înscrierile se deschid",
+                  text: day(d.season.startDate) + " — cluburile și echipele se pot înregistra." });
+      (d.milestones || []).forEach(function(m){
+        rows.push({
+          color: m.stage === "final" ? "var(--coral)" : "var(--blue)",
+          label: m.name,
+          text: day(m.deadline) + " — termenul de trimitere."
+        });
+      });
+      if(d.season.endDate){
+        rows.push({ color:"var(--green)", label:"Sezonul se încheie", text: day(d.season.endDate) + "." });
+      }
+
+      tl.innerHTML = rows.map(function(r, i){
+        return "<div style=\"margin-bottom:" + (i === rows.length - 1 ? "0" : "18px") + ";\">" +
+          "<strong style=\"color:" + r.color + ";\">" + esc(r.label) + "</strong><br>" +
+          "<span style=\"font-size:14px; color:var(--ink-soft);\">" + esc(r.text) + "</span></div>";
+      }).join("");
+
+      var items = d.items || [];
+      if(items.length === 0){
+        ag.innerHTML = "<p style=\"color:var(--ink-soft); margin:0;\">Programul zilei nu este încă publicat.</p>";
+        return;
+      }
+      ag.innerHTML = "<table style=\"width:100%; font-size:14px; border-collapse:collapse;\">" +
+        items.map(function(it, i){
+          var last = i === items.length - 1;
+          return "<tr" + (last ? "" : " style=\"border-bottom:1px solid #EFE9DB;\"") + ">" +
+            "<td style=\"padding:8px 0; font-weight:700; width:100px;\">" + hhmm(it.startsAt) + "</td>" +
+            "<td style=\"padding:8px 0;\">" + esc(it.title) +
+            (it.location ? " <span style=\"color:var(--ink-soft);\">· " + esc(it.location) + "</span>" : "") +
+            "</td></tr>";
+        }).join("") + "</table>";
+    })
+    .catch(function(){
+      tl.innerHTML = "<p style=\"font-size:14px; color:var(--ink-soft); margin:0;\">Datele nu au putut fi încărcate.</p>";
+    });
+})();
 </script>
 </body>
 </html>

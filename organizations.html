@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var chips = clubTeams.length > 0
       ? clubTeams.map(function(t){
           var cat = t.category || 'Other';
-          var teamHref = 'team.html?club=' + encodeURIComponent(club.clubName) + '&team=' + encodeURIComponent(t.teamName);
+          var teamHref = 'team.html?id=' + encodeURIComponent(t.id);
           return '<a class="team-chip" href="' + teamHref + '" style="text-decoration:none; color:inherit;"><span class="cat-dot cat-' + cat + '"></span>' + t.teamName.replace(/</g,'&lt;') + '<span class="cat-label">' + cat + '</span></a>';
         }).join('')
       : '<p class="empty-small" style="margin:0;">No teams added yet.</p>';

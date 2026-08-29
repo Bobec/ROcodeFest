@@ -533,7 +533,7 @@ document.addEventListener('DOMContentLoaded', function(){
         // The club name arrives with the request. Looking it up in the
         // team list by name is what findTeamClub used to do, and it
         // could not tell two teams with the same name apart.
-        viewLink = '<a class="empty-small" style="text-decoration:underline; margin-left:10px;" href="team.html?club=' + encodeURIComponent(r.clubName) + '&team=' + encodeURIComponent(r.teamName) + '">View team →</a>';
+        viewLink = '<a class="empty-small" style="text-decoration:underline; margin-left:10px;" href="team.html?id=' + encodeURIComponent(r.teamId) + '">View team →</a>';
       }
       row.innerHTML =
         '<div class="rq-name"></div>' +

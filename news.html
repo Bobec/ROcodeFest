@@ -260,6 +260,15 @@
   .join-cta-link::after{display:none !important;}
   .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
   .back-nav-btn:hover{color:var(--coral-dark);}
+
+  .news-item{
+    background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg);
+    padding:26px 28px; margin-bottom:16px; text-align:left;
+  }
+  .news-item h2{font-size:20px; margin-bottom:4px;}
+  .news-meta{font-size:12px; color:var(--ink-soft); margin-bottom:12px;}
+  .news-summary{font-size:15px; color:var(--ink-soft); margin:0 0 10px;}
+  .news-body{font-size:14px; white-space:pre-wrap; margin:0;}
 </style>
 </head>
 <body>
@@ -368,11 +377,20 @@
   }
 </script>
 
-  <div class="center-card reveal">
+  <!--
+    This was a hardcoded empty state: "No news yet", permanently, with
+    nothing behind it. Articles are rows now, written by organisers from
+    the admin panel. The empty state below is drawn only when the list
+    really is empty -- which is a different thing from a page that can
+    never say anything else.
+  -->
+  <div id="news-list"></div>
+
+  <div class="center-card reveal" id="news-empty" style="display:none;">
     <div class="eyebrow">News</div>
-    <h1>No news yet — season one just started</h1>
-    <p>This is where season updates, announcements, and press coverage will live once things get moving.</p>
-    <a class="btn btn-primary" href="mailto:hello@rocodefest.example">Contact us →</a>
+    <h1>Nicio știre încă</h1>
+    <p>Aici apar noutățile sezonului, anunțurile și aparițiile în presă.</p>
+    <a class="btn btn-primary" href="mailto:hello@rocodefest.example">Scrie-ne →</a>
   </div>
 
   <footer>
@@ -515,6 +533,41 @@ document.addEventListener('DOMContentLoaded', function(){
   // browser any more -- they are rows, and one visitor cannot clear
   // them by clicking a link in a footer. All it would have wiped is
   // whether the rules badge has been seen.
+</script>
+
+<script>
+(function(){
+  // Published articles only, for everyone. An organiser signed in gets
+  // their drafts too -- the endpoint decides that, not this page, so
+  // there is no role check here to get wrong.
+  function esc(x){ return String(x == null ? "" : x).replace(/</g,"&lt;"); }
+  var wrap = document.getElementById("news-list");
+  var empty = document.getElementById("news-empty");
+  if(!wrap) return;
+
+  fetch("/api/news", { credentials: "same-origin" })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var items = (d && d.news) || [];
+      if(items.length === 0){ empty.style.display = "block"; return; }
+      wrap.innerHTML = items.map(function(n){
+        var when = n.publishedAt
+          ? new Date(n.publishedAt).toLocaleDateString(undefined, { day:"numeric", month:"long", year:"numeric" })
+          : "ciornă";
+        return "<article class=\"news-item reveal visible\">" +
+          "<h2>" + esc(n.title) + "</h2>" +
+          "<div class=\"news-meta\">" + when + (n.authorName ? " · " + esc(n.authorName) : "") +
+            (n.publishedAt ? "" : " · <strong>nepublicat</strong>") + "</div>" +
+          (n.summary ? "<p class=\"news-summary\">" + esc(n.summary) + "</p>" : "") +
+          "<p class=\"news-body\">" + esc(n.body) + "</p>" +
+        "</article>";
+      }).join("");
+    })
+    .catch(function(){
+      empty.style.display = "block";
+      empty.querySelector("h1").textContent = "Știrile nu au putut fi încărcate";
+    });
+})();
 </script>
 </body>
 </html>
