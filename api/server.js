@@ -49,6 +49,12 @@ app.use('/api/submissions',   require('./routes/submissions'));
 app.use('/api/appeals',       require('./routes/appeals'));
 app.use('/api/scores',        require('./routes/scores'));
 app.use('/api/forum',         require('./routes/forum'));
+app.use('/api/leaderboard',   require('./routes/leaderboard'));
+app.use('/api/news',          require('./routes/news'));
+app.use('/api/schedule',      require('./routes/schedule'));
+// Everything an organiser runs the festival with. The role guard is
+// applied once inside the router, at its mount, rather than per route.
+app.use('/api/admin',         require('./routes/admin'));
 
 // Readiness, not liveness: it answers whether the database is reachable,
 // because a process that is up but cannot query is not serving anything.

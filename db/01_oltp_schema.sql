@@ -51,8 +51,20 @@ SET search_path = oltp, public;
 -- ENUM types
 -- ---------------------------------------------------------------------
 
-CREATE TYPE account_role AS ENUM ('member', 'club', 'judge', 'partner');
+CREATE TYPE account_role AS ENUM ('member', 'club', 'judge', 'partner', 'organizer');
 -- 'member'  = a Competitor -- the only role that can join a team.
+-- 'organizer' = R9. The role that runs the festival: seasons,
+--            challenges, matches, panels, the day's schedule, news.
+--            Every one of those tables existed from the start and none
+--            of them could be written by any account, which stayed
+--            invisible while the pages kept their own data and became
+--            plain the moment scoring went on the API -- a judge could
+--            ask which matches they were officiating and the honest
+--            answer was "none, and nothing can change that".
+--            An organiser does NOT act as somebody else: they never
+--            author a submission, an appeal or a post under another
+--            account, because those columns are attribution and a row
+--            written that way would say something untrue.
 -- 'partner' covers BOTH the "Partner" and "Speaker" registration paths
 --            (see partners.partner_type below). Both are external
 --            collaborators with the same core shape (org/contact +
@@ -178,6 +190,26 @@ CREATE TABLE judges (
   avatar_data_uri TEXT,
   CONSTRAINT ck_judges_avatar_size  CHECK (avatar_data_uri IS NULL OR length(avatar_data_uri) <= 200000),
   CONSTRAINT ck_judges_avatar_shape CHECK (avatar_data_uri IS NULL OR avatar_data_uri ~ '^data:image/(png|jpeg|gif|webp);base64,'),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- R9. A fifth subtype rather than an accounts.is_admin flag: the other
+-- four are tables because enforce_subtype_role and
+-- enforce_role_change_has_no_subtype together make "an account is
+-- exactly one kind of thing" something the database holds. A boolean
+-- beside the enum would let an account be a club AND an organiser,
+-- which is the shape those two triggers exist to refuse. It also gives
+-- an organiser a name and a picture, which matters the moment an
+-- announcement is attributed to one.
+CREATE TABLE organizers (
+  account_id  BIGINT PRIMARY KEY REFERENCES accounts(account_id) ON DELETE CASCADE,
+  full_name   VARCHAR(150) NOT NULL,
+  title       VARCHAR(120),
+  bio         TEXT,
+  -- see the note above CREATE TABLE members for why this is a column
+  avatar_data_uri TEXT,
+  CONSTRAINT ck_organizers_avatar_size  CHECK (avatar_data_uri IS NULL OR length(avatar_data_uri) <= 200000),
+  CONSTRAINT ck_organizers_avatar_shape CHECK (avatar_data_uri IS NULL OR avatar_data_uri ~ '^data:image/(png|jpeg|gif|webp);base64,'),
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -848,6 +880,63 @@ CREATE INDEX ix_submission_reviews_judge_id ON submission_reviews(judge_id);
 -- Certificates
 -- =====================================================================
 
+-- --- the day's agenda (R9) --------------------------------------------
+-- matches already carry scheduled_at and location, so the times of the
+-- competition itself need no new table. What has no home is everything
+-- between the matches: the opening, the lunch break, the awards. Those
+-- are what turn a list of match times into a run of show.
+--
+-- Matches are NOT copied in here. A schedule row may POINT at one, and
+-- the contest-day page merges the two streams by time. Copying would
+-- create a second scheduled_at, and two copies of a time are two times
+-- that disagree the first time one of them moves.
+CREATE TYPE schedule_kind AS ENUM
+  ('opening', 'match', 'break', 'talk', 'awards', 'other');
+
+CREATE TABLE schedule_items (
+  item_id     BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  season_id   SMALLINT NOT NULL REFERENCES seasons(season_id) ON DELETE CASCADE,
+  match_id    BIGINT REFERENCES matches(match_id) ON DELETE CASCADE,
+  kind        schedule_kind NOT NULL,
+  title       VARCHAR(150) NOT NULL,
+  detail      TEXT,
+  location    VARCHAR(150),
+  starts_at   TIMESTAMPTZ NOT NULL,
+  ends_at     TIMESTAMPTZ,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT ck_schedule_items_ends_after_starts
+    CHECK (ends_at IS NULL OR ends_at >= starts_at),
+  -- A row pointing at a match must say it is one; otherwise 'break'
+  -- could carry a match_id and the page would draw a lunch break where
+  -- a match belongs.
+  CONSTRAINT ck_schedule_items_match_kind
+    CHECK (match_id IS NULL OR kind = 'match'),
+  -- A match listed twice is a match the audience is told to watch in
+  -- two places at once.
+  CONSTRAINT uq_schedule_items_match UNIQUE (match_id)
+);
+CREATE INDEX ix_schedule_items_season ON schedule_items(season_id);
+CREATE INDEX ix_schedule_items_starts ON schedule_items(starts_at);
+
+-- --- news (R9) --------------------------------------------------------
+-- Separate from the forum's announcements category on purpose: an
+-- announcement is a thread people reply to, an article is not.
+--
+-- published_at is nullable so a draft is a row without a publication
+-- date, rather than a status column that would then need rules of its
+-- own about which transitions are legal.
+CREATE TABLE news_posts (
+  news_id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  author_account_id BIGINT NOT NULL REFERENCES accounts(account_id),
+  title             VARCHAR(200) NOT NULL,
+  summary           VARCHAR(400),
+  body              TEXT NOT NULL,
+  published_at      TIMESTAMPTZ,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX ix_news_posts_published ON news_posts(published_at DESC NULLS LAST);
+
 CREATE TABLE certificates (
   certificate_id    BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   team_id           BIGINT NOT NULL REFERENCES teams(team_id) ON DELETE CASCADE,
@@ -975,6 +1064,8 @@ CREATE TRIGGER trg_accounts_updated_at BEFORE UPDATE ON accounts
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_submissions_updated_at BEFORE UPDATE ON submissions
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_news_posts_updated_at BEFORE UPDATE ON news_posts
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- --- subtype/role consistency -------------------------------------------
 -- Postgres CHECK constraints can't reference another table, so "a
@@ -1012,6 +1103,8 @@ CREATE TRIGGER trg_judges_role_check BEFORE INSERT OR UPDATE ON judges
   FOR EACH ROW EXECUTE FUNCTION enforce_subtype_role('judge');
 CREATE TRIGGER trg_partners_role_check BEFORE INSERT OR UPDATE ON partners
   FOR EACH ROW EXECUTE FUNCTION enforce_subtype_role('partner');
+CREATE TRIGGER trg_organizers_role BEFORE INSERT OR UPDATE ON organizers
+  FOR EACH ROW EXECUTE FUNCTION enforce_subtype_role('organizer');
 
 -- R8: the same invariant, enforced from the OTHER side.
 --
@@ -1040,6 +1133,12 @@ BEGIN
              WHEN 'club'    THEN 'clubs'
              WHEN 'judge'   THEN 'judges'
              WHEN 'partner' THEN 'partners'
+             -- R9. A fifth role with no entry here would fall through
+             -- to NULL and the guard would return early -- which is
+             -- exactly the silent hole R8 was written to close,
+             -- reopened by adding a role. Adding one to the enum means
+             -- adding one here, and qa_lifecycle proves it on all five.
+             WHEN 'organizer' THEN 'organizers'
            END;
   IF v_tbl IS NULL THEN RETURN NEW; END IF;
 

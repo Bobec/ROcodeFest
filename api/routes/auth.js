@@ -70,6 +70,21 @@ const SUBTYPES = {
 
 router.post('/register', async (req, res, next) => {
   const body = req.body || {};
+
+  // 'organizer' is deliberately absent from SUBTYPES, and this says so
+  // out loud rather than letting it fall into "unknown role". An
+  // organiser can create seasons, matches and panels for the whole
+  // festival, so a public form that hands out that role is a public
+  // form that hands out the festival. They are created by another
+  // organiser, and the first one by a command-line script -- which is
+  // an operational act, not a web page.
+  if (body.role === 'organizer') {
+    return res.status(403).json({
+      error: 'Conturile de organizator nu se creează din formular. ' +
+             'Cere unui organizator existent să îți facă unul.',
+    });
+  }
+
   const spec = SUBTYPES[body.role];
   if (!spec) {
     return res.status(400).json({
@@ -182,6 +197,8 @@ const PROFILE = {
   partner: `SELECT org_name AS "orgName", contact_name AS "contactName",
                    partner_type AS "partnerType", message, avatar_data_uri AS "avatar"
             FROM partners WHERE account_id = $1`,
+  organizer: `SELECT full_name AS "fullName", title, bio, avatar_data_uri AS "avatar"
+              FROM organizers WHERE account_id = $1`,
 };
 
 router.get('/me', async (req, res, next) => {

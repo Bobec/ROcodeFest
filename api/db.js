@@ -12,9 +12,23 @@ const pool = new Pool({
   password: process.env.PGPASSWORD,
   database: process.env.PGDATABASE || 'rocodefest',
   max: 10,
+  // The search_path is set as a CONNECTION PARAMETER, not by a query on
+  // the connect event. It used to be the latter:
+  //
+  //   pool.on('connect', (c) => { c.query('SET search_path = ...') });
+  //
+  // which fires the SET without awaiting it and then hands the client
+  // out -- so the first real query could be issued while the SET was
+  // still in flight. pg says as much out loud ("Calling client.query()
+  // when the client is already executing a query"), and the failure it
+  // would produce is the R4 one arriving from the API side: an
+  // unqualified name resolving against public instead of oltp.
+  //
+  // As a connection parameter it is applied by the server before the
+  // connection is usable at all. No race, and one fewer round trip per
+  // connection.
+  options: '-c search_path=oltp,public',
 });
-
-pool.on('connect', (c) => { c.query('SET search_path = oltp, public'); });
 
 // ---------------------------------------------------------------------
 // Translating database errors into HTTP

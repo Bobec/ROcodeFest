@@ -399,6 +399,28 @@ INSERT INTO expected_columns(tbl,col,origin) VALUES
   -- together rather than beside each table's own fields.
   ('members','avatar_data_uri','profile'),('clubs','avatar_data_uri','profile'),
   ('judges','avatar_data_uri','profile'),('partners','avatar_data_uri','profile'),
+  -- R9: the role that runs the festival, and the two tables it writes.
+  -- Every column here is listed under R9_* rather than under 'profile'
+  -- or 'tree', so the manifest says WHY each one exists rather than
+  -- only that it was expected. This block is also the record that the
+  -- drift guard caught all 24 at once when they were added.
+  ('organizers','account_id','R9_organizer'),('organizers','full_name','R9_organizer'),
+  ('organizers','title','R9_organizer'),('organizers','bio','R9_organizer'),
+  ('organizers','avatar_data_uri','R9_organizer'),('organizers','created_at','R9_organizer'),
+  -- The run of show. match_id is nullable and points at a match rather
+  -- than copying its time: two copies of a time are two times that
+  -- disagree the first time one moves.
+  ('schedule_items','item_id','R9_schedule'),('schedule_items','season_id','R9_schedule'),
+  ('schedule_items','match_id','R9_schedule'),('schedule_items','kind','R9_schedule'),
+  ('schedule_items','title','R9_schedule'),('schedule_items','detail','R9_schedule'),
+  ('schedule_items','location','R9_schedule'),('schedule_items','starts_at','R9_schedule'),
+  ('schedule_items','ends_at','R9_schedule'),('schedule_items','created_at','R9_schedule'),
+  -- published_at is nullable so a draft is a row without a date,
+  -- rather than a status column needing rules of its own.
+  ('news_posts','news_id','R9_news'),('news_posts','author_account_id','R9_news'),
+  ('news_posts','title','R9_news'),('news_posts','summary','R9_news'),
+  ('news_posts','body','R9_news'),('news_posts','published_at','R9_news'),
+  ('news_posts','created_at','R9_news'),('news_posts','updated_at','R9_news'),
   ('teams','team_name','profile'),('team_categories','code','profile'),('team_categories','label','profile'),
   ('seasons','season_id','profile'),('seasons','name','profile'),('seasons','start_date','profile'),
   ('seasons','end_date','profile'),('seasons','is_active','lifecycle'),

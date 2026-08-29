@@ -6,8 +6,11 @@ const { requireAuth, current } = require('../auth');
 const router = express.Router();
 
 // Which table holds this role's profile. The avatar column is the same
-// on all four, so the only thing that varies is where to write it.
-const SUBTYPE = { club: 'clubs', member: 'members', judge: 'judges', partner: 'partners' };
+// on all five, so the only thing that varies is where to write it.
+const SUBTYPE = {
+  club: 'clubs', member: 'members', judge: 'judges',
+  partner: 'partners', organizer: 'organizers',
+};
 
 // ---------------------------------------------------------------------
 // PUT /api/me/avatar

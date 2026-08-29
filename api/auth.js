@@ -65,4 +65,19 @@ function requireRole(...roles) {
   };
 }
 
-module.exports = { hash, verify, login, logout, current, requireAuth, requireRole };
+
+// An organiser runs the festival, so most "is this yours" questions
+// have a second acceptable answer: yes, or you are an organiser. This
+// wraps requireRole rather than being sprinkled through the routes, so
+// there is one place that says what an organiser may reach.
+//
+// It is deliberately NOT used on the routes that ATTRIBUTE a row to its
+// author -- submissions, appeals, forum posts. Those columns record who
+// did something, and an organiser writing one under another account's
+// name would make the record say something untrue. An organiser who
+// needs a submission gone deletes it; they do not author one.
+function requireRoleOrOrganizer(...roles) {
+  return requireRole(...roles, 'organizer');
+}
+
+module.exports = { hash, verify, login, logout, current, requireAuth, requireRole, requireRoleOrOrganizer };

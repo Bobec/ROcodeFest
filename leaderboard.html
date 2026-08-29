@@ -291,7 +291,7 @@
     <p>Live rankings based on judge scores across all teams.</p>
   </section>
 
-  <div class="demo-note"><p><strong>Preview:</strong> showing sample teams and scores so the layout and sorting can be reviewed. Real rankings will be pulled from judge scoring once the backend is connected.</p></div>
+  <p class="demo-note" id="lb-season-line" style="font-size:13px;"></p>
 
   <div class="tab-row" id="cat-tabs"></div>
   <div class="card" id="lb-card">
@@ -365,44 +365,92 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
 
-  // TODO: provisional — mock leaderboard for visual/layout testing only.
-  // Real scores will come from the backend once judging is wired up; the
-  // sorting/filtering below is just display logic over this sample data.
-  var MOCK_RESULTS = [
-    { name:'Aqua Bot', category:'Robotics', club:'Acme Robotics Club', city:'Piatra Neamț', avg:36.5 },
-    { name:'CodeWolves', category:'Programming', club:'Cluj Coders', city:'Cluj-Napoca', avg:34.8 },
-    { name:'Centaurii', category:'Design', club:'Acme Robotics Club', city:'Piatra Neamț', avg:31.2 },
-    { name:'Circuit Breakers', category:'Robotics', club:'Circuit Breakers HQ', city:'Cluj-Napoca', avg:29.4 },
-    { name:'Byte Sisters', category:'Programming', club:'Byte Sisters Club', city:'Iași', avg:27.9 },
-    { name:'PixelWorks', category:'Design', club:'PixelWorks Studio', city:'Timișoara', avg:24.1 }
-  ];
+  // The leaderboard comes from the server, computed live from the
+  // scores judges have entered. It used to be six teams written into
+  // this page with a note promising real rankings "once the backend is
+  // connected".
+  //
+  // Only completed matches count, and a team's score for a match is the
+  // average across its panel -- so the table changes the moment an
+  // organiser marks a match finished, with nothing to schedule and no
+  // cache to clear.
+  var lbTeams = [];
+  var lbSeason = null;
 
-  var categories = ['All'];
-  MOCK_RESULTS.forEach(function(r){ if(categories.indexOf(r.category) === -1) categories.push(r.category); });
-  var tabRow = document.getElementById('cat-tabs');
-  categories.forEach(function(c){
-    var btn = document.createElement('button');
-    btn.className = 'tab-btn' + (c === 'All' ? ' active' : '');
-    btn.textContent = c;
-    btn.addEventListener('click', function(){ tabRow.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); renderLB(c); });
-    tabRow.appendChild(btn);
-  });
+  function renderCategoryTabs(){
+    var tabRow = document.getElementById('cat-tabs');
+    tabRow.innerHTML = '';
+    // Drawn from the categories actually present in the standings. A
+    // fixed list would offer tabs that are empty all season.
+    var categories = ['All'];
+    lbTeams.forEach(function(t){
+      if(categories.indexOf(t.categoryLabel) === -1) categories.push(t.categoryLabel);
+    });
+    categories.forEach(function(c){
+      var btn = document.createElement('button');
+      btn.className = 'tab-btn' + (c === 'All' ? ' active' : '');
+      btn.textContent = c;
+      btn.addEventListener('click', function(){
+        tabRow.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        renderLB(c);
+      });
+      tabRow.appendChild(btn);
+    });
+  }
 
   function renderLB(cat){
-    var ranked = MOCK_RESULTS
-      .filter(function(r){ return cat === 'All' || r.category === cat; })
-      .slice()
-      .sort(function(a,b){ return b.avg - a.avg; });
-
     var wrap = document.getElementById('lb-list');
-    if(ranked.length === 0){ wrap.innerHTML = '<div class="empty-state">No scores yet for ' + cat + '.</div>'; return; }
-    wrap.innerHTML = ranked.map(function(r,i){
-      var cls = i===0?'gold':i===1?'silver':i===2?'bronze':'';
-      var pct = r.avg / 40 * 100;
-      return '<div class="lb-row"><div class="lb-rank '+cls+'">'+(i+1)+'</div><div class="lb-name"><strong>'+r.name+'</strong><p>'+r.club+' &middot; '+r.city+' &middot; '+r.category+'</p><div class="lb-bar" style="width:'+pct+'%;"></div></div><div class="lb-score">'+r.avg+'</div></div>';
+    var ranked = lbTeams.filter(function(t){ return cat === 'All' || t.categoryLabel === cat; });
+
+    if(ranked.length === 0){
+      wrap.innerHTML = '<div class="empty-state">' +
+        (lbSeason
+          ? 'Niciun punctaj încă pentru ' + cat + '. Clasamentul apare pe măsură ce meciurile se încheie.'
+          : 'Niciun sezon activ momentan.') +
+        '</div>';
+      return;
+    }
+
+    // The rank comes from the server, where ties share a place: two
+    // teams on 87 are both 3rd and the next is 5th. Using the array
+    // index here would silently make one of them 4th.
+    var best = ranked[0].totalScore || 1;
+    wrap.innerHTML = ranked.map(function(t){
+      var cls = t.rank === 1 ? 'gold' : t.rank === 2 ? 'silver' : t.rank === 3 ? 'bronze' : '';
+      // The bar is relative to the leader rather than to a fixed 40:
+      // a team plays several matches, so the total has no ceiling.
+      var pct = Math.max(4, (t.totalScore / best) * 100);
+      var meta = [t.clubName, t.clubCity, t.categoryLabel]
+        .filter(Boolean).map(function(s){ return String(s).replace(/</g,'&lt;'); }).join(' &middot; ');
+      return '<div class="lb-row">' +
+        '<div class="lb-rank ' + cls + '">' + t.rank + '</div>' +
+        '<div class="lb-name"><strong>' + String(t.teamName).replace(/</g,'&lt;') + '</strong>' +
+          '<p>' + meta + ' &middot; ' + t.matchesPlayed + ' meci(uri)</p>' +
+          '<div class="lb-bar" style="width:' + pct + '%;"></div></div>' +
+        '<div class="lb-score">' + t.totalScore + '</div>' +
+      '</div>';
     }).join('');
   }
-  renderLB('All');
+
+  fetch('/api/leaderboard', { credentials: 'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      lbTeams = (d && d.teams) || [];
+      lbSeason = d && d.seasonName;
+      var head = document.getElementById('lb-season-line');
+      if(head){
+        head.textContent = lbSeason
+          ? 'Clasament ' + lbSeason + ' — se actualizează pe măsură ce meciurile se încheie.'
+          : 'Niciun sezon activ momentan.';
+      }
+      renderCategoryTabs();
+      renderLB('All');
+    })
+    .catch(function(){
+      document.getElementById('lb-list').innerHTML =
+        '<div class="empty-state">Clasamentul nu a putut fi încărcat. Reîncarcă pagina.</div>';
+    });
 
 });
 </script>
