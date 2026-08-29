@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panou organizatori — ROcodeFest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF9EF; --ink:#2B2A28; --ink-soft:#6B6660;
+    --blue:#3E9DD1; --blue-light:#E4F3FA;
+    --yellow:#FFC857; --yellow-light:#FFF3D9;
+    --coral:#FF6B4A; --coral-dark:#D8492C;
+    --green:#4CAF7D; --green-light:#E4F5EC;
+    --purple:#8B7FD1; --purple-light:#ECEAFA;
+    --radius-lg:28px; --radius-md:18px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Nunito',sans-serif;line-height:1.6;}
+  h1,h2,h3{font-family:'Baloo 2',sans-serif;font-weight:700;margin:0;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px;}
+  a{color:inherit;}
+  html{scroll-behavior:smooth;}
+  nav{
+    position:sticky; top:0; z-index:50;
+    display:flex;justify-content:space-between;align-items:center;padding:24px 0;
+    background:var(--cream); transition:box-shadow 0.3s ease;
+  }
+  nav.scrolled{box-shadow:0 2px 14px rgba(43,42,40,0.08);}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;}
+  .logo-dot{width:34px;height:34px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;}
+  .nav-links{display:flex;gap:18px;font-weight:700;font-size:14px;color:var(--ink-soft);align-items:center;}
+  .nav-links a{text-decoration:none; position:relative; transition:color 0.2s ease;}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:2px;background:var(--coral);transition:width 0.25s ease;}
+  .nav-links a:hover{color:var(--coral-dark);}
+  .nav-links a:hover::after{width:100%;}
+  .partner-link{background:var(--ink);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .partner-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
+  .partner-link::after{display:none !important;}
+  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .speaker-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
+  .speaker-link::after{display:none !important;}
+  .nav-rules-wrap{position:relative;}
+  .rules-badge{position:absolute;top:-4px;right:-10px;width:9px;height:9px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 2px var(--cream);display:none;}
+  .rules-badge.show{display:block;}
+  .profile-avatar{
+    width:32px; height:32px; border-radius:50%; background:var(--coral); color:#fff !important;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:14px; text-decoration:none;
+    transition:transform 0.2s ease, box-shadow 0.2s ease; background-size:cover; background-position:center;
+  }
+  .profile-avatar:hover{transform:translateY(-2px); box-shadow:0 8px 16px rgba(43,42,40,0.18);}
+  .profile-avatar::after{display:none !important;}
+  .profile-avatar.member-avatar{background-color:var(--blue);}
+  @media (max-width:860px){ .nav-links{display:none;} }
+
+  .page-hero{padding:30px 0 20px;text-align:center;}
+  .eyebrow{font-weight:800;color:var(--coral-dark);font-size:13px;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:10px;}
+  .page-hero h1{font-size:38px;max-width:640px;margin:0 auto 16px;}
+  .page-hero p{color:var(--ink-soft);font-size:17px;max-width:560px;margin:0 auto;}
+
+  .card{background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg); padding:26px; margin-bottom:16px;}
+  .card-light{background:#fff; border-radius:var(--radius-md); padding:20px; border:1.5px solid #E4E1D8; margin-bottom:12px;}
+  .section{padding:24px 0;}
+  .section h2{font-size:22px; margin-bottom:14px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media (max-width:700px){ .grid-2,.grid-3{grid-template-columns:1fr;} }
+
+  .field{margin-bottom:16px; text-align:left;}
+  label{display:block; font-weight:700; font-size:13px; margin-bottom:6px; color:var(--ink);}
+  input, textarea, select{
+    width:100%; padding:11px 14px; border-radius:12px;
+    border:2px solid #E4E1D8; font-family:'Nunito',sans-serif; font-size:14px;
+    background:var(--cream); transition:border-color 0.2s ease;
+  }
+  input:focus, textarea:focus, select:focus{ outline:none; border-color:var(--blue); }
+  .btn{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;display:inline-block;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .btn:hover{transform:translateY(-3px);box-shadow:0 10px 20px rgba(43,42,40,0.15);}
+  .btn-primary{background:var(--coral);color:#fff;}
+  .btn-secondary{background:#fff; color:var(--ink); border:2px solid var(--ink);}
+  .btn-small{font-size:13px; padding:9px 16px;}
+
+  .tab-row{display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;}
+  .tab-btn{font-family:'Baloo 2'; font-weight:700; font-size:13px; padding:9px 18px; border-radius:999px; border:2px solid var(--ink); background:#fff; cursor:pointer; transition:all 0.2s ease;}
+  .tab-btn.active{background:var(--ink); color:#fff;}
+
+  .empty-state{text-align:center; padding:50px 20px; color:var(--ink-soft); font-size:14px;}
+  .stat-num{font-family:'Baloo 2'; font-weight:800; font-size:28px;}
+  .tag{display:inline-block; font-size:11px; font-weight:800; padding:4px 10px; border-radius:999px; color:#fff;}
+  .error-msg{display:none; color:var(--coral-dark); font-size:13px; font-weight:700; margin-top:10px; text-align:center;}
+  .error-msg.show{display:block;}
+
+  .demo-note{
+    max-width:640px; margin:20px auto 40px; background:var(--yellow-light);
+    border-radius:var(--radius-md); padding:18px 22px;
+  }
+  .demo-note p{font-size:13px; color:var(--ink-soft); margin:0;}
+  .demo-note strong{color:var(--ink);}
+
+  
+  /* Panoul de administrare. Aceleasi carduri si aceleasi taburi ca in
+     restul sitului -- ce se adauga aici sunt doar randul cu doua capete
+     si chipsurile pentru echipe si arbitri. */
+  .adm-row{ display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+  .adm-meta{ font-size:12px; color:var(--ink-soft); }
+  .adm-sub{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 0; border-top:1px dashed #E4E1D8; }
+  .adm-label{ font-size:12px; font-weight:800; color:var(--ink-soft); min-width:64px; }
+  .adm-add select{ font-size:12px; padding:6px 10px; }
+  .chip{ display:inline-flex; align-items:center; gap:6px; background:var(--cream); border:1.5px solid #E4E1D8;
+         border-radius:999px; padding:5px 8px 5px 12px; font-size:13px; font-weight:700; }
+  .chip-x{ border:none; background:none; cursor:pointer; color:var(--coral-dark); font-weight:800;
+           font-size:15px; line-height:1; padding:0 4px; }
+  .chip-x:hover{ color:var(--ink); }
+  .session-line{ font-size:13px; color:var(--ink-soft); margin-bottom:16px; }
+  .session-line strong{ color:var(--ink); }
+
+
+  footer{padding:24px 0 40px;text-align:center;font-size:13px;color:var(--ink-soft);}
+  .footer-nav{display:flex;justify-content:center;gap:18px;font-size:13px;font-weight:700;color:var(--ink-soft);margin-bottom:10px; flex-wrap:wrap;}
+  .footer-nav a{text-decoration:none;}
+  .reset-demo-link{display:block; text-align:center; font-size:11px; color:var(--ink-soft); text-decoration:underline; cursor:pointer; margin-top:14px; opacity:0.6;}
+  .reset-demo-link:hover{opacity:1;}
+  .nav-toggle{
+    display:none;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:5px;
+    width:40px;height:40px;
+    border:2px solid var(--ink);
+    border-radius:10px;
+    background:#fff;
+    cursor:pointer;
+    padding:0;
+    flex-shrink:0;
+  }
+  .nav-toggle span{
+    display:block;
+    width:20px;height:2px;
+    background:var(--ink);
+    border-radius:2px;
+    transition:transform 0.2s ease, opacity 0.2s ease;
+  }
+  .nav-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .nav-toggle.open span:nth-child(2){opacity:0;}
+  .nav-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+  @media (max-width:860px){
+    .nav-toggle{display:flex;}
+    .nav-links{
+      display:none;
+      position:absolute;
+      top:100%; left:0; right:0;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:16px;
+      background:var(--cream);
+      border:2px solid var(--ink);
+      border-radius:14px;
+      padding:20px;
+      margin-top:8px;
+      z-index:200;
+      box-shadow:0 14px 30px rgba(43,42,40,0.18);
+    }
+    .nav-links.open{display:flex;}
+  }
+  .join-cta-link{
+    background:var(--coral);
+    color:#fff !important;
+    padding:9px 18px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:800;
+    transition:transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .join-cta-link:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 16px rgba(43,42,40,0.18);
+  }
+  .join-cta-link::after{display:none !important;}
+  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
+  .back-nav-btn:hover{color:var(--coral-dark);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a href="index.html" style="text-decoration:none;">
+      <div class="logo">
+        <div class="logo-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="8" width="14" height="11" rx="4" fill="white"/><rect x="9" y="3" width="2.5" height="6" rx="1.25" fill="white"/><circle cx="10" cy="2.5" r="1.5" fill="white"/><circle cx="9.5" cy="13.5" r="1.8" fill="#FF6B4A"/><circle cx="14.5" cy="13.5" r="1.8" fill="#FF6B4A"/></svg></div>
+        ROcodeFest
+      </div>
+    </a>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <div class="nav-links">
+      <a href="learn-more.html">About</a>
+      <span class="nav-rules-wrap"><a href="rules.html">Rules</a><span class="rules-badge" id="rules-badge"></span></span>
+      <a href="events.html">Events</a>
+      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Contest Day</a>
+      <a href="forum.html">Forum</a>
+      <a href="login.html" id="nav-login-link" style="font-size:13px;">Log in</a>
+      <a href="register.html" id="nav-register-link">Register</a>
+      <a href="join-as.html" class="join-cta-link">Get involved</a>
+    </div>
+  </nav>
+<script>
+(function(){
+  var toggle = document.getElementById("nav-toggle");
+  var links = document.querySelector(".nav-links");
+  if(!toggle || !links) return;
+  toggle.addEventListener("click", function(){
+    var open = links.classList.toggle("open");
+    toggle.classList.toggle("open", open);
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  links.querySelectorAll("a").forEach(function(a){
+    a.addEventListener("click", function(){
+      links.classList.remove("open");
+      toggle.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    });
+  });
+  document.addEventListener("click", function(e){
+    if(links.classList.contains("open") && !links.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)){
+      links.classList.remove("open");
+      toggle.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    }
+  });
+})();
+</script>
+<script>
+(function(){
+  // The one question every page asks. It used to be three localStorage
+  // keys read as an OR, which is where three findings came from: a judge
+  // was signed in and shown as signed out (their key was not in the
+  // list), that key could not be cleared by anything (no sign-out
+  // touched it), and two sign-ins left two keys where one sign-out
+  // cleared one. There is one session now, it carries its own role, and
+  // the page is told rather than left to deduce.
+  var loginLink = document.getElementById('nav-login-link');
+  var registerLink = document.getElementById('nav-register-link');
+  if(!loginLink) return;
+  fetch('/auth/me', { credentials: 'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d && d.account){
+        loginLink.style.display = 'none';
+        if(registerLink) registerLink.style.display = 'none';
+      }
+    })
+    .catch(function(){
+      // The pages are still readable with the API down; showing "Log in"
+      // to someone who is signed in is a smaller failure than a blank nav.
+    });
+})();
+</script>
+
+<script>
+(function(){
+  // TODO: provisional -- contest day gating is a simple date check for now;
+  // the real event window/date will come from the backend once available.
+  // Add ?preview=1 to the URL to preview the Contest Day page/link outside
+  // the event window for visual testing.
+  var contestDayLink = document.getElementById('nav-contest-day-link');
+  if(!contestDayLink) return;
+  var params = new URLSearchParams(window.location.search);
+  var preview = params.get('preview') === '1';
+  var EVENT_DATE = new Date('2026-11-14T00:00:00');
+  var now = new Date();
+  var isContestDay = now.getFullYear() === EVENT_DATE.getFullYear() && now.getMonth() === EVENT_DATE.getMonth() && now.getDate() === EVENT_DATE.getDate();
+  if(isContestDay || preview){ contestDayLink.style.display = ''; }
+})();
+</script>
+  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Go back">&larr; Back</button>
+<script>
+  // TODO: provisional -- prefers the page that actually linked here
+  // (deterministic, avoids bouncing in a back/forward loop); falls back to
+  // browser history, then the homepage if there's nothing to go back to.
+  function goBack(){
+    if(document.referrer && document.referrer.indexOf(window.location.origin) === 0 && document.referrer !== window.location.href){
+      window.location.href = document.referrer;
+    } else if(window.history.length > 1){
+      window.history.back();
+    } else {
+      window.location.href = 'index.html';
+    }
+  }
+</script>
+
+
+  <section class="page-hero">
+    <div class="eyebrow">Organizatori</div>
+    <h1>Panoul concursului</h1>
+    <p>Sezoane, probe, meciuri și comisii. Ce se creează aici este ce văd cluburile, arbitrii și publicul.</p>
+  </section>
+
+  <!--
+    Everything below is hidden until /auth/me says this is an organiser.
+    The server refuses every /api/admin route to anyone else regardless,
+    so this is not the check -- it is what stops the page from drawing a
+    panel of controls that would all answer 403.
+  -->
+  <div id="not-organizer" class="card" style="text-align:center; display:none;">
+    <p style="color:var(--ink-soft);">Această pagină este pentru organizatori.</p>
+    <p style="color:var(--ink-soft); font-size:13px;">
+      Conturile de organizator nu se creează dintr-un formular — cere unuia existent să îți facă unul.
+    </p>
+    <a class="btn btn-primary" href="login.html">Autentifică-te &rarr;</a>
+  </div>
+
+  <div id="admin-wrap" style="display:none;">
+    <p class="session-line" id="admin-session-line"></p>
+
+    <div class="tab-row" id="admin-tabs">
+      <button class="tab-btn active" data-panel="seasons">Sezoane</button>
+      <button class="tab-btn" data-panel="challenges">Probe</button>
+      <button class="tab-btn" data-panel="matches">Meciuri</button>
+      <button class="tab-btn" data-panel="schedule">Program</button>
+      <button class="tab-btn" data-panel="news">Știri</button>
+      <button class="tab-btn" data-panel="organizers">Organizatori</button>
+    </div>
+
+    <!-- ============================ SEZOANE ============================ -->
+    <div class="admin-panel" id="panel-seasons">
+      <div class="card">
+        <h2 style="font-size:18px; margin-bottom:14px;">Sezon nou</h2>
+        <div class="grid-2">
+          <div class="field"><label>Nume *</label><input id="se-name" placeholder="ex. Sezonul 1 (2026)"></div>
+          <div class="field"><label>Început *</label><input id="se-start" type="date"></div>
+          <div class="field"><label>Sfârșit</label><input id="se-end" type="date"></div>
+          <div class="field" style="display:flex; align-items:flex-end;">
+            <label style="font-weight:700; display:flex; align-items:center; gap:8px; margin:0;">
+              <input type="checkbox" id="se-active" style="width:auto;"> Fă-l sezonul activ
+            </label>
+          </div>
+        </div>
+        <!--
+          uq_seasons_single_active is a partial unique index: exactly one
+          season can be active. Ticking this deactivates the current one
+          in the same transaction, rather than failing on the index.
+        -->
+        <p style="font-size:12px; color:var(--ink-soft); margin:0 0 12px;">
+          Un singur sezon poate fi activ. Bifând, cel activ acum devine inactiv.
+        </p>
+        <button class="btn btn-primary btn-small" id="se-btn">Creează sezonul</button>
+        <p class="error-msg" id="se-error"></p>
+      </div>
+      <div id="seasons-list"></div>
+    </div>
+
+    <!-- ============================= PROBE ============================= -->
+    <div class="admin-panel" id="panel-challenges" style="display:none;">
+      <div class="card">
+        <h2 style="font-size:18px; margin-bottom:14px;">Probă nouă</h2>
+        <div class="grid-2">
+          <div class="field"><label>Sezon *</label><select id="ch-season"></select></div>
+          <div class="field"><label>Nume *</label><input id="ch-name" placeholder="ex. Proba orașului"></div>
+          <div class="field"><label>Etapă *</label>
+            <select id="ch-stage">
+              <option value="city_challenge">Etapa orașului</option>
+              <option value="final">Finala</option>
+            </select>
+          </div>
+          <div class="field"><label>Categorie</label><select id="ch-category"></select></div>
+          <div class="field"><label>Termen de trimitere</label><input id="ch-deadline" type="datetime-local"></div>
+        </div>
+        <div class="field"><label>Descriere</label><textarea id="ch-desc" rows="2" placeholder="Ce au de făcut echipele"></textarea></div>
+        <!--
+          challenges.category_id is nullable and that nullable means
+          "open to every category" -- so the picker offers it rather
+          than making the column's own design unreachable.
+        -->
+        <p style="font-size:12px; color:var(--ink-soft); margin:0 0 12px;">
+          Fără categorie, proba este deschisă tuturor categoriilor.
+        </p>
+        <button class="btn btn-primary btn-small" id="ch-btn">Creează proba</button>
+        <p class="error-msg" id="ch-error"></p>
+      </div>
+      <div id="challenges-list"></div>
+    </div>
+
+    <!-- ============================ MECIURI ============================ -->
+    <div class="admin-panel" id="panel-matches" style="display:none;">
+      <div class="card">
+        <h2 style="font-size:18px; margin-bottom:14px;">Meci nou</h2>
+        <div class="grid-2">
+          <div class="field"><label>Proba *</label><select id="ma-challenge"></select></div>
+          <div class="field"><label>Runda</label><input id="ma-round" placeholder="ex. Semifinala A"></div>
+          <div class="field"><label>Ora</label><input id="ma-when" type="datetime-local"></div>
+          <div class="field"><label>Locul</label><input id="ma-where" placeholder="ex. Sala Polivalentă"></div>
+        </div>
+        <button class="btn btn-primary btn-small" id="ma-btn">Creează meciul</button>
+        <p class="error-msg" id="ma-error"></p>
+      </div>
+      <!--
+        enforce_match_is_playable refuses a score on a match that is not
+        in progress or completed, so the status control below is what
+        actually opens and closes scoring. It is not a label.
+      -->
+      <div class="demo-note" style="margin:0 0 16px;">
+        <p><strong>Starea contează:</strong> arbitrii pot puncta doar un meci „în desfășurare” sau „încheiat”.
+        Clasamentul numără doar meciurile <strong>încheiate</strong>, deci el se actualizează în clipa în care marchezi meciul ca încheiat.</p>
+      </div>
+      <div id="matches-list"></div>
+    </div>
+
+    <!-- ============================ PROGRAM ============================ -->
+    <div class="admin-panel" id="panel-schedule" style="display:none;">
+      <div class="card">
+        <h2 style="font-size:18px; margin-bottom:14px;">Intrare în program</h2>
+        <div class="grid-2">
+          <div class="field"><label>Tip *</label>
+            <select id="sc-kind">
+              <option value="opening">Deschidere</option>
+              <option value="break">Pauză</option>
+              <option value="talk">Prezentare</option>
+              <option value="awards">Premiere</option>
+              <option value="other">Altceva</option>
+            </select>
+          </div>
+          <div class="field"><label>Titlu *</label><input id="sc-title" placeholder="ex. Pauza de masă"></div>
+          <div class="field"><label>Început *</label><input id="sc-start" type="datetime-local"></div>
+          <div class="field"><label>Sfârșit</label><input id="sc-end" type="datetime-local"></div>
+          <div class="field"><label>Locul</label><input id="sc-where" placeholder="ex. Foaier"></div>
+        </div>
+        <!--
+          Matches are not entered here. They carry their own
+          scheduled_at, and the contest-day page merges both streams by
+          time -- copying a match's time into a second row would create
+          two times that disagree the moment one of them moves.
+        -->
+        <p style="font-size:12px; color:var(--ink-soft); margin:0 0 12px;">
+          Meciurile nu se adaugă aici — ele își au ora lor și apar automat în program.
+          Aici pui doar ce e între ele: deschiderea, pauzele, premierea.
+        </p>
+        <button class="btn btn-primary btn-small" id="sc-btn">Adaugă în program</button>
+        <p class="error-msg" id="sc-error"></p>
+      </div>
+      <div id="schedule-list"></div>
+    </div>
+
+    <!-- ============================= ȘTIRI ============================= -->
+    <div class="admin-panel" id="panel-news" style="display:none;">
+      <div class="card">
+        <h2 style="font-size:18px; margin-bottom:14px;">Articol nou</h2>
+        <div class="field"><label>Titlu *</label><input id="nw-title" placeholder="ex. S-au deschis înscrierile"></div>
+        <div class="field"><label>Rezumat</label><input id="nw-summary" placeholder="O propoziție, afișată în listă"></div>
+        <div class="field"><label>Text *</label><textarea id="nw-body" rows="5"></textarea></div>
+        <!--
+          published_at is nullable, so a draft is simply a row without a
+          date. No status column, and therefore no rules about which
+          transitions between statuses are legal.
+        -->
+        <label style="font-weight:700; display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+          <input type="checkbox" id="nw-publish" style="width:auto;" checked> Publică acum
+        </label>
+        <button class="btn btn-primary btn-small" id="nw-btn">Salvează</button>
+        <p class="error-msg" id="nw-error"></p>
+      </div>
+      <div id="news-list"></div>
+    </div>
+
+    <!-- ========================== ORGANIZATORI ========================== -->
+    <div class="admin-panel" id="panel-organizers" style="display:none;">
+      <div class="card">
+        <h2 style="font-size:18px; margin-bottom:14px;">Organizator nou</h2>
+        <div class="grid-2">
+          <div class="field"><label>Nume complet *</label><input id="og-name" placeholder="Nume Prenume"></div>
+          <div class="field"><label>Funcție</label><input id="og-title" placeholder="ex. Coordonator arbitraj"></div>
+          <div class="field"><label>Email *</label><input id="og-email" type="email" placeholder="nume@rocodefest.ro"></div>
+          <div class="field"><label>Parolă *</label><input id="og-password" type="password" placeholder="Cel puțin 8 caractere" autocomplete="new-password"></div>
+        </div>
+        <!--
+          /auth/register refuses role: 'organizer' outright. A public
+          form that hands out this role is a public form that hands out
+          the festival, so the only way in is from someone already here.
+        -->
+        <p style="font-size:12px; color:var(--ink-soft); margin:0 0 12px;">
+          Un organizator poate crea sezoane, meciuri și comisii. Nu se poate înregistra nimeni singur cu acest rol.
+        </p>
+        <button class="btn btn-primary btn-small" id="og-btn">Creează contul</button>
+        <p class="error-msg" id="og-error"></p>
+      </div>
+      <div id="organizers-list"></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-nav">
+      <a href="news.html">News</a> <a href="resources.html">Resources</a>
+      <a href="founding-teams.html">Teams</a> <a href="organizations.html">Clubs</a>
+      <a href="leaderboard.html">Leaderboard</a> <a href="forum.html">Forum</a>
+      <a href="livestream.html">Live</a> <a href="contact.html">Contact</a>
+    </div>
+    ROcodeFest · Season 1 · Built by students, for students
+  </footer>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var nav = document.querySelector('nav');
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 10){ nav.classList.add('scrolled'); } else { nav.classList.remove('scrolled'); }
+  });
+  var RULES_VERSION = '2026-07-28';
+  var seen = localStorage.getItem('rocodefest_rules_seen');
+  var badge = document.getElementById('rules-badge');
+  if(badge && seen !== RULES_VERSION){ badge.classList.add('show'); }
+
+  // The avatar in the navigation bar. It used to read two session keys
+    // directly and pick between them; it now asks the same one endpoint
+    // the sign-in link does, and switches on the role the server reports
+    // -- so a judge or a partner gets an avatar too, which the old two-key
+    // version could not give them.
+    var regLink = document.getElementById('nav-register-link');
+    if(regLink){
+      fetch('/auth/me', { credentials: 'same-origin' })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          var a = d && d.account;
+          if(!a) return;
+          var label, destination;
+          if(a.role === 'club'){ label = a.clubName; destination = 'profile.html'; }
+          else if(a.role === 'member'){ label = a.fullName; destination = 'member-profile.html'; }
+          else if(a.role === 'judge'){ label = a.fullName; destination = 'judge-scoring.html'; }
+          else if(a.role === 'partner'){ label = a.orgName || a.contactName; destination = 'partner-dashboard.html'; }
+          // R9. Without this branch an organiser signed in correctly and
+          // saw no avatar and no way to reach their own panel -- the same
+          // shape as finding S2, where a judge was invisible to every
+          // navigation bar because no key named them.
+          else if(a.role === 'organizer'){ label = a.fullName; destination = 'admin.html'; }
+          else { return; }
+
+          // the uploaded picture is still per-browser: it is a file the
+          // account never sent anywhere, so it stays in localStorage
+          // the picture comes back with the account now; it used to be a
+          // localStorage key, so the same person had an avatar on one
+          // computer and none on another
+          if(a.avatar){ regLink.style.backgroundImage = 'url(' + a.avatar + ')'; regLink.textContent = ''; }
+          else { regLink.textContent = (label || '?').trim().charAt(0).toUpperCase(); }
+
+          regLink.classList.add('profile-avatar');
+          if(a.role !== 'club'){ regLink.classList.add('member-avatar'); }
+          regLink.title = label;
+          regLink.href = destination;
+        })
+        .catch(function(){});
+    }
+  // A "Reset demo data" link stood here. It cleared every rocodefest_*
+  // key from this browser, and its confirm text promised to remove
+  // teams, member profiles and requests. None of those live in the
+  // browser now -- they are rows, and one visitor cannot clear them by
+  // clicking a footer link. All it could still wipe is whether the
+  // rules badge has been seen.
+
+  // =================================================================
+  // The organiser's panel
+  // =================================================================
+  // Everything here goes through /api/admin, which refuses every route
+  // to anyone who is not an organiser. The role check below decides
+  // what to DRAW; the server decides what is allowed. Drawing a panel
+  // of controls that would all answer 403 helps nobody.
+
+  var me = null;
+  var seasons = [], challenges = [], matches = [], judges = [],
+      teams = [], categories = [], scheduleItems = [], news = [], organizers = [];
+
+  function api(path, options){
+    var opts = options || {};
+    opts.credentials = 'same-origin';
+    if(opts.body){ opts.headers = { 'Content-Type': 'application/json' }; opts.body = JSON.stringify(opts.body); }
+    return fetch(path, opts).then(function(r){
+      return r.json().catch(function(){ return {}; })
+        .then(function(d){ return { ok: r.ok, status: r.status, d: d }; });
+    });
+  }
+
+  function esc(s){ return String(s == null ? '' : s).replace(/</g, '&lt;'); }
+
+  function fail(id, msg){
+    var el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+  function clearFail(id){ document.getElementById(id).classList.remove('show'); }
+
+  // Dates arrive as ISO strings and are shown in the reader's own zone.
+  // A festival runs in one place, but an organiser abroad setting a time
+  // needs to see what they set, not what a server thought.
+  function when(iso){
+    if(!iso) return '—';
+    var d = new Date(iso);
+    return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+  function day(iso){ return iso ? new Date(iso).toLocaleDateString() : '—'; }
+
+  // <input type="datetime-local"> gives a local string with no zone, and
+  // new Date() reads that as local time -- which is what the organiser
+  // meant. toISOString then hands the server a real instant.
+  function toIso(value){ return value ? new Date(value).toISOString() : null; }
+
+  var STATUS_LABEL = {
+    scheduled: 'programat', in_progress: 'în desfășurare',
+    completed: 'încheiat', cancelled: 'anulat'
+  };
+  var STATUS_COLOR = {
+    scheduled: 'var(--ink-soft)', in_progress: 'var(--blue)',
+    completed: 'var(--green)', cancelled: 'var(--coral-dark)'
+  };
+
+  // ---------------------------------------------------------------
+  // Loading
+  // ---------------------------------------------------------------
+  function loadAll(){
+    return Promise.all([
+      api('/api/admin/seasons').then(function(r){ seasons = (r.d && r.d.seasons) || []; }),
+      api('/api/admin/challenges').then(function(r){ challenges = (r.d && r.d.challenges) || []; }),
+      api('/api/admin/matches').then(function(r){ matches = (r.d && r.d.matches) || []; }),
+      api('/api/admin/judges').then(function(r){ judges = (r.d && r.d.judges) || []; }),
+      api('/api/admin/organizers').then(function(r){ organizers = (r.d && r.d.organizers) || []; }),
+      api('/api/teams').then(function(r){ teams = (r.d && r.d.teams) || []; }),
+      api('/api/teams/categories').then(function(r){ categories = (r.d && r.d.categories) || []; }),
+      api('/api/schedule').then(function(r){ scheduleItems = (r.d && r.d.items) || []; }),
+      api('/api/news').then(function(r){ news = (r.d && r.d.news) || []; })
+    ]);
+  }
+
+  function renderAll(){
+    renderSeasons(); renderChallenges(); renderMatches();
+    renderSchedule(); renderNews(); renderOrganizers();
+    fillPickers();
+  }
+
+  function fillPickers(){
+    var chSeason = document.getElementById('ch-season');
+    chSeason.innerHTML = seasons.map(function(s){
+      return '<option value="' + s.id + '"' + (s.isActive ? ' selected' : '') + '>' +
+             esc(s.name) + (s.isActive ? ' (activ)' : '') + '</option>';
+    }).join('') || '<option value="">Creează întâi un sezon</option>';
+
+    var chCat = document.getElementById('ch-category');
+    chCat.innerHTML = '<option value="">— toate categoriile —</option>' +
+      categories.map(function(c){ return '<option value="' + c.id + '">' + esc(c.label) + '</option>'; }).join('');
+
+    var maCh = document.getElementById('ma-challenge');
+    maCh.innerHTML = challenges.map(function(c){
+      return '<option value="' + c.id + '">' + esc(c.name) + ' — ' + esc(c.seasonName) + '</option>';
+    }).join('') || '<option value="">Creează întâi o probă</option>';
+  }
+
+  // ---------------------------------------------------------------
+  // Seasons
+  // ---------------------------------------------------------------
+  function renderSeasons(){
+    var wrap = document.getElementById('seasons-list');
+    if(seasons.length === 0){ wrap.innerHTML = '<div class="empty-state">Niciun sezon încă.</div>'; return; }
+    wrap.innerHTML = seasons.map(function(s){
+      return '<div class="card-light adm-row">' +
+        '<div><strong>' + esc(s.name) + '</strong>' +
+          (s.isActive ? ' <span class="tag" style="background:var(--green);">activ</span>' : '') +
+          '<br><span class="adm-meta">' + day(s.startDate) + ' – ' + day(s.endDate) +
+          ' · ' + s.challengeCount + ' probă/probe</span></div>' +
+        '<div>' + (s.isActive ? '' :
+          '<button class="btn btn-secondary btn-small" data-activate="' + s.id + '">Fă-l activ</button>') +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    wrap.querySelectorAll('[data-activate]').forEach(function(b){
+      b.addEventListener('click', function(){
+        b.disabled = true;
+        api('/api/admin/seasons/' + b.getAttribute('data-activate'), {
+          method: 'PATCH', body: { isActive: true }
+        }).then(function(r){
+          if(!r.ok){ b.disabled = false; alert(r.d.error || 'Nu s-a putut activa.'); return; }
+          return loadAll().then(renderAll);
+        });
+      });
+    });
+  }
+
+  document.getElementById('se-btn').addEventListener('click', function(){
+    clearFail('se-error');
+    var name = document.getElementById('se-name').value.trim();
+    var start = document.getElementById('se-start').value;
+    if(!name || !start) return fail('se-error', 'Numele și data de început sunt obligatorii.');
+    api('/api/admin/seasons', { method: 'POST', body: {
+      name: name, startDate: start,
+      endDate: document.getElementById('se-end').value || null,
+      isActive: document.getElementById('se-active').checked
+    }}).then(function(r){
+      if(!r.ok) return fail('se-error', r.d.error || 'Sezonul nu a putut fi creat.');
+      document.getElementById('se-name').value = '';
+      return loadAll().then(renderAll);
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // Challenges
+  // ---------------------------------------------------------------
+  function renderChallenges(){
+    var wrap = document.getElementById('challenges-list');
+    if(challenges.length === 0){ wrap.innerHTML = '<div class="empty-state">Nicio probă încă.</div>'; return; }
+    wrap.innerHTML = challenges.map(function(c){
+      return '<div class="card-light adm-row">' +
+        '<div><strong>' + esc(c.name) + '</strong>' +
+          (c.seasonActive ? '' : ' <span class="tag" style="background:var(--ink-soft);">sezon inactiv</span>') +
+          '<br><span class="adm-meta">' + esc(c.seasonName) + ' · ' +
+          (c.stage === 'final' ? 'finala' : 'etapa orașului') + ' · ' +
+          (c.categoryLabel ? esc(c.categoryLabel) : 'toate categoriile') +
+          ' · termen ' + when(c.deadline) +
+          ' · ' + c.submissionCount + ' lucrări, ' + c.matchCount + ' meciuri</span></div>' +
+      '</div>';
+    }).join('');
+  }
+
+  document.getElementById('ch-btn').addEventListener('click', function(){
+    clearFail('ch-error');
+    var seasonId = document.getElementById('ch-season').value;
+    var name = document.getElementById('ch-name').value.trim();
+    if(!seasonId || !name) return fail('ch-error', 'Sezonul și numele sunt obligatorii.');
+    api('/api/admin/challenges', { method: 'POST', body: {
+      seasonId: seasonId, name: name,
+      stage: document.getElementById('ch-stage').value,
+      categoryId: document.getElementById('ch-category').value || null,
+      description: document.getElementById('ch-desc').value.trim() || null,
+      deadline: toIso(document.getElementById('ch-deadline').value)
+    }}).then(function(r){
+      if(!r.ok) return fail('ch-error', r.d.error || 'Proba nu a putut fi creată.');
+      document.getElementById('ch-name').value = '';
+      document.getElementById('ch-desc').value = '';
+      return loadAll().then(renderAll);
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // Matches -- the panel that actually runs the contest
+  // ---------------------------------------------------------------
+  function renderMatches(){
+    var wrap = document.getElementById('matches-list');
+    if(matches.length === 0){ wrap.innerHTML = '<div class="empty-state">Niciun meci încă.</div>'; return; }
+
+    wrap.innerHTML = matches.map(function(m){
+      var teamChips = m.teams.map(function(t){
+        return '<span class="chip">' + esc(t.teamName) + ' <span class="adm-meta">(' + esc(t.clubName) + ')</span>' +
+          '<button class="chip-x" data-drop-team="' + m.id + ':' + t.id + '" title="Scoate din meci">×</button></span>';
+      }).join('') || '<span class="adm-meta">nicio echipă</span>';
+
+      var judgeChips = m.judges.map(function(j){
+        return '<span class="chip">' + esc(j.fullName) +
+          '<button class="chip-x" data-drop-judge="' + m.id + ':' + j.id + '" title="Scoate din comisie">×</button></span>';
+      }).join('') || '<span class="adm-meta">nicio comisie</span>';
+
+      var inMatch = m.teams.map(function(t){ return String(t.id); });
+      var onPanel = m.judges.map(function(j){ return String(j.id); });
+
+      var teamOptions = teams.filter(function(t){ return inMatch.indexOf(String(t.id)) === -1; })
+        .map(function(t){ return '<option value="' + t.id + '">' + esc(t.teamName) + ' — ' + esc(t.clubName) + '</option>'; }).join('');
+      var judgeOptions = judges.filter(function(j){ return onPanel.indexOf(String(j.id)) === -1; })
+        .map(function(j){ return '<option value="' + j.id + '">' + esc(j.fullName) + '</option>'; }).join('');
+
+      var statusOptions = ['scheduled','in_progress','completed','cancelled'].map(function(s){
+        return '<option value="' + s + '"' + (m.status === s ? ' selected' : '') + '>' + STATUS_LABEL[s] + '</option>';
+      }).join('');
+
+      return '<div class="card">' +
+        '<div class="adm-row" style="margin-bottom:10px;">' +
+          '<div><strong>' + esc(m.roundName || 'Meci #' + m.id) + '</strong>' +
+            ' <span class="tag" style="background:' + STATUS_COLOR[m.status] + ';">' + STATUS_LABEL[m.status] + '</span>' +
+            '<br><span class="adm-meta">' + esc(m.challengeName) + ' · ' + esc(m.seasonName) +
+            ' · ' + when(m.scheduledAt) + (m.location ? ' · ' + esc(m.location) : '') +
+            ' · ' + m.scoreCount + ' punctaje</span></div>' +
+          '<div><select class="adm-status" data-match="' + m.id + '" style="width:auto;">' + statusOptions + '</select></div>' +
+        '</div>' +
+        '<div class="adm-sub"><span class="adm-label">Echipe</span>' + teamChips +
+          (teamOptions ? '<span class="adm-add"><select data-add-team-sel="' + m.id + '" style="width:auto;"><option value="">— adaugă echipă —</option>' + teamOptions + '</select></span>' : '') +
+        '</div>' +
+        '<div class="adm-sub"><span class="adm-label">Comisie</span>' + judgeChips +
+          (judgeOptions ? '<span class="adm-add"><select data-add-judge-sel="' + m.id + '" style="width:auto;"><option value="">— adaugă arbitru —</option>' + judgeOptions + '</select></span>' : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    function after(r, msg){
+      if(!r.ok){ alert(r.d.error || msg); return; }
+      return loadAll().then(renderAll);
+    }
+
+    wrap.querySelectorAll('.adm-status').forEach(function(sel){
+      sel.addEventListener('change', function(){
+        api('/api/admin/matches/' + sel.getAttribute('data-match'), {
+          method: 'PATCH', body: { status: sel.value }
+        }).then(function(r){ return after(r, 'Starea nu a putut fi schimbată.'); });
+      });
+    });
+
+    wrap.querySelectorAll('[data-add-team-sel]').forEach(function(sel){
+      sel.addEventListener('change', function(){
+        if(!sel.value) return;
+        api('/api/admin/matches/' + sel.getAttribute('data-add-team-sel') + '/teams', {
+          method: 'POST', body: { teamId: sel.value }
+        }).then(function(r){ return after(r, 'Echipa nu a putut fi adăugată.'); });
+      });
+    });
+
+    wrap.querySelectorAll('[data-add-judge-sel]').forEach(function(sel){
+      sel.addEventListener('change', function(){
+        if(!sel.value) return;
+        api('/api/admin/matches/' + sel.getAttribute('data-add-judge-sel') + '/judges', {
+          method: 'POST', body: { judgeId: sel.value }
+        }).then(function(r){ return after(r, 'Arbitrul nu a putut fi adăugat.'); });
+      });
+    });
+
+    // Removal is refused once anyone has scored -- both foreign keys
+    // cascade, so the delete would take the judging with it. The server
+    // says so, and the message names how many scores it found.
+    wrap.querySelectorAll('[data-drop-team]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var p = b.getAttribute('data-drop-team').split(':');
+        api('/api/admin/matches/' + p[0] + '/teams/' + p[1], { method: 'DELETE' })
+          .then(function(r){ return after(r, 'Echipa nu a putut fi scoasă.'); });
+      });
+    });
+    wrap.querySelectorAll('[data-drop-judge]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var p = b.getAttribute('data-drop-judge').split(':');
+        api('/api/admin/matches/' + p[0] + '/judges/' + p[1], { method: 'DELETE' })
+          .then(function(r){ return after(r, 'Arbitrul nu a putut fi scos.'); });
+      });
+    });
+  }
+
+  document.getElementById('ma-btn').addEventListener('click', function(){
+    clearFail('ma-error');
+    var challengeId = document.getElementById('ma-challenge').value;
+    if(!challengeId) return fail('ma-error', 'Alege o probă.');
+    api('/api/admin/matches', { method: 'POST', body: {
+      challengeId: challengeId,
+      roundName: document.getElementById('ma-round').value.trim() || null,
+      scheduledAt: toIso(document.getElementById('ma-when').value),
+      location: document.getElementById('ma-where').value.trim() || null
+    }}).then(function(r){
+      if(!r.ok) return fail('ma-error', r.d.error || 'Meciul nu a putut fi creat.');
+      document.getElementById('ma-round').value = '';
+      return loadAll().then(renderAll);
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // Schedule
+  // ---------------------------------------------------------------
+  function renderSchedule(){
+    var wrap = document.getElementById('schedule-list');
+    if(scheduleItems.length === 0){ wrap.innerHTML = '<div class="empty-state">Programul este gol.</div>'; return; }
+    wrap.innerHTML = scheduleItems.map(function(it){
+      // A match with no schedule row of its own still appears -- it
+      // comes straight from matches, and has no id here to delete.
+      var removable = it.id
+        ? '<button class="btn btn-secondary btn-small" data-drop-item="' + it.id + '">Șterge</button>'
+        : '<span class="adm-meta">din meciuri</span>';
+      return '<div class="card-light adm-row">' +
+        '<div><strong>' + esc(it.title) + '</strong>' +
+          ' <span class="tag" style="background:var(--ink-soft);">' + esc(it.kind) + '</span>' +
+          '<br><span class="adm-meta">' + when(it.startsAt) +
+          (it.endsAt ? ' – ' + when(it.endsAt) : '') +
+          (it.location ? ' · ' + esc(it.location) : '') + '</span></div>' +
+        '<div>' + removable + '</div>' +
+      '</div>';
+    }).join('');
+
+    wrap.querySelectorAll('[data-drop-item]').forEach(function(b){
+      b.addEventListener('click', function(){
+        api('/api/schedule/' + b.getAttribute('data-drop-item'), { method: 'DELETE' })
+          .then(function(r){
+            if(!r.ok){ alert(r.d.error || 'Nu s-a putut șterge.'); return; }
+            return loadAll().then(renderAll);
+          });
+      });
+    });
+  }
+
+  document.getElementById('sc-btn').addEventListener('click', function(){
+    clearFail('sc-error');
+    var active = seasons.filter(function(s){ return s.isActive; })[0];
+    if(!active) return fail('sc-error', 'Nu există un sezon activ.');
+    var title = document.getElementById('sc-title').value.trim();
+    var start = document.getElementById('sc-start').value;
+    if(!title || !start) return fail('sc-error', 'Titlul și ora de început sunt obligatorii.');
+    api('/api/schedule', { method: 'POST', body: {
+      seasonId: active.id,
+      kind: document.getElementById('sc-kind').value,
+      title: title,
+      startsAt: toIso(start),
+      endsAt: toIso(document.getElementById('sc-end').value),
+      location: document.getElementById('sc-where').value.trim() || null
+    }}).then(function(r){
+      if(!r.ok) return fail('sc-error', r.d.error || 'Intrarea nu a putut fi adăugată.');
+      document.getElementById('sc-title').value = '';
+      return loadAll().then(renderAll);
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // News
+  // ---------------------------------------------------------------
+  function renderNews(){
+    var wrap = document.getElementById('news-list');
+    if(news.length === 0){ wrap.innerHTML = '<div class="empty-state">Niciun articol încă.</div>'; return; }
+    wrap.innerHTML = news.map(function(n){
+      return '<div class="card-light adm-row">' +
+        '<div><strong>' + esc(n.title) + '</strong>' +
+          (n.publishedAt
+            ? ' <span class="tag" style="background:var(--green);">publicat</span>'
+            : ' <span class="tag" style="background:var(--yellow); color:var(--ink);">ciornă</span>') +
+          '<br><span class="adm-meta">' + (n.publishedAt ? when(n.publishedAt) : 'nepublicat') +
+          (n.authorName ? ' · ' + esc(n.authorName) : '') + '</span></div>' +
+        '<div style="display:flex; gap:8px;">' +
+          '<button class="btn btn-secondary btn-small" data-toggle-news="' + n.id + '" data-published="' + (n.publishedAt ? '1' : '0') + '">' +
+            (n.publishedAt ? 'Retrage' : 'Publică') + '</button>' +
+          '<button class="btn btn-secondary btn-small" data-drop-news="' + n.id + '">Șterge</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    wrap.querySelectorAll('[data-toggle-news]').forEach(function(b){
+      b.addEventListener('click', function(){
+        api('/api/news/' + b.getAttribute('data-toggle-news'), {
+          method: 'PATCH', body: { publish: b.getAttribute('data-published') !== '1' }
+        }).then(function(r){
+          if(!r.ok){ alert(r.d.error || 'Nu s-a putut schimba.'); return; }
+          return loadAll().then(renderAll);
+        });
+      });
+    });
+    wrap.querySelectorAll('[data-drop-news]').forEach(function(b){
+      b.addEventListener('click', function(){
+        if(!confirm('Ștergi articolul? Nu se mai poate recupera.')) return;
+        api('/api/news/' + b.getAttribute('data-drop-news'), { method: 'DELETE' })
+          .then(function(r){
+            if(!r.ok){ alert(r.d.error || 'Nu s-a putut șterge.'); return; }
+            return loadAll().then(renderAll);
+          });
+      });
+    });
+  }
+
+  document.getElementById('nw-btn').addEventListener('click', function(){
+    clearFail('nw-error');
+    var title = document.getElementById('nw-title').value.trim();
+    var body = document.getElementById('nw-body').value.trim();
+    if(!title || !body) return fail('nw-error', 'Titlul și textul sunt obligatorii.');
+    api('/api/news', { method: 'POST', body: {
+      title: title,
+      summary: document.getElementById('nw-summary').value.trim() || null,
+      body: body,
+      publish: document.getElementById('nw-publish').checked
+    }}).then(function(r){
+      if(!r.ok) return fail('nw-error', r.d.error || 'Articolul nu a putut fi salvat.');
+      document.getElementById('nw-title').value = '';
+      document.getElementById('nw-summary').value = '';
+      document.getElementById('nw-body').value = '';
+      return loadAll().then(renderAll);
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // Organisers
+  // ---------------------------------------------------------------
+  function renderOrganizers(){
+    var wrap = document.getElementById('organizers-list');
+    if(organizers.length === 0){ wrap.innerHTML = '<div class="empty-state">Niciun organizator.</div>'; return; }
+    wrap.innerHTML = organizers.map(function(o){
+      return '<div class="card-light adm-row">' +
+        '<div><strong>' + esc(o.fullName) + '</strong>' +
+          (String(o.id) === String(me.id) ? ' <span class="tag" style="background:var(--blue);">tu</span>' : '') +
+          '<br><span class="adm-meta">' + esc(o.email) + (o.title ? ' · ' + esc(o.title) : '') + '</span></div>' +
+      '</div>';
+    }).join('');
+  }
+
+  document.getElementById('og-btn').addEventListener('click', function(){
+    clearFail('og-error');
+    var name = document.getElementById('og-name').value.trim();
+    var email = document.getElementById('og-email').value.trim();
+    var pass = document.getElementById('og-password').value;
+    if(!name || !email) return fail('og-error', 'Numele și emailul sunt obligatorii.');
+    if(pass.length < 8) return fail('og-error', 'Parola trebuie să aibă cel puțin 8 caractere.');
+    api('/api/admin/organizers', { method: 'POST', body: {
+      fullName: name, email: email, password: pass,
+      title: document.getElementById('og-title').value.trim() || null
+    }}).then(function(r){
+      if(!r.ok) return fail('og-error', r.d.error || 'Contul nu a putut fi creat.');
+      document.getElementById('og-name').value = '';
+      document.getElementById('og-email').value = '';
+      document.getElementById('og-password').value = '';
+      document.getElementById('og-title').value = '';
+      return loadAll().then(renderAll);
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // Tabs and bootstrap
+  // ---------------------------------------------------------------
+  document.querySelectorAll('#admin-tabs .tab-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('#admin-tabs .tab-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      var want = btn.getAttribute('data-panel');
+      document.querySelectorAll('.admin-panel').forEach(function(p){
+        p.style.display = (p.id === 'panel-' + want) ? '' : 'none';
+      });
+    });
+  });
+
+  api('/auth/me')
+    .then(function(r){
+      me = (r.d && r.d.account) || null;
+      if(!me || me.role !== 'organizer'){
+        document.getElementById('not-organizer').style.display = 'block';
+        return;
+      }
+      document.getElementById('admin-wrap').style.display = 'block';
+      document.getElementById('admin-session-line').innerHTML =
+        'Conectat ca <strong>' + esc(me.fullName) + '</strong>' +
+        (me.title ? ' · ' + esc(me.title) : '');
+      return loadAll().then(renderAll);
+    })
+    .catch(function(){
+      document.getElementById('not-organizer').style.display = 'block';
+    });
+
+});
+</script>
+</body>
+</html>

@@ -468,6 +468,11 @@ document.addEventListener('DOMContentLoaded', function(){
           else if(a.role === 'member'){ label = a.fullName; destination = 'member-profile.html'; }
           else if(a.role === 'judge'){ label = a.fullName; destination = 'judge-scoring.html'; }
           else if(a.role === 'partner'){ label = a.orgName || a.contactName; destination = 'partner-dashboard.html'; }
+          // R9. Without this branch an organiser signed in correctly and
+          // saw no avatar and no way to reach their own panel -- the same
+          // shape as finding S2, where a judge was invisible to every
+          // navigation bar because no key named them.
+          else if(a.role === 'organizer'){ label = a.fullName; destination = 'admin.html'; }
           else { return; }
 
           // the uploaded picture is still per-browser: it is a file the
