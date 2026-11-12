@@ -336,7 +336,11 @@ Check "K" "K2 only the documented exception is kept in the browser" `
 # was only a closing brace, leaving two orphaned ones behind.
 $scriptBlocks = 0
 $unparseable  = @()
-$tmpJs = Join-Path $env:TEMP "rocodefest_qa_block.js"
+# GetTempPath, not $env:TEMP: TEMP is a Windows variable. On the Linux CI
+# runner it is unset, Join-Path refuses a null path, and with
+# ErrorActionPreference=Stop that ended the whole script -- every run of
+# this job failed from the day J1 was added, while it passed locally.
+$tmpJs = Join-Path ([System.IO.Path]::GetTempPath()) "rocodefest_qa_block.js"
 
 foreach ($name in ($src.Keys | Sort-Object)) {
     # Inline blocks only -- a <script src=...> has no body to parse here.
