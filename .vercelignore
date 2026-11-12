@@ -1,0 +1,19 @@
+# Vercel deploys this repository as a STATIC site: the 30 pages,
+# impuls.css, assets/ and the rules PDF.
+#
+# api/ is left out on purpose. Vercel turns every .js file under api/
+# into its own serverless function -- the server, every route file and
+# the helpers, well over the 12 the Hobby plan allows, so the build
+# failed. They are also not functions: they are one Express app, and it
+# needs a database that is not hosted anywhere yet.
+#
+# The pages already cope with the API being absent (each call has a
+# fallback), so without it they render, and only the parts that need
+# data -- sign-in, forum, leaderboard -- stay empty.
+#
+# To deploy the full site later, remove the api line below, and first
+# turn the API into ONE function (an entry file plus helpers that Vercel
+# does not count) with a hosted Postgres behind it.
+api
+db
+qa_frontend.ps1
