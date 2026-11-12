@@ -123,6 +123,54 @@ body.home::after{ background-image:url(assets/bg-deal.png); }
   body.home::before{ --rise:30vw; --bob:2.2vw; }
 }
 
+/* --- the waves from the horns (home page) ----------------------------
+   Not part of the goat image any more: a layer of their own, the exact
+   size and place of the goat at the TOP of its bob, so they do not ride
+   along when it dips. Each wave starts small at a horn tip and spreads
+   outward from that fixed point, fading as it goes.
+
+   Timing follows the goat: it reaches the top when the rise ends (1.6s)
+   and again every full bob cycle (2 x 2.2s = 4.4s). Two waves per side,
+   the second a beat after the first. Coordinates below are pixels of the
+   1672x941 artwork, as percentages. */
+.capra-unde{
+  position:fixed;
+  z-index:-1;                      /* between goat (body::before) and hill (body::after), by DOM order */
+  pointer-events:none;
+  right:-120px; bottom:-90px;      /* = background-position of body.home::before */
+  width:min(1250px, 88vw);         /* = its background-size */
+  aspect-ratio:1672 / 941;
+}
+.capra-unde .unda{
+  position:absolute;
+  top:27.736%;                     /* y 261 */
+  background:no-repeat 0 0 / 100% 100%;
+  image-rendering:pixelated;
+  opacity:0;
+  animation:unda 4.4s cubic-bezier(0.2, 0.6, 0.4, 1) 1.6s infinite both;
+  will-change:transform, opacity;
+}
+.capra-unde .st{                   /* left horn: arc x 651-718, tip at (710, 328) */
+  left:38.935%; width:4.067%; height:13.496%;
+  background-image:url(assets/bg-unda-st.png);
+  transform-origin:86.8% 52.8%;
+}
+.capra-unde .dr{                   /* right horn: arc x 956-1021, tip at (961, 328) */
+  left:57.177%; width:3.947%; height:13.603%;
+  background-image:url(assets/bg-unda-dr.png);
+  transform-origin:7.6% 52.3%;
+}
+.capra-unde .unda-2{ animation-delay:2.05s; }
+@keyframes unda{
+  0%  { transform:scale(0.25); opacity:0; }
+  6%  { opacity:1; }
+  42% { transform:scale(2.1);  opacity:0; }
+  100%{ transform:scale(2.1);  opacity:0; }
+}
+@media (max-width:860px){
+  .capra-unde{ right:auto; left:50%; margin-left:-85vw; bottom:-20px; width:170vw; }
+}
+
 /* --- type ----------------------------------------------------------- */
 h1,h2,h3{
   font-family:'VT323', monospace;
@@ -277,4 +325,7 @@ footer{
   *, *::before, *::after{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
   .reveal{ opacity:1; transform:none; }
   body.home::before{ animation:none; }
+  /* still: one wave per side, where the artwork originally drew it */
+  .capra-unde .unda{ animation:none; opacity:1; transform:none; }
+  .capra-unde .unda-2{ display:none; }
 }
