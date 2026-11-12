@@ -1,15 +1,10 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "builds": [
     { "src": "api/server.js", "use": "@vercel/node" },
-    { "src": "*.html", "use": "@vercel/static" },
-    { "src": "impuls.css", "use": "@vercel/static" },
-    { "src": "rocodefest-rules.pdf", "use": "@vercel/static" },
-    { "src": "assets/**", "use": "@vercel/static" }
+    { "src": "package.json", "use": "@vercel/next" }
   ],
   "routes": [
-    { "src": "/(api|auth)(/.*)?", "dest": "/api/server.js" },
-    { "src": "/", "dest": "/index.html" },
-    { "handle": "filesystem" },
-    { "src": "/([a-z0-9-]+)", "dest": "/$1.html" }
+    { "src": "/(api|auth)(/.*)?", "dest": "/api/server.js" }
   ]
 }

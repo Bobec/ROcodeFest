@@ -1,5 +1,5 @@
 # =====================================================================
-# QA — the static pages
+# QA — the site's pages
 # =====================================================================
 # When these checks were first written the 29 pages made no network
 # request at all: they kept four session keys in localStorage, and the
@@ -12,10 +12,15 @@
 # ask whether any of them still decides anything from it. A session the
 # page can write is a session the page can forge.
 #
-# It is still static analysis, not a browser: it runs anywhere pwsh runs,
-# needs no dependencies, and takes under a second. Testing the BEHAVIOUR
-# of the page scripts would need a headless browser and is deliberately
-# out of scope -- see the note at the bottom.
+# The pages are a Next.js app now (src/app/**/page.tsx). A page is its
+# page.tsx plus the PageScript.jsx beside it, if it has one; what every
+# page shares -- the navigation bar, the sign-in check -- lives once in
+# src/components and src/lib and is checked there.
+#
+# It is still static analysis, not a browser: it runs anywhere pwsh and
+# node run, installs nothing, and takes a few seconds. Whether the pages
+# compile is `npm run build`'s job (its own CI job); this file checks the
+# contracts the compiler cannot see.
 #
 # Same vocabulary as the database suites:
 #   PASS   verified
@@ -32,8 +37,8 @@
 param([switch] $Quiet)
 
 $ErrorActionPreference = "Stop"
-$root  = $PSScriptRoot
-$pages = Get-ChildItem -Path $root -File -Filter *.html | Sort-Object Name
+$root    = $PSScriptRoot
+$appDir  = Join-Path $root "src/app"
 $results = @()
 
 function Rec($grp, $tc, $status, $detail) {
@@ -52,134 +57,168 @@ function Gap($grp, $tc, $question, $evidence, $why) {
 }
 function Note($grp, $tc, $text) { Rec $grp $tc "NOTE" $text }
 
+function Rel($full) { $full.Substring($root.Length + 1).Replace("\", "/") }
+
 # ---------------------------------------------------------------------
-# Index every file in the repository once, so a link can be resolved
-# without touching the disk again.
+# The pages, and the route each one answers on. Route groups -- folder
+# names in parentheses -- are not part of the URL.
 # ---------------------------------------------------------------------
-$onDisk = @{}
-Get-ChildItem -Path $root -Recurse -File | ForEach-Object {
-    $rel = $_.FullName.Substring($root.Length + 1).Replace("\", "/").ToLower()
-    $onDisk[$rel] = $true
+$pageFiles = @(Get-ChildItem -Path $appDir -Recurse -File -Filter page.tsx | Sort-Object FullName)
+$routes = @{}      # "/forum" -> "src/app/(site)/forum/page.tsx"
+$src    = @{}      # route    -> page.tsx + PageScript.jsx, as one text
+foreach ($f in $pageFiles) {
+    $parts = (Rel $f.DirectoryName).Substring("src/app".Length).Split("/") |
+             Where-Object { $_ -ne "" -and $_ -notmatch '^\(.*\)$' }
+    $route = "/" + ($parts -join "/")
+    $routes[$route] = Rel $f.FullName
+    $text = [System.IO.File]::ReadAllText($f.FullName)
+    $script = Join-Path $f.DirectoryName "PageScript.jsx"
+    if (Test-Path $script) { $text += "`n" + [System.IO.File]::ReadAllText($script) }
+    $src[$route] = $text
 }
 
-$src = @{}
-foreach ($p in $pages) { $src[$p.Name] = [System.IO.File]::ReadAllText($p.FullName) }
+# Everything under src/, for the checks that are about the site as a
+# whole rather than one page (the session endpoint, localStorage keys).
+$allSrc = @{}
+Get-ChildItem -Path (Join-Path $root "src") -Recurse -File -Include *.ts, *.tsx, *.js, *.jsx | ForEach-Object {
+    $allSrc[(Rel $_.FullName)] = [System.IO.File]::ReadAllText($_.FullName)
+}
+
+# Index every file under public/ once, so an asset link can be resolved
+# without touching the disk again.
+$public = @{}
+$publicDir = Join-Path $root "public"
+if (Test-Path $publicDir) {
+    Get-ChildItem -Path $publicDir -Recurse -File | ForEach-Object {
+        $public["/" + $_.FullName.Substring($publicDir.Length + 1).Replace("\", "/").ToLower()] = $true
+    }
+}
+
+Pre "-" "there are pages to check" ($pageFiles.Count -gt 20) `
+    "$($pageFiles.Count) pages under src/app"
 
 
 # =====================================================================
 # L — links and assets
 # =====================================================================
-$broken = @(); $localRefs = 0; $totalRefs = 0
-foreach ($name in $src.Keys) {
-    foreach ($m in [regex]::Matches($src[$name], '(?:href|src)\s*=\s*["'']([^"'']+)["'']')) {
-        $u = $m.Groups[1].Value.Trim(); $totalRefs++
+# A link resolves if it names a route (a page.tsx exists for it) or a
+# file under public/. Links are written as JSX attributes (href="/x"),
+# and PageScript files build some of them in strings ('/team?id=' + id),
+# so both are read.
+$broken = @(); $localRefs = 0; $totalRefs = 0; $stale = @()
+foreach ($file in ($allSrc.Keys | Sort-Object)) {
+    $text = $allSrc[$file]
+    $refs = @()
+    foreach ($m in [regex]::Matches($text, '(?:href|src|action)\s*=\s*["'']([^"'']+)["'']')) { $refs += $m.Groups[1].Value }
+    foreach ($m in [regex]::Matches($text, '(?:\.href|\bdestination|\bhref:)\s*=?\s*[''"](/[^''"]*)[''"]')) { $refs += $m.Groups[1].Value }
+    foreach ($m in [regex]::Matches($text, '\[\s*"(/[a-z-]*)"\s*,')) { $refs += $m.Groups[1].Value }   # SiteFooter's link table
+    foreach ($u0 in $refs) {
+        $u = $u0.Trim(); $totalRefs++
         if ($u -match '^(https?:|mailto:|tel:|data:|javascript:|//|#)') { continue }
         $clean = ($u -split '[?#]')[0]
         if ($clean -eq '') { continue }
         $localRefs++
-        if (-not $onDisk.ContainsKey($clean.ToLower())) { $broken += "$name -> $clean" }
+        if ($clean -match '\.html$') { $stale += "$file -> $clean"; continue }
+        if (-not $clean.StartsWith("/")) { $broken += "$file -> $clean (relative)"; continue }
+        $path = $clean.TrimEnd("/"); if ($path -eq "") { $path = "/" }
+        if (-not $routes.ContainsKey($path) -and -not $public.ContainsKey($clean.ToLower())) { $broken += "$file -> $clean" }
     }
 }
 
-# The vacuity guard. "No broken links" is trivially true of a page with
+# The vacuity guard. "No broken links" is trivially true of a site with
 # no links, so the count of what was actually examined is asserted first.
-Pre "L" "L1 there are local references to check" ($localRefs -gt 100) `
-    "$localRefs local href/src across $($pages.Count) pages (of $totalRefs total)"
+# (The bar was 100 when each of the 29 pages carried its own copy of the
+# navigation and footer links; those are written once now, and the site
+# has a little under a hundred distinct local references.)
+Pre "L" "L1 there are local references to check" ($localRefs -gt 60) `
+    "$localRefs local links and assets across $($allSrc.Count) source files (of $totalRefs total)"
 
-Check "L" "L1 every local link and asset resolves to a file that exists" `
-    "a dead link is the characteristic defect of a hand-maintained static site" `
+Check "L" "L1 every local link and asset resolves to a page or a public file" `
+    "a dead link is the characteristic defect of a hand-maintained site" `
     ($broken.Count -eq 0) `
     $(if ($broken.Count -eq 0) { "all $localRefs local references resolve" }
       else { "BROKEN: " + ($broken -join "; ") })
+
+# The pages used to link to each other as x.html. next.config.ts
+# redirects those for anyone holding an old link, but a page still
+# linking that way costs every visitor a redirect.
+Check "L" "L2 no page links to an old .html address" `
+    "the .html pages are gone; the redirect is for old bookmarks, not for our own links" `
+    ($stale.Count -eq 0) `
+    $(if ($stale.Count -eq 0) { "no link ends in .html" } else { "still .html: " + ($stale -join "; ") })
 
 
 # =====================================================================
 # S — the session contract
 # =====================================================================
-# Every page decides whether to show the "Login" link by reading a list
-# of session keys and treating the result as an OR. That list is the
-# closest thing this site has to an authentication contract, so the
-# questions worth asking are: do all the pages agree on it, and does
-# everything that creates a session appear in it?
+# The navigation bar decides whether to show the sign-in link, and it is
+# ONE component now (SiteHeader), asking ONE hook (useAccount) that calls
+# the server. Thirty copies of that code were how the findings in this
+# group happened: a fourth key nobody read, a key nothing cleared, and
+# two keys where one sign-out cleared one.
 # ---------------------------------------------------------------------
-$pagesWithNav  = ($src.Keys | Where-Object { $src[$_] -match 'nav-login-link' }).Count
-$pagesAskingApi = ($src.Keys | Where-Object { $src[$_] -match "fetch\(\s*'/auth/me'" }).Count
+$header   = $allSrc["src/components/SiteHeader.tsx"]
+$account  = $allSrc["src/lib/useAccount.ts"]
+$withNav  = @($src.Keys | Where-Object { $src[$_] -match '<SiteHeader\b' })
 
-# The pages used to read three localStorage keys as an OR. Every finding
-# in this group came from that: a fourth key nobody read, a key nothing
-# cleared, and two keys where one sign-out cleared one. They now ask the
-# server, which answers once and includes the role.
-Pre "S" "S1 the pages carry a session check at all" ($pagesWithNav -gt 0) `
-    "$pagesWithNav of $($pages.Count) pages decide whether to show the sign-in link"
+Pre "S" "S1 the pages carry the navigation bar" ($withNav.Count -gt 0) `
+    "$($withNav.Count) of $($src.Count) pages render SiteHeader"
 
-Check "S" "S1 every page asks the SERVER who is signed in" `
+Check "S" "S1 every page uses the one shared navigation bar" `
+    "a page with a navigation bar of its own would decide sign-in state by its own rules" `
+    ($withNav.Count -eq $src.Count) `
+    "$($withNav.Count) of $($src.Count) pages render SiteHeader"
+
+Check "S" "S1 the navigation bar asks the SERVER who is signed in" `
     "one page deciding for itself would show a different nav for the same visitor" `
-    ($pagesAskingApi -eq $pagesWithNav) `
-    "$pagesAskingApi of $pagesWithNav pages call /auth/me"
+    ($null -ne $header -and $header -match 'useAccount\(' -and $null -ne $account -and $account -match 'fetch\(\s*"/auth/me"') `
+    "SiteHeader -> useAccount() -> fetch('/auth/me')"
 
-# The check above asks whether a page calls /auth/me AT ALL, and a page
-# passes it on its first call. Five pages had a SECOND call further down
-# with the word "fetch" missing -- ('/auth/me', {...}).then(...) -- which
-# is a comma expression yielding an object, so it parses, node --check
-# accepts it, S1 passed on the good call above it, and the page threw
-# "then is not a function" at runtime and rendered nothing.
+# Every mention of the endpoint has to be a call, not just one of them.
+# Five pages once had a SECOND call with the word "fetch" missing --
+# ('/auth/me', {...}).then(...) -- which is a comma expression yielding an
+# object: it parses, it passed the check above on a sibling call, and the
+# page threw "then is not a function" at runtime and rendered nothing.
 #
-# So every mention of the endpoint has to be a call, not just one of
-# them. This is the shape of vacuity the SQL suites guard against: an
-# assertion that is satisfied without the thing it names being true.
-#
-# The callee is any identifier, not the literal word "fetch": forum.html
-# goes through a small api() wrapper of its own, and that is still a
-# call. The defect this catches is a paren with NOTHING in front of it,
-# which is the only thing the missing word left behind.
-$mangled  = @()
-$allRefs  = 0
-$realCalls = 0
-foreach ($p in ($src.Keys | Sort-Object)) {
-    # Only QUOTED occurrences: the endpoint is named in prose in a few
-    # comments, and a comment is not a broken call.
-    $all  = ([regex]::Matches($src[$p], "'/auth/me'")).Count
-    $real = ([regex]::Matches($src[$p], "[A-Za-z_\$][A-Za-z0-9_\$]*\(\s*'/auth/me'")).Count
-    $allRefs   += $all
-    $realCalls += $real
+# The callee is any identifier, not the literal word "fetch": some pages
+# go through a small api() wrapper of their own, and that is still a
+# call. The defect this catches is a paren with NOTHING in front of it.
+$mangled = @(); $allRefs = 0; $realCalls = 0
+foreach ($p in ($allSrc.Keys | Sort-Object)) {
+    # Only QUOTED occurrences: the endpoint is named in prose in comments.
+    $all  = ([regex]::Matches($allSrc[$p], "['""]/auth/me['""]")).Count
+    $real = ([regex]::Matches($allSrc[$p], "[A-Za-z_\$][A-Za-z0-9_\$]*\(\s*['""]/auth/me['""]")).Count
+    $allRefs += $all; $realCalls += $real
     if ($all -gt $real) { $mangled += ("{0} ({1})" -f $p, ($all - $real)) }
 }
-$mangledDetail = if ($mangled.Count -eq 0) { "all $realCalls references are calls" }
-                 else { "not a call: " + ($mangled -join ', ') }
+Pre "S" "S1 there are calls to /auth/me to examine" ($allRefs -gt 0) "$allRefs quoted reference(s)"
 Check "S" "S1 every mention of /auth/me is an actual call" `
     "a call missing its callee still parses, and still passes the check above on a sibling call" `
     ($mangled.Count -eq 0) `
-    $mangledDetail
+    $(if ($mangled.Count -eq 0) { "all $realCalls references are calls" } else { "not a call: " + ($mangled -join ', ') })
 
-# Reading a session key in the browser is now the defect, not the norm:
-# there is one session, it is httpOnly, and page script cannot see it.
-$stillReadingKeys = $src.Keys | Where-Object {
-    $src[$_] -match "localStorage\.getItem\s*\(\s*'rocodefest_[a-z_]*session'"
-} | Sort-Object
-Check "S" "S1 no page decides sign-in state from localStorage" `
-    "a page that still reads a session key is deciding from something the server does not control" `
+# Reading a session key in the browser is the defect, not the norm: there
+# is one session, it is httpOnly, and page script cannot see it.
+$stillReadingKeys = @($allSrc.Keys | Where-Object {
+    $allSrc[$_] -match "localStorage\.getItem\s*\(\s*['""]rocodefest_[a-z_]*session['""]"
+} | Sort-Object)
+Check "S" "S1 nothing decides sign-in state from localStorage" `
+    "code that still reads a session key is deciding from something the server does not control" `
     ($stillReadingKeys.Count -eq 0) `
-    $(if ($stillReadingKeys.Count -eq 0) { "no page reads a session key" }
-      else { "still reading: " + ($stillReadingKeys -join ", ") })
+    $(if ($stillReadingKeys.Count -eq 0) { "no file reads a session key" } else { "still reading: " + ($stillReadingKeys -join ", ") })
 
 # --- sessions are the server's, not the browser's ---------------------
-# Every one of these used to be a localStorage key. The findings that
-# came out of that -- a role the nav could not see, a session nothing
-# could end, two sessions where one sign-out ended one -- are not
-# possible against a session the page cannot touch. So the question is
-# no longer "do the keys agree"; it is "is there a key at all".
-$writesSession = $src.Keys | Where-Object {
-    $src[$_] -match "localStorage\.(setItem|removeItem)\s*\(\s*'rocodefest_[a-z_]*session'"
-} | Sort-Object
-
-Check "S" "S2 no page creates or clears a session in the browser" `
+$writesSession = @($allSrc.Keys | Where-Object {
+    $allSrc[$_] -match "localStorage\.(setItem|removeItem)\s*\(\s*['""]rocodefest_[a-z_]*session['""]"
+} | Sort-Object)
+Check "S" "S2 nothing creates or clears a session in the browser" `
     "a session page script can write is a session page script can forge" `
     ($writesSession.Count -eq 0) `
-    $(if ($writesSession.Count -eq 0) { "no page writes a session key; the cookie is httpOnly and set by the server" }
+    $(if ($writesSession.Count -eq 0) { "no file writes a session key; the cookie is httpOnly and set by the server" }
       else { "still writing: " + ($writesSession -join ", ") })
 
 # --- signing out ------------------------------------------------------
-$signOutPages = $src.Keys | Where-Object { $src[$_] -match "logout-link" } | Sort-Object
+$signOutPages = @($src.Keys | Where-Object { $src[$_] -match "logout-link" } | Sort-Object)
 $callLogout   = @($signOutPages | Where-Object { $src[$_] -match "/auth/logout" })
 
 Pre "S" "S3 some pages offer a way to sign out" ($signOutPages.Count -gt 0) `
@@ -191,22 +230,13 @@ Check "S" "S3 every sign-out ends the session on the server" `
     "$($callLogout.Count) of $($signOutPages.Count) call /auth/logout"
 
 # --- signing in -------------------------------------------------------
-# This list used to name three form ids, and there are five forms that
-# create an account: join.html registers a member, partner.html and
-# speaker.html each register a partner. So S4 and S5 -- the checks that
-# say every registration goes through the server and every one asks for
-# a password -- were passing while looking at three fifths of the
-# subject. Two of the pages they skipped had no password field at all
-# when this work started.
-#
-# Found by adding a password field to speaker.html and noticing the
-# count did not move. Detection is by what the page DOES now (a form
-# element plus a post to /auth) rather than by a list of ids, so a sixth
-# registration form is covered the day it is written.
-$signInPages = $src.Keys | Where-Object {
+# Detection is by what the page DOES (a form plus a post to /auth) rather
+# than by a list of ids: a list of three ids once had S4 and S5 passing
+# while looking at three of the five forms that create an account.
+$signInPages = @($src.Keys | Where-Object {
     $src[$_] -match "login-btn|register-form|judge-form" -or
     ($src[$_] -match "<form" -and $src[$_] -match "/auth/(login|register)")
-} | Sort-Object
+} | Sort-Object)
 $viaApi = @($signInPages | Where-Object { $src[$_] -match "/auth/(login|register)" })
 
 Pre "S" "S4 the pages carry sign-in and registration forms" ($signInPages.Count -gt 0) `
@@ -217,29 +247,26 @@ Check "S" "S4 every sign-in and registration goes through the server" `
     ($viaApi.Count -eq $signInPages.Count) `
     "$($viaApi.Count) of $($signInPages.Count) post to /auth"
 
-$noPassword = @($signInPages | Where-Object { $src[$_] -notmatch 'type\s*=\s*"password"' }) | Sort-Object
+$noPassword = @($signInPages | Where-Object { $src[$_] -notmatch 'type\s*=\s*"password"' } | Sort-Object)
 Check "S" "S5 every sign-in and registration form asks for a password" `
     "there was no password field anywhere on this site, while accounts.password_hash has always been NOT NULL" `
     ($noPassword.Count -eq 0) `
     $(if ($noPassword.Count -eq 0) { "all $($signInPages.Count) forms take a password" }
       else { "missing a password field: " + ($noPassword -join ", ") })
 
+
 # =====================================================================
 # K — the localStorage contract
 # =====================================================================
-# This group used to ask "do the keys the pages share agree with each
-# other", and its precondition was "there are more than five keys". Both
-# have been overtaken: pages do not share state through localStorage any
-# more. Teams, clubs, join requests, memberships, submissions, appeals
-# and scores are rows, and the browser reads them from the server.
+# Teams, clubs, join requests, memberships, submissions, appeals and
+# scores are rows, and the browser reads them from the server. So the
+# question is what is LEFT in localStorage -- and exactly one answer is
+# allowed.
 #
-# So the question is now the opposite one -- what is LEFT -- and there is
-# exactly one answer that is allowed. The dead-read check below is kept
-# because it is still the right check for whatever remains, and because
-# it caught two real keys during this migration.
-#
-# Keys built by concatenation are counted too: an early version of this
-# missed them and reported three false findings.
+# Keys are found written literally, through a named constant
+# (const KEY = "rocodefest_..."), or built by concatenation: an early
+# version of this check missed the last kind and reported three false
+# findings.
 # ---------------------------------------------------------------------
 
 # The one key that stays in the browser, and why.
@@ -251,57 +278,52 @@ Check "S" "S5 every sign-in and registration form asks for a password" `
 # public -- so signed-out visitors need the badge too, and they have no
 # account to hang it on.
 $ALLOWED_KEYS = @('rocodefest_rules_seen')
-$keys = @{}
-foreach ($name in $src.Keys) {
-    foreach ($m in [regex]::Matches($src[$name], "localStorage\.(getItem|setItem|removeItem)\s*\(\s*['""](rocodefest_[a-z_]*)['""]")) {
-        $k = $m.Groups[2].Value
-        if (-not $keys.ContainsKey($k)) { $keys[$k] = @{ get = 0; set = 0 } }
-        if ($m.Groups[1].Value -eq "getItem") { $keys[$k].get++ } elseif ($m.Groups[1].Value -eq "setItem") { $keys[$k].set++ }
+$consts = @{}
+foreach ($name in $allSrc.Keys) {
+    foreach ($m in [regex]::Matches($allSrc[$name], "\bconst\s+([A-Za-z_\$][A-Za-z0-9_\$]*)\s*=\s*['""](rocodefest_[a-z_]*)['""]")) {
+        $consts[$m.Groups[1].Value] = $m.Groups[2].Value
     }
 }
-# writes whose key is a variable or an expression -- the literal scan
-# above cannot see these, and treating them as absent produces findings
-# that are simply wrong
-$dynamicWrites = @()
-foreach ($name in $src.Keys) {
-    foreach ($m in [regex]::Matches($src[$name], "localStorage\.setItem\s*\(\s*([^'""\s\)][^,]*),")) {
-        $dynamicWrites += $m.Groups[1].Value.Trim()
+$keys = @{}
+function CountKey($k, $op) {
+    if (-not $script:keys.ContainsKey($k)) { $script:keys[$k] = @{ get = 0; set = 0 } }
+    if ($op -eq "getItem") { $script:keys[$k].get++ } elseif ($op -eq "setItem") { $script:keys[$k].set++ }
+}
+foreach ($name in $allSrc.Keys) {
+    foreach ($m in [regex]::Matches($allSrc[$name], "localStorage\.(getItem|setItem|removeItem)\s*\(\s*['""](rocodefest_[a-z_]*)['""]")) {
+        CountKey $m.Groups[2].Value $m.Groups[1].Value
+    }
+    foreach ($m in [regex]::Matches($allSrc[$name], "localStorage\.(getItem|setItem|removeItem)\s*\(\s*([A-Za-z_\$][A-Za-z0-9_\$]*)\s*[,\)]")) {
+        if ($consts.ContainsKey($m.Groups[2].Value)) { CountKey $consts[$m.Groups[2].Value] $m.Groups[1].Value }
     }
 }
 $prefixesWritten = @()
-foreach ($name in $src.Keys) {
-    foreach ($m in [regex]::Matches($src[$name], "['""](rocodefest_[a-z_]*)['""]\s*\+")) { $prefixesWritten += $m.Groups[1].Value }
+foreach ($name in $allSrc.Keys) {
+    foreach ($m in [regex]::Matches($allSrc[$name], "['""](rocodefest_[a-z_]*)['""]\s*\+")) { $prefixesWritten += $m.Groups[1].Value }
 }
-$deadReads = $keys.Keys | Where-Object {
+$deadReads = @($keys.Keys | Where-Object {
     $keys[$_].get -gt 0 -and $keys[$_].set -eq 0 -and $prefixesWritten -notcontains $_
-} | Sort-Object
+} | Sort-Object)
 
 Pre "K" "K1 there is any localStorage use left to check" ($keys.Count -gt 0) `
-    "$($keys.Count) distinct key(s), and $($dynamicWrites.Count) write(s) with a computed key"
+    "$($keys.Count) distinct key(s)"
 
 if ($deadReads.Count -eq 0) {
-    Check "K" "K1 every key that is read is written by some page" `
+    Check "K" "K1 every key that is read is written somewhere" `
         "a key nothing writes is a feature wired to nothing" $true `
         "all $($keys.Count) key(s) have a writer"
 } else {
     Gap "K" "K1-GAP a key that is read and never written" `
         "where would this data come from?" `
-        ("read but never written, by any page, literally or by prefix: " + ($deadReads -join ", ")) `
-        ("The reading page falls back to its empty default forever, so the feature it drives silently " +
-         "shows nothing. This is not the same as a key written by a computed name -- those were checked " +
-         "separately and excluded, because an earlier version of this check reported three of them as " +
-         "findings and all three were wrong.")
+        ("read but never written, literally, by constant or by prefix: " + ($deadReads -join ", ")) `
+        ("The reading code falls back to its empty default forever, so the feature it drives silently shows nothing.")
 }
 
-# --- K2: nothing but the documented exception lives in the browser ----
 # The point of the migration, stated as a check rather than left to a
-# commit message. A new key added by a later page is a page deciding to
-# keep festival data where only one browser can see it -- which is what
-# every finding in this group came from: a club that could not see its
-# members' submissions, a judge whose scores nobody could read, a join
-# request no club ever received.
-$unexpected = @($keys.Keys | Where-Object { $ALLOWED_KEYS -notcontains $_ }) | Sort-Object
-$prefixLeft = @($prefixesWritten + @()) | Where-Object { $ALLOWED_KEYS -notcontains $_ } | Sort-Object -Unique
+# commit message. A new key is a page deciding to keep festival data
+# where only one browser can see it.
+$unexpected = @($keys.Keys | Where-Object { $ALLOWED_KEYS -notcontains $_ } | Sort-Object)
+$prefixLeft = @($prefixesWritten | Where-Object { $ALLOWED_KEYS -notcontains $_ } | Sort-Object -Unique)
 
 Check "K" "K2 only the documented exception is kept in the browser" `
     "festival data in localStorage is data only one browser can see, which is where this group's findings all came from" `
@@ -314,85 +336,79 @@ Check "K" "K2 only the documented exception is kept in the browser" `
 
 
 # =====================================================================
-# J — the inline scripts actually parse
+# J — the page scripts actually parse
 # =====================================================================
-# Every page carries its logic in inline <script> blocks, and a block
-# that does not parse does not run: the browser reports it to a console
-# nobody has open and renders the page as though the script were absent.
-# Nothing else in this file would notice, because every other check
-# reads the source as TEXT -- a page can satisfy all of them while being
-# completely inert.
+# The behaviour the pages carried as inline <script> blocks is in a
+# PageScript.jsx beside each page.tsx, waiting to be rewritten as React
+# state. `next build` compiles them too, but this runs without installing
+# anything, and a script that does not parse would leave its page inert
+# while every text check here still passed.
 #
-# This lived in a scratchpad script for a while and reported "syntax OK"
-# on every run. It took a parameter listing the files to check, it was
-# always invoked with none, and an empty list means an empty loop means
-# no failures -- so it passed 29 pages by checking zero of them. That is
-# the vacuity trap the SQL suites are built around, in the tool meant to
-# catch it, which is why it now lives here behind a precondition that
-# counts what it looked at.
-#
-# It found 13 broken pages the first time it ran for real: a scripted
-# removal of the "Reset demo data" block stopped at the first line that
-# was only a closing brace, leaving two orphaned ones behind.
-$scriptBlocks = 0
-$unparseable  = @()
-# GetTempPath, not $env:TEMP: TEMP is a Windows variable. On the Linux CI
-# runner it is unset, Join-Path refuses a null path, and with
-# ErrorActionPreference=Stop that ended the whole script -- every run of
-# this job failed from the day J1 was added, while it passed locally.
-$tmpJs = Join-Path ([System.IO.Path]::GetTempPath()) "rocodefest_qa_block.js"
-
-foreach ($name in ($src.Keys | Sort-Object)) {
-    # Inline blocks only -- a <script src=...> has no body to parse here.
-    $blocks = [regex]::Matches($src[$name], '(?s)<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>')
-    for ($i = 0; $i -lt $blocks.Count; $i++) {
-        $scriptBlocks++
-        [System.IO.File]::WriteAllText($tmpJs, $blocks[$i].Groups[1].Value, (New-Object System.Text.UTF8Encoding $false))
-        & node --check $tmpJs 2>&1 | Out-Null
-        if ($LASTEXITCODE -ne 0) { $unparseable += ("{0} (blocul {1})" -f $name, ($i + 1)) }
-    }
+# Behind a precondition that counts what was looked at: an earlier
+# version of this check took a list of files, was always invoked with
+# none, and passed 29 pages by checking zero of them.
+$scripts = @(Get-ChildItem -Path $appDir -Recurse -File -Filter PageScript.jsx)
+$unparseable = @()
+# GetTempPath, not $env:TEMP: TEMP is unset on the Linux CI runner.
+$tmpJs = Join-Path ([System.IO.Path]::GetTempPath()) "rocodefest_qa_pagescript.mjs"
+foreach ($s in $scripts) {
+    # The files are plain modules apart from the extension, so node can
+    # check them as .mjs; a JSX tag would fail here, and none belongs in them.
+    [System.IO.File]::WriteAllText($tmpJs, [System.IO.File]::ReadAllText($s.FullName), (New-Object System.Text.UTF8Encoding $false))
+    # Windows PowerShell turns a native command's stderr into an error
+    # record, and under "Stop" that ends the script instead of recording
+    # the page -- so the exit code is read with errors relaxed.
+    $prev = $ErrorActionPreference; $ErrorActionPreference = "Continue"
+    & node --check $tmpJs 2>&1 | Out-Null
+    $code = $LASTEXITCODE
+    $ErrorActionPreference = $prev
+    if ($code -ne 0) { $unparseable += (Rel $s.FullName) }
 }
 if (Test-Path $tmpJs) { Remove-Item $tmpJs -Force }
 
-Pre "J" "J1 there are inline scripts to parse" ($scriptBlocks -gt 0) `
-    "$scriptBlocks inline script block(s) across $($pages.Count) pages"
+Pre "J" "J1 there are page scripts to parse" ($scripts.Count -gt 0) `
+    "$($scripts.Count) PageScript.jsx file(s)"
 
-Check "J" "J1 every inline script parses" `
-    "a block that does not parse does not run, and every other check here reads the source as text" `
+Check "J" "J1 every page script parses" `
+    "a script that does not parse does not run, and every other check here reads the source as text" `
     ($unparseable.Count -eq 0) `
-    $(if ($unparseable.Count -eq 0) { "all $scriptBlocks blocks parse" }
-      else { "nu se parseaza: " + ($unparseable -join ", ") })
+    $(if ($unparseable.Count -eq 0) { "all $($scripts.Count) parse" } else { "does not parse: " + ($unparseable -join ", ") })
+
 
 # =====================================================================
 # P — page structure
 # =====================================================================
-$noTitle    = $src.Keys | Where-Object { $src[$_] -notmatch '<title[^>]*>\s*\S' }
-$noCharset  = $src.Keys | Where-Object { $src[$_] -notmatch '<meta[^>]+charset' }
-$noViewport = $src.Keys | Where-Object { $src[$_] -notmatch '<meta[^>]+name\s*=\s*["'']viewport' }
-$noLang     = $src.Keys | Where-Object { $src[$_] -notmatch '<html[^>]+lang\s*=' }
+# Next.js writes the <head>: the charset always, the viewport and the
+# title from what the layouts and pages export. So the questions are
+# whether they export them.
+$noTitle = @($routes.Keys | Where-Object {
+    [System.IO.File]::ReadAllText((Join-Path $root $routes[$_])) -notmatch 'metadata[^=]*=\s*\{\s*title:\s*"[^"]*\S'
+} | Sort-Object)
+$layouts = @(Get-ChildItem -Path $appDir -Recurse -File -Filter layout.tsx)
+$noViewport = @($layouts | Where-Object { [System.IO.File]::ReadAllText($_.FullName) -notmatch 'export const viewport' } | ForEach-Object { Rel $_.FullName })
+$doc = $allSrc["src/components/Document.tsx"]
+$layoutsUsingDoc = @($layouts | Where-Object { [System.IO.File]::ReadAllText($_.FullName) -match '<Document\b' })
 
 Check "P" "P1 every page has a non-empty title" `
     "the title is the tab, the bookmark and the search result" `
-    ($noTitle.Count -eq 0) $(if ($noTitle.Count -eq 0) { "$($pages.Count) pages titled" } else { "missing: " + ($noTitle -join ", ") })
+    ($noTitle.Count -eq 0) $(if ($noTitle.Count -eq 0) { "$($routes.Count) pages titled" } else { "missing: " + ($noTitle -join ", ") })
 
-Check "P" "P2 every page declares a charset" `
-    "Romanian diacritics render as mojibake without it" `
-    ($noCharset.Count -eq 0) $(if ($noCharset.Count -eq 0) { "$($pages.Count) pages declare one" } else { "missing: " + ($noCharset -join ", ") })
+Pre "P" "P2 there are root layouts" ($layouts.Count -gt 0) "$($layouts.Count) layout(s)"
 
-Check "P" "P3 every page declares a viewport" `
+Check "P" "P2 every layout declares a viewport" `
     "without it a phone renders the desktop layout scaled down" `
-    ($noViewport.Count -eq 0) $(if ($noViewport.Count -eq 0) { "$($pages.Count) pages declare one" } else { "missing: " + ($noViewport -join ", ") })
+    ($noViewport.Count -eq 0) $(if ($noViewport.Count -eq 0) { "$($layouts.Count) layouts export one" } else { "missing: " + ($noViewport -join ", ") })
 
-Check "P" "P4 every page declares a document language" `
+Check "P" "P3 every page declares a document language" `
     "screen readers and translation both key off it" `
-    ($noLang.Count -eq 0) $(if ($noLang.Count -eq 0) { "$($pages.Count) pages declare one" } else { "missing: " + ($noLang -join ", ") })
+    ($null -ne $doc -and $doc -match '<html\s+lang="ro"' -and $layoutsUsingDoc.Count -eq $layouts.Count) `
+    "$($layoutsUsingDoc.Count) of $($layouts.Count) layouts render <Document>, which sets <html lang=""ro"">"
 
-Note "P" "P5-NOTE what this file does not test" `
-    ("Every page carries inline JavaScript with event handlers and localStorage, and none of it is " +
-     "executed here -- these are static checks over the source text. Testing the behaviour needs a " +
-     "headless browser, which is a dependency and a decision, not an oversight. What is checked here is " +
-     "the contract the pages keep with EACH OTHER: the links between them, the session keys they agree " +
-     "on, and the storage keys they share.")
+Note "P" "P4-NOTE what this file does not test" `
+    ("These are static checks over the source text. Whether the pages compile is checked by 'npm run build', " +
+     "and their behaviour needs a browser -- a dependency and a decision, not an oversight. What is checked " +
+     "here is the contract the pages keep with each other and with the server: the links between them, " +
+     "who decides sign-in, and what is still kept in the browser.")
 
 
 # =====================================================================
@@ -412,7 +428,7 @@ if (-not $Quiet) {
         Write-Host ("           {0}" -f $r.Detail) -ForegroundColor DarkGray
     }
     Write-Host ""
-    Write-Host ("[frontend] pages=$($pages.Count) pass=$pass failures=$fail gaps=$gap notes=$note") -ForegroundColor Cyan
+    Write-Host ("[frontend] pages=$($pageFiles.Count) pass=$pass failures=$fail gaps=$gap notes=$note") -ForegroundColor Cyan
     Write-Host ""
 }
 

@@ -1,8 +1,11 @@
-# What Vercel deploys is decided by vercel.json: ONE function built from
-# api/server.js (the whole Express app -- routes and helpers are bundled
-# into it, not turned into functions of their own, which is what broke
-# the first build against the Hobby plan's limit of 12), plus the pages,
-# impuls.css, assets/ and the rules PDF as static files.
+# What Vercel deploys is decided by vercel.json, and it is two builds:
+#
+#   * ONE function built from api/server.js (the whole Express app --
+#     routes and helpers are bundled into it, not turned into functions of
+#     their own, which is what broke the first build against the Hobby
+#     plan's limit of 12). /api/* and /auth/* go to it.
+#   * the site, the Next.js app in src/, with public/ for the artwork, the
+#     fonts and the rules PDF. Everything else goes to it.
 #
 # The database connection comes from DATABASE_URL_UNPOOLED / DATABASE_URL,
 # which the Neon integration sets. SESSION_SECRET must be set by hand.

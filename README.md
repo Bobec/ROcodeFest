@@ -1,7 +1,8 @@
 # ROcodeFest
 
 A robotics and programming festival platform: a PostgreSQL database with an
-OLTP schema and an analytics star schema, plus the festival's static web pages.
+OLTP schema and an analytics star schema, an Express API, and the festival's
+site (IMPULS 2027) as a Next.js app.
 
 Built and tested against **PostgreSQL 18.6**. Some constraints require 15 or
 newer (`ON DELETE SET NULL (column)`), so an older server will not load the
@@ -15,19 +16,27 @@ schema.
 db/                      the database — schema, ETL, and the QA suites
 db/proposals/            the reasoning behind each schema change (see below)
 api/                     the application layer — Express, sessions, routes
-*.html                   29 pages: index, login, forum, leaderboard,
-                         judge-scoring, partner-dashboard, submissions, …
-impuls.css               the shared IMPULS 2027 theme: palette, type, header,
-                         buttons, background artwork — linked by every page
-assets/                  the artwork, the logo and the two fonts (hosted here,
-                         so the pages make no third-party request)
-qa_frontend.ps1          static checks over those pages
-rocodefest-rules.pdf     the competition rulebook
+src/app/                 the site, one folder per page (Next.js App Router):
+                         page.tsx (markup), page.css (its layout) and, where
+                         the page has behaviour, PageScript.jsx
+src/components/          what every page shares: SiteHeader, SiteFooter,
+                         BackButton, FabButtons, RevealOnScroll, …
+src/styles/impuls.css    the shared IMPULS 2027 theme: palette, type, header,
+                         buttons, background artwork — imported by every page
+public/                  the artwork, the logo, the two fonts (hosted here, so
+                         the pages make no third-party request) and the rulebook
+qa_frontend.ps1          static checks over the pages
 ```
 
-The pages are plain HTML with inline JavaScript — no framework, no build step.
-`api/` serves them itself, so everything is one origin and the session cookie
-needs no CORS negotiation.
+The site is a Next.js app (React, TypeScript). The navigation bar, footer and
+other shared parts are React components; each page's own logic still lives in
+the `PageScript.jsx` beside it, carried over from the old HTML pages, and is
+the next thing to rewrite as React state, page by page. The old `x.html`
+addresses redirect to `/x`.
+
+The site forwards `/auth/*` and `/api/*` to the API (see `next.config.ts`),
+so the browser sees one origin and the session cookie needs no CORS
+negotiation.
 
 **The API is deliberately thin.** Team capacity, the resubmission gate, the
 officiating panel, appeal closure — all of it is enforced by constraints and
@@ -39,12 +48,14 @@ answer *whose* club this is.
 ### Running it
 
 ```bash
-cd api && npm install
+npm install            # the site
+cd api && npm install  # the API
 ```
 ```powershell
 $env:PGPASSWORD = "…"
 $env:PGDATABASE = "rocodefest"
-node api/server.js          # http://localhost:3000
+node api/server.js          # the API, http://localhost:4000
+npm run dev                 # the site, http://localhost:3000
 ```
 
 `SESSION_SECRET` is required when `NODE_ENV=production` and the server refuses
