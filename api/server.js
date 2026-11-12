@@ -1,20 +1,21 @@
 'use strict';
-const path = require('path');
 const express = require('express');
 const session = require('express-session');
 const db = require('./db');
 
 const app = express();
-const PORT = Number(process.env.PORT || 3000);
+// 4000, because the site (Next.js, `npm run dev` at the repository root)
+// takes 3000 and forwards /auth/* and /api/* here -- see next.config.ts.
+const PORT = Number(process.env.PORT || 4000);
 
 app.set('trust proxy', 1);
 app.use(express.json({ limit: '256kb' }));
 
-// The pages are served by this same process, from the repository root.
-// Same origin means the session cookie needs no CORS negotiation and no
-// SameSite exception -- which is also why the pages can keep being plain
-// files with no build step.
-app.use(express.static(path.join(__dirname, '..'), { extensions: ['html'] }));
+// The pages used to be served by this process, straight from the
+// repository root. They are a Next.js app now. In development it proxies
+// /api/* and /auth/* to this server; on Vercel, vercel.json routes them to
+// this app as a function. Either way the browser sees a single origin, so
+// the session cookie needs no CORS negotiation and no SameSite exception.
 
 if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
   console.error('SESSION_SECRET is required in production. Refusing to start.');

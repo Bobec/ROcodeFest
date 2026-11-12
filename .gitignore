@@ -36,3 +36,11 @@ psql_history
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Next.js build output and the files it generates on every run
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+.vercel/
+.env*

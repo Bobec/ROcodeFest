@@ -210,25 +210,40 @@ jobs:
           fi
 
   frontend:
-    name: static pages
+    name: page contracts
     runs-on: ubuntu-latest
-    # No database, no browser, no dependencies -- this is static analysis
-    # over the page source, so it needs nothing but pwsh and finishes in
-    # under a second. It runs as its own job rather than a second step of
-    # the one above, so a database failure and a page failure are told
-    # apart at a glance.
+    # No database, no browser, no npm install -- this is static analysis
+    # over the page source, so it needs nothing but pwsh and the node the
+    # runner already has. It runs as its own job rather than a step of the
+    # build below, so a broken link and a compile error are told apart at
+    # a glance.
     steps:
       - uses: actions/checkout@v5
-      - name: Check the pages against each other
+      - name: Check the pages against each other and the server
         run: pwsh ./qa_frontend.ps1
 
-# WHAT NEITHER JOB COVERS
-# -----------------------
-# The behaviour of the page scripts. Every page carries inline JavaScript
-# with event handlers and localStorage, and none of it is executed by
-# either job -- doing so needs a headless browser, which is a dependency
-# and a decision rather than an oversight.
+  build:
+    name: site builds
+    runs-on: ubuntu-latest
+    # The pages are a Next.js app. `next build` type-checks every page and
+    # prerenders all of them, so a page that does not compile or throws
+    # while rendering fails here rather than on the Vercel deploy.
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+# WHAT NO JOB COVERS
+# ------------------
+# The behaviour of the page scripts in a browser. Each page's logic is in
+# a PageScript.jsx beside it, and none of it is executed here -- doing so
+# needs a headless browser, which is a dependency and a decision rather
+# than an oversight.
 #
-# What IS covered is the contract the pages keep with each other: the
-# links between them, the session keys they agree on, and the storage
-# keys they share. Those are where the findings turned out to be.
+# What IS covered is the contract the pages keep with each other and with
+# the server: the links between them, who decides sign-in, and what is
+# still kept in the browser. Those are where the findings turned out to be.
