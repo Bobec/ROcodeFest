@@ -1,19 +1,14 @@
-# Vercel deploys this repository as a STATIC site: the 30 pages,
-# impuls.css, assets/ and the rules PDF.
+# What Vercel deploys is decided by vercel.json: ONE function built from
+# api/server.js (the whole Express app -- routes and helpers are bundled
+# into it, not turned into functions of their own, which is what broke
+# the first build against the Hobby plan's limit of 12), plus the pages,
+# impuls.css, assets/ and the rules PDF as static files.
 #
-# api/ is left out on purpose. Vercel turns every .js file under api/
-# into its own serverless function -- the server, every route file and
-# the helpers, well over the 12 the Hobby plan allows, so the build
-# failed. They are also not functions: they are one Express app, and it
-# needs a database that is not hosted anywhere yet.
+# The database connection comes from DATABASE_URL_UNPOOLED / DATABASE_URL,
+# which the Neon integration sets. SESSION_SECRET must be set by hand.
 #
-# The pages already cope with the API being absent (each call has a
-# fallback), so without it they render, and only the parts that need
-# data -- sign-in, forum, leaderboard -- stay empty.
-#
-# To deploy the full site later, remove the api line below, and first
-# turn the API into ONE function (an entry file plus helpers that Vercel
-# does not count) with a hosted Postgres behind it.
-api
+# Nothing below is needed at runtime.
+api/test
+api/scripts
 db
 qa_frontend.ps1
