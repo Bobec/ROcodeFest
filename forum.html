@@ -1,24 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Forum — ROcodeFest</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>Forum — IMPULS 2027</title>
 <style>
-  :root{
-    --cream:#FFF9EF; --ink:#2B2A28; --ink-soft:#6B6660;
-    --blue:#3E9DD1; --blue-light:#E4F3FA;
-    --yellow:#FFC857; --yellow-light:#FFF3D9;
-    --coral:#FF6B4A; --coral-dark:#D8492C;
-    --green:#4CAF7D; --green-light:#E4F5EC;
-    --purple:#8B7FD1; --purple-light:#ECEAFA;
-    --radius-lg:28px; --radius-md:18px;
-  }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Nunito',sans-serif;line-height:1.6;}
-  h1,h2,h3{font-family:'Baloo 2',sans-serif;font-weight:700;margin:0;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Jost',sans-serif;line-height:1.6;}
+  h1,h2,h3{font-family:'VT323',sans-serif;font-weight:700;margin:0;}
   .wrap{max-width:1040px;margin:0 auto;padding:0 28px;}
   a{color:inherit;}
   html{scroll-behavior:smooth;}
@@ -28,17 +17,17 @@
     background:var(--cream); transition:box-shadow 0.3s ease;
   }
   nav.scrolled{box-shadow:0 2px 14px rgba(43,42,40,0.08);}
-  .logo{display:flex;align-items:center;gap:10px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'VT323',sans-serif;font-weight:800;font-size:20px;}
   .logo-dot{width:34px;height:34px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;}
   .nav-links{display:flex;gap:18px;font-weight:700;font-size:14px;color:var(--ink-soft);align-items:center;}
   .nav-links a{text-decoration:none; position:relative; transition:color 0.2s ease;}
   .nav-links a::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:2px;background:var(--coral);transition:width 0.25s ease;}
   .nav-links a:hover{color:var(--coral-dark);}
   .nav-links a:hover::after{width:100%;}
-  .partner-link{background:var(--ink);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .partner-link{background:var(--ink-bg);color:#fff !important;padding:8px 16px;border-radius:0;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
   .partner-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
   .partner-link::after{display:none !important;}
-  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:0;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
   .speaker-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
   .speaker-link::after{display:none !important;}
   .nav-rules-wrap{position:relative;}
@@ -47,7 +36,7 @@
   .profile-avatar{
     width:32px; height:32px; border-radius:50%; background:var(--coral); color:#fff !important;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:14px; text-decoration:none;
+    font-family:'VT323', sans-serif; font-weight:800; font-size:14px; text-decoration:none;
     transition:transform 0.2s ease, box-shadow 0.2s ease; background-size:cover; background-position:center;
   }
   .profile-avatar:hover{transform:translateY(-2px); box-shadow:0 8px 16px rgba(43,42,40,0.18);}
@@ -60,8 +49,8 @@
   .page-hero h1{font-size:38px;max-width:640px;margin:0 auto 16px;}
   .page-hero p{color:var(--ink-soft);font-size:17px;max-width:560px;margin:0 auto;}
 
-  .card{background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg); padding:26px; margin-bottom:16px;}
-  .card-light{background:#fff; border-radius:var(--radius-md); padding:20px; border:1.5px solid #E4E1D8; margin-bottom:12px;}
+  .card{background:var(--panel); border:2px solid var(--line); border-radius:var(--radius-lg); padding:26px; margin-bottom:16px;}
+  .card-light{background:var(--panel); border-radius:var(--radius-md); padding:20px; border:1.5px solid #3A3A3A; margin-bottom:12px;}
   .section{padding:24px 0;}
   .section h2{font-size:22px; margin-bottom:14px;}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -71,32 +60,32 @@
   .field{margin-bottom:16px; text-align:left;}
   label{display:block; font-weight:700; font-size:13px; margin-bottom:6px; color:var(--ink);}
   input, textarea, select{
-    width:100%; padding:11px 14px; border-radius:12px;
-    border:2px solid #E4E1D8; font-family:'Nunito',sans-serif; font-size:14px;
+    width:100%; padding:11px 14px; border-radius:0;
+    border:2px solid #3A3A3A; font-family:'Jost',sans-serif; font-size:14px;
     background:var(--cream); transition:border-color 0.2s ease;
   }
   input:focus, textarea:focus, select:focus{ outline:none; border-color:var(--blue); }
-  .btn{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;display:inline-block;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .btn{font-family:'VT323',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:0;border:none;cursor:pointer;text-decoration:none;display:inline-block;transition:transform 0.2s ease, box-shadow 0.2s ease;}
   .btn:hover{transform:translateY(-3px);box-shadow:0 10px 20px rgba(43,42,40,0.15);}
   .btn-primary{background:var(--coral);color:#fff;}
-  .btn-secondary{background:#fff; color:var(--ink); border:2px solid var(--ink);}
+  .btn-secondary{background:var(--panel); color:var(--ink); border:2px solid var(--line);}
   .btn-small{font-size:13px; padding:9px 16px;}
 
   .tab-row{display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;}
-  .tab-btn{font-family:'Baloo 2'; font-weight:700; font-size:13px; padding:9px 18px; border-radius:999px; border:2px solid var(--ink); background:#fff; cursor:pointer; transition:all 0.2s ease;}
-  .tab-btn.active{background:var(--ink); color:#fff;}
+  .tab-btn{font-family:'VT323'; font-weight:700; font-size:13px; padding:9px 18px; border-radius:0; border:2px solid var(--line); background:var(--panel); cursor:pointer; transition:all 0.2s ease;}
+  .tab-btn.active{background:var(--ink-bg); color:#fff;}
   .forum-cats{margin-bottom:20px;}
-  .cat-parent{font-family:'Baloo 2'; font-weight:800; font-size:14px; color:var(--ink-soft); margin-bottom:10px;}
-  .cat-sub-row{margin:0 0 0 4px; padding-left:16px; border-left:2px solid #E4E1D8;}
-  .announcements-panel{background:var(--yellow-light); border:2px solid var(--ink); border-radius:var(--radius-lg); padding:22px; margin-bottom:24px;}
+  .cat-parent{font-family:'VT323'; font-weight:800; font-size:14px; color:var(--ink-soft); margin-bottom:10px;}
+  .cat-sub-row{margin:0 0 0 4px; padding-left:16px; border-left:2px solid #3A3A3A;}
+  .announcements-panel{background:var(--yellow-light); border:2px solid var(--line); border-radius:var(--radius-lg); padding:22px; margin-bottom:24px;}
   .announcements-panel h2{font-size:16px;}
-  .ann-item{background:#fff; border-radius:var(--radius-md); padding:14px 16px; margin-bottom:10px;}
+  .ann-item{background:var(--panel); border-radius:var(--radius-md); padding:14px 16px; margin-bottom:10px;}
   .ann-item:last-child{margin-bottom:0;}
   .ann-item .thread-title{font-size:14px; margin-bottom:2px;}
 
   .empty-state{text-align:center; padding:50px 20px; color:var(--ink-soft); font-size:14px;}
-  .stat-num{font-family:'Baloo 2'; font-weight:800; font-size:28px;}
-  .tag{display:inline-block; font-size:11px; font-weight:800; padding:4px 10px; border-radius:999px; color:#fff;}
+  .stat-num{font-family:'VT323'; font-weight:800; font-size:28px;}
+  .tag{display:inline-block; font-size:11px; font-weight:800; padding:4px 10px; border-radius:0; color:#fff;}
   .error-msg{display:none; color:var(--coral-dark); font-size:13px; font-weight:700; margin-top:10px; text-align:center;}
   .error-msg.show{display:block;}
 
@@ -108,11 +97,11 @@
   .demo-note strong{color:var(--ink);}
 
   
-  .thread-card{ background:#fff; border:2px solid var(--ink); border-radius:var(--radius-md); padding:18px; margin-bottom:12px; cursor:pointer; transition:transform 0.2s ease, box-shadow 0.2s ease; border-left-width:5px; }
+  .thread-card{ background:var(--panel); border:2px solid var(--line); border-radius:var(--radius-md); padding:18px; margin-bottom:12px; cursor:pointer; transition:transform 0.2s ease, box-shadow 0.2s ease; border-left-width:5px; }
   .thread-card:hover{ transform:translateY(-3px); box-shadow:0 10px 20px rgba(43,42,40,0.1); }
   .thread-card.role-club{ border-left-color:var(--coral); }
   .thread-card.role-member{ border-left-color:var(--blue); }
-  .thread-title{ font-family:'Baloo 2'; font-size:16px; margin-bottom:4px; }
+  .thread-title{ font-family:'VT323'; font-size:16px; margin-bottom:4px; }
   .thread-meta{ font-size:12px; color:var(--ink-soft); }
   .thread-body{ font-size:14px; color:var(--ink-soft); margin-top:8px; }
   .reply-card{ background:var(--cream); border-radius:var(--radius-md); padding:14px; margin-top:10px; margin-left:20px; border-left:4px solid transparent; }
@@ -120,13 +109,13 @@
   .reply-card.role-member{ border-left-color:var(--blue); }
   .reply-card strong{ font-size:13px; }
   .reply-card p{ font-size:13px; color:var(--ink-soft); margin:4px 0 0; white-space:pre-wrap; }
-  .thread-detail-card{ background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg); padding:24px; }
+  .thread-detail-card{ background:var(--panel); border:2px solid var(--line); border-radius:var(--radius-lg); padding:24px; }
   @media (max-width:480px){ .reply-card{ margin-left:6px; } }
 
   .post-head{ display:flex; align-items:center; gap:10px; margin-bottom:2px; }
   .post-avatar{
     width:34px; height:34px; border-radius:50%; background:var(--coral); color:#fff; flex-shrink:0;
-    display:flex; align-items:center; justify-content:center; font-family:'Baloo 2'; font-weight:800; font-size:14px;
+    display:flex; align-items:center; justify-content:center; font-family:'VT323'; font-weight:800; font-size:14px;
     background-size:cover; background-position:center;
   }
   .post-avatar.role-member{ background:var(--blue); }
@@ -135,20 +124,20 @@
   .post-who{ display:flex; flex-direction:column; }
   .post-who .who-name{ font-weight:800; font-size:13px; }
   .post-who .who-meta{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
-  .role-tag{ font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.03em; padding:2px 8px; border-radius:999px; }
+  .role-tag{ font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.03em; padding:2px 8px; border-radius:0; }
   .role-tag.role-club{ background:var(--yellow-light); color:var(--coral-dark); }
   .role-tag.role-member{ background:var(--blue-light); color:var(--blue); }
   .team-tag{ font-size:11px; color:var(--ink-soft); font-weight:700; }
 
   .composer-session-line{ font-size:13px; color:var(--ink-soft); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
   .file-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px; }
-  .file-pick-btn{ font-family:'Baloo 2'; font-weight:700; font-size:12px; padding:8px 14px; border-radius:999px; border:2px solid var(--ink); background:#fff; cursor:pointer; }
+  .file-pick-btn{ font-family:'VT323'; font-weight:700; font-size:12px; padding:8px 14px; border-radius:0; border:2px solid var(--line); background:var(--panel); cursor:pointer; }
   .file-hint{ font-size:11px; color:var(--ink-soft); }
   .attach-preview{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
-  .attach-chip{ display:flex; align-items:center; gap:6px; background:var(--cream); border:1.5px solid #E4E1D8; border-radius:10px; padding:4px 10px 4px 4px; font-size:12px; font-weight:700; }
+  .attach-chip{ display:flex; align-items:center; gap:6px; background:var(--cream); border:1.5px solid #3A3A3A; border-radius:0; padding:4px 10px 4px 4px; font-size:12px; font-weight:700; }
   .attach-chip button{ border:none; background:var(--coral); color:#fff; width:16px; height:16px; border-radius:50%; font-size:10px; cursor:pointer; }
   .attach-block{ margin-top:10px; }
-  .attach-mock{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; background:var(--cream); border:1.5px dashed #E4E1D8; border-radius:10px; padding:8px 12px; }
+  .attach-mock{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; background:var(--cream); border:1.5px dashed #3A3A3A; border-radius:0; padding:8px 12px; }
   .attach-mock em{ font-weight:600; color:var(--ink-soft); font-style:normal; }
   .attach-error{ color:var(--coral-dark); font-size:12px; font-weight:700; margin-top:6px; display:none; }
   .attach-error.show{ display:block; }
@@ -157,7 +146,7 @@
   .link-btn{ background:none; border:none; padding:0; font-size:12px; font-weight:800; cursor:pointer; color:var(--blue); }
   .link-btn.danger{ color:var(--coral-dark); }
   .edit-box{ margin-top:10px; }
-  .rules-ref-btn{ font-family:'Baloo 2'; font-weight:700; font-size:12px; padding:8px 14px; border-radius:999px; border:2px solid var(--ink); background:#fff; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
+  .rules-ref-btn{ font-family:'VT323'; font-weight:700; font-size:12px; padding:8px 14px; border-radius:0; border:2px solid var(--line); background:var(--panel); cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
 
 
   footer{padding:24px 0 40px;text-align:center;font-size:13px;color:var(--ink-soft);}
@@ -171,11 +160,11 @@
     display:flex; flex-direction:column; align-items:flex-end; gap:10px; z-index:60;
   }
   .fab{
-    height:44px; padding:0 18px; border-radius:999px;
-    background:var(--ink); color:#fff;
+    height:44px; padding:0 18px; border-radius:0;
+    background:var(--ink-bg); color:#fff;
     border:2px solid rgba(255,255,255,0.12); cursor:pointer;
     display:flex; align-items:center; gap:8px;
-    font-family:'Baloo 2', sans-serif; font-weight:700; font-size:13px; white-space:nowrap;
+    font-family:'VT323', sans-serif; font-weight:700; font-size:13px; white-space:nowrap;
     box-shadow:0 8px 24px rgba(43,42,40,0.28), 0 0 0 3px rgba(255,255,255,0.08);
     transition:transform 0.2s ease, box-shadow 0.2s ease, opacity 0.25s ease;
   }
@@ -190,11 +179,11 @@
   }
   @keyframes fabPulse{
     0%,100%{ box-shadow:0 8px 24px rgba(43,42,40,0.28), 0 0 0 3px rgba(255,255,255,0.08); }
-    50%{ box-shadow:0 8px 32px rgba(255,107,74,0.55), 0 0 0 6px rgba(255,107,74,0.18); }
+    50%{ box-shadow:0 8px 32px rgba(53,212,0,0.55), 0 0 0 6px rgba(53,212,0,0.18); }
   }
   .fab-toast{
-    position:fixed; bottom:38px; right:220px; background:var(--ink); color:#fff;
-    font-size:13px; font-weight:700; padding:10px 16px; border-radius:10px;
+    position:fixed; bottom:38px; right:220px; background:var(--ink-bg); color:#fff;
+    font-size:13px; font-weight:700; padding:10px 16px; border-radius:0;
     opacity:0; transform:translateY(6px); transition:opacity 0.25s ease, transform 0.25s ease;
     pointer-events:none; z-index:60;
   }
@@ -206,9 +195,9 @@
     align-items:center;
     gap:5px;
     width:40px;height:40px;
-    border:2px solid var(--ink);
-    border-radius:10px;
-    background:#fff;
+    border:2px solid var(--line);
+    border-radius:0;
+    background:var(--panel);
     cursor:pointer;
     padding:0;
     flex-shrink:0;
@@ -216,7 +205,7 @@
   .nav-toggle span{
     display:block;
     width:20px;height:2px;
-    background:var(--ink);
+    background:var(--ink-bg);
     border-radius:2px;
     transition:transform 0.2s ease, opacity 0.2s ease;
   }
@@ -233,8 +222,8 @@
       align-items:flex-start;
       gap:16px;
       background:var(--cream);
-      border:2px solid var(--ink);
-      border-radius:14px;
+      border:2px solid var(--line);
+      border-radius:0;
       padding:20px;
       margin-top:8px;
       z-index:200;
@@ -249,7 +238,7 @@
     background:var(--coral);
     color:#fff !important;
     padding:9px 18px;
-    border-radius:999px;
+    border-radius:0;
     font-size:13px;
     font-weight:800;
     transition:transform 0.2s ease, box-shadow 0.2s ease;
@@ -259,29 +248,30 @@
     box-shadow:0 8px 16px rgba(43,42,40,0.18);
   }
   .join-cta-link::after{display:none !important;}
-  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
+  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Jost',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
   .back-nav-btn:hover{color:var(--coral-dark);}
 </style>
+<link rel="stylesheet" href="impuls.css">
 </head>
 <body>
 <div class="wrap">
   <nav>
     <a href="index.html" style="text-decoration:none;">
-      <div class="logo">
-        <div class="logo-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="8" width="14" height="11" rx="4" fill="white"/><rect x="9" y="3" width="2.5" height="6" rx="1.25" fill="white"/><circle cx="10" cy="2.5" r="1.5" fill="white"/><circle cx="9.5" cy="13.5" r="1.8" fill="#FF6B4A"/><circle cx="14.5" cy="13.5" r="1.8" fill="#FF6B4A"/></svg></div>
-        ROcodeFest
-      </div>
+      <a class="logo" href="index.html" aria-label="IMPULS 2027 — acasă">
+      <span class="logo-mark"><img src="assets/impuls-logo.png" alt="" width="50" height="50"></span>
+      <span class="logo-text"><b>IMPULS 2027</b><small>EU CODEZ // PIATRA NEAMȚ</small></span>
     </a>
-    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </a>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Meniu" aria-expanded="false"><span></span><span></span><span></span></button>
     <div class="nav-links">
-      <a href="learn-more.html">About</a>
-      <span class="nav-rules-wrap"><a href="rules.html">Rules</a><span class="rules-badge" id="rules-badge"></span></span>
-      <a href="events.html">Events</a>
-      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Contest Day</a>
+      <a href="learn-more.html">Despre</a>
+      <span class="nav-rules-wrap"><a href="rules.html">Reguli</a><span class="rules-badge" id="rules-badge"></span></span>
+      <a href="events.html">Evenimente</a>
+      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Ziua concursului</a>
       <a href="forum.html">Forum</a>
-      <a href="login.html" id="nav-login-link" style="font-size:13px;">Log in</a>
-      <a href="register.html" id="nav-register-link">Register</a>
-      <a href="join-as.html" class="join-cta-link">Get involved</a>
+      <a href="login.html" id="nav-login-link">Autentificare</a>
+      <a href="register.html" id="nav-register-link">Înregistrare</a>
+      <a href="join-as.html" class="join-cta-link">// Participă</a>
     </div>
   </nav>
 <script>
@@ -353,7 +343,7 @@
   if(isContestDay || preview){ contestDayLink.style.display = ''; }
 })();
 </script>
-  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Go back">&larr; Back</button>
+  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Înapoi">&larr; Înapoi</button>
 <script>
   // TODO: provisional -- prefers the page that actually linked here
   // (deterministic, avoids bouncing in a back/forward loop); falls back to
@@ -370,20 +360,20 @@
 </script>
 
   <section class="page-hero">
-    <div class="eyebrow">Community</div>
-    <h1>ROcodeFest Forum</h1>
-    <p>Discuss, ask questions, and share ideas with other teams and organizers.</p>
+    <div class="eyebrow">Comunitate</div>
+    <h1>Forumul IMPULS</h1>
+    <p>Discută, pune întrebări și schimbă idei cu alte echipe și cu organizatorii.</p>
   </section>
 
   <div class="announcements-panel" id="announcements-panel">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:10px; flex-wrap:wrap;">
-      <h2 style="margin:0;">📌 Announcements</h2>
-      <button class="btn btn-secondary btn-small" id="new-announcement-toggle">+ New announcement</button>
+      <h2 style="margin:0;">📌 Anunțuri</h2>
+      <button class="btn btn-secondary btn-small" id="new-announcement-toggle">+ Anunț nou</button>
     </div>
     <div id="announcement-form" style="display:none; margin-bottom:14px;">
-      <div class="field" style="margin:0 0 8px;"><input id="new-ann-title" placeholder="Announcement title"></div>
-      <div class="field" style="margin:0;"><textarea id="new-ann-body" rows="2" placeholder="Announcement details"></textarea></div>
-      <button class="btn btn-primary btn-small" id="post-announcement-btn" style="margin-top:8px;">Post announcement</button>
+      <div class="field" style="margin:0 0 8px;"><input id="new-ann-title" placeholder="Titlul anunțului"></div>
+      <div class="field" style="margin:0;"><textarea id="new-ann-body" rows="2" placeholder="Detaliile anunțului"></textarea></div>
+      <button class="btn btn-primary btn-small" id="post-announcement-btn" style="margin-top:8px;">Publică anunțul</button>
     </div>
     <div id="announcements-list"></div>
   </div>
@@ -391,16 +381,16 @@
   <div class="forum-cats">
     <div class="cat-parent">📁 General</div>
     <div class="tab-row cat-sub-row" id="forum-tabs">
-      <button class="tab-btn active" data-cat="general">All general</button>
-      <button class="tab-btn" data-cat="robotics">Robotics</button>
-      <button class="tab-btn" data-cat="programming">Programming</button>
+      <button class="tab-btn active" data-cat="general">Toate</button>
+      <button class="tab-btn" data-cat="robotics">Robotică</button>
+      <button class="tab-btn" data-cat="programming">Programare</button>
       <button class="tab-btn" data-cat="design">Design</button>
     </div>
   </div>
   <div class="card" id="new-thread-card">
     <p class="composer-session-line" id="thread-session-line"></p>
     <div class="grid-2" style="gap:10px;">
-      <div class="field" style="margin:0;"><input id="new-thread-title" placeholder="Thread title"></div>
+      <div class="field" style="margin:0;"><input id="new-thread-title" placeholder="Titlul subiectului"></div>
       <div style="display:flex;gap:8px;">
         <!--
           A "Your name" box for signed-out visitors stood here.
@@ -408,10 +398,10 @@
           could never have become a row; the composer now says to sign
           in instead.
         -->
-        <button class="btn btn-primary btn-small" id="post-thread-btn" style="flex:1;">Post</button>
+        <button class="btn btn-primary btn-small" id="post-thread-btn" style="flex:1;">Publică</button>
       </div>
     </div>
-    <div class="field" style="margin-top:10px;margin-bottom:0;"><textarea id="new-thread-body" rows="2" placeholder="What's on your mind?"></textarea></div>
+    <div class="field" style="margin-top:10px;margin-bottom:0;"><textarea id="new-thread-body" rows="2" placeholder="La ce te gândești?"></textarea></div>
     <!--
       An "Attach image / video / file" row stood here. It read no file
       content and uploaded nothing -- its own chips said "mock
@@ -423,7 +413,7 @@
     -->
     <div class="file-row">
       <!-- TODO: placeholder — mock button only, not wired to the regulations yet -->
-      <button type="button" class="rules-ref-btn" title="Mock only — will open the official regulations once the backend is connected">📖 Reference Rules</button>
+      <button type="button" class="rules-ref-btn" title="Doar machetă — va deschide regulamentul oficial după conectarea la server">📖 Vezi regulile</button>
     </div>
   </div>
   <div id="threads-list"></div>
@@ -431,12 +421,12 @@
 
   <footer>
     <div class="footer-nav">
-      <a href="news.html">News</a> <a href="resources.html">Resources</a>
-      <a href="founding-teams.html">Teams</a> <a href="organizations.html">Clubs</a>
-      <a href="leaderboard.html">Leaderboard</a> <a href="forum.html">Forum</a>
+      <a href="news.html">Noutăți</a> <a href="resources.html">Resurse</a>
+      <a href="founding-teams.html">Echipe</a> <a href="organizations.html">Cluburi</a>
+      <a href="leaderboard.html">Clasament</a> <a href="forum.html">Forum</a>
       <a href="livestream.html">Live</a> <a href="contact.html">Contact</a>
     </div>
-    ROcodeFest · Season 1 · Built by students, for students
+    IMPULS 2027 // EU CODEZ // PIATRA NEAMȚ
   </footer>
 </div>
 
@@ -565,15 +555,15 @@ document.addEventListener('DOMContentLoaded', function(){
 
   function renderComposerSessionLine(lineEl, nameInputEl){
     if(me){
-      var roleLabel = me.role === 'club' ? 'Club' : (me.role === 'member' ? 'Member' : (me.role === 'judge' ? 'Judge' : 'Partner'));
+      var roleLabel = me.role === 'club' ? 'Club' : (me.role === 'member' ? 'Membru' : (me.role === 'judge' ? 'Arbitru' : 'Partener'));
       var roleClass = me.role === 'club' ? 'role-club' : 'role-member';
-      lineEl.innerHTML = 'Posting as <strong>' + escapeHtml(displayName(me)) + '</strong> ' +
+      lineEl.innerHTML = 'Postezi ca <strong>' + escapeHtml(displayName(me)) + '</strong> ' +
         '<span class="role-tag ' + roleClass + '">' + roleLabel + '</span>';
       if(nameInputEl) nameInputEl.style.display = 'none';
     } else {
       // Signed-out visitors can read everything and post nothing. Saying
       // so is better than a composer that accepts text and then fails.
-      lineEl.innerHTML = 'Sign in to post — <a href="login.html" style="text-decoration:underline;">log in</a> or <a href="join-as.html" style="text-decoration:underline;">create an account</a>.';
+      lineEl.innerHTML = 'Autentifică-te ca să postezi — <a href="login.html" style="text-decoration:underline;">intră în cont</a> sau <a href="join-as.html" style="text-decoration:underline;">creează un cont</a>.';
       if(nameInputEl) nameInputEl.style.display = 'none';
     }
   }
@@ -596,8 +586,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
   function whoHtml(item){
     var label = item.authorRole === 'club' ? 'Club'
-              : item.authorRole === 'member' ? 'Member'
-              : item.authorRole === 'judge' ? 'Judge' : 'Partner';
+              : item.authorRole === 'member' ? 'Membru'
+              : item.authorRole === 'judge' ? 'Arbitru' : 'Partener';
     var cls = item.authorRole === 'club' ? 'role-club' : 'role-member';
     return '<div class="post-who"><span class="who-name">' + escapeHtml(item.authorName) + '</span>' +
            '<span class="who-meta"><span class="role-tag ' + cls + '">' + label + '</span></span></div>';
@@ -617,9 +607,9 @@ document.addEventListener('DOMContentLoaded', function(){
 
   function renderAnnouncements(){
     var list = document.getElementById('announcements-list');
-    if(announcements.length === 0){ list.innerHTML = '<p style="font-size:13px;color:var(--ink-soft);margin:0;">No announcements yet.</p>'; return; }
+    if(announcements.length === 0){ list.innerHTML = '<p style="font-size:13px;color:var(--ink-soft);margin:0;">Niciun anunț încă.</p>'; return; }
     list.innerHTML = announcements.map(function(a){
-      return '<div class="ann-item"><div class="thread-title">' + escapeHtml(a.title) + '</div><p class="thread-body" style="margin-top:4px;">' + escapeHtml(a.body || '') + '</p><div class="thread-meta">by ' + escapeHtml(a.authorName) + '</div></div>';
+      return '<div class="ann-item"><div class="thread-title">' + escapeHtml(a.title) + '</div><p class="thread-body" style="margin-top:4px;">' + escapeHtml(a.body || '') + '</p><div class="thread-meta">de ' + escapeHtml(a.authorName) + '</div></div>';
     }).join('');
   }
 
@@ -673,9 +663,9 @@ document.addEventListener('DOMContentLoaded', function(){
     var slot = document.getElementById('thread-edit-slot');
     slot.innerHTML =
       '<div class="edit-box">' +
-        '<div class="field"><label>Title</label><input id="edit-thread-title" value="' + (t.title||'').replace(/"/g,'&quot;') + '"></div>' +
-        '<div class="field"><label>Body</label><textarea id="edit-thread-body" rows="3">' + escapeHtml(t.body || '') + '</textarea></div>' +
-        '<div style="display:flex;gap:10px;"><button class="btn btn-primary btn-small" id="save-thread-edit">Save</button><button class="btn btn-secondary btn-small" id="cancel-thread-edit">Cancel</button></div>' +
+        '<div class="field"><label>Titlu</label><input id="edit-thread-title" value="' + (t.title||'').replace(/"/g,'&quot;') + '"></div>' +
+        '<div class="field"><label>Text</label><textarea id="edit-thread-body" rows="3">' + escapeHtml(t.body || '') + '</textarea></div>' +
+        '<div style="display:flex;gap:10px;"><button class="btn btn-primary btn-small" id="save-thread-edit">Salvează</button><button class="btn btn-secondary btn-small" id="cancel-thread-edit">Renunță</button></div>' +
       '</div>';
     document.getElementById('cancel-thread-edit').addEventListener('click', function(){ render(); });
     document.getElementById('save-thread-edit').addEventListener('click', function(){
@@ -698,8 +688,8 @@ document.addEventListener('DOMContentLoaded', function(){
     var box = document.createElement('div');
     box.className = 'edit-box';
     box.innerHTML =
-      '<div class="field"><label>Reply</label><textarea class="edit-reply-body" rows="2">' + escapeHtml(c.body || '') + '</textarea></div>' +
-      '<div style="display:flex;gap:10px;"><button class="btn btn-primary btn-small save-reply-edit">Save</button><button class="btn btn-secondary btn-small cancel-reply-edit">Cancel</button></div>';
+      '<div class="field"><label>Răspuns</label><textarea class="edit-reply-body" rows="2">' + escapeHtml(c.body || '') + '</textarea></div>' +
+      '<div style="display:flex;gap:10px;"><button class="btn btn-primary btn-small save-reply-edit">Salvează</button><button class="btn btn-secondary btn-small cancel-reply-edit">Renunță</button></div>';
     card.appendChild(box);
     card.querySelector('.cancel-reply-edit').addEventListener('click', function(){ render(); });
     card.querySelector('.save-reply-edit').addEventListener('click', function(){
@@ -719,18 +709,18 @@ document.addEventListener('DOMContentLoaded', function(){
     if(!t){ viewingThread = null; render(); return; }
 
     var canManageThread = canManage(t);
-    var threadActions = canManageThread ? '<div class="post-actions"><button class="link-btn" id="thread-edit-btn">Edit</button><button class="link-btn danger" id="thread-delete-btn">Delete</button></div>' : '';
+    var threadActions = canManageThread ? '<div class="post-actions"><button class="link-btn" id="thread-edit-btn">Editează</button><button class="link-btn danger" id="thread-delete-btn">Șterge</button></div>' : '';
 
     var repliesHtml = comments.map(function(r){
       var roleCls = r.authorRole === 'club' ? 'role-club' : 'role-member';
       var replyActions = canManage(r) && !r.isDeleted
-        ? '<div class="post-actions"><button class="link-btn reply-edit-btn" data-idx="' + r.id + '">Edit</button><button class="link-btn danger reply-delete-btn" data-idx="' + r.id + '">Delete</button></div>'
+        ? '<div class="post-actions"><button class="link-btn reply-edit-btn" data-idx="' + r.id + '">Editează</button><button class="link-btn danger reply-delete-btn" data-idx="' + r.id + '">Șterge</button></div>'
         : '';
       // A deleted comment keeps its place: its replies would otherwise
       // be answers to nothing.
       var text = r.isDeleted
-        ? '<em style="opacity:0.6;">(deleted)</em>'
-        : escapeHtml(r.body) + (r.editedAt ? ' <em style="opacity:0.6;">(edited)</em>' : '');
+        ? '<em style="opacity:0.6;">(șters)</em>'
+        : escapeHtml(r.body) + (r.editedAt ? ' <em style="opacity:0.6;">(editat)</em>' : '');
       return '<div class="reply-card ' + roleCls + '" data-ridx="' + r.id + '">' +
         '<div class="post-head">' + avatarHtml(r, 'small') + whoHtml(r) + '</div>' +
         '<p>' + text + '</p>' +
@@ -740,10 +730,10 @@ document.addEventListener('DOMContentLoaded', function(){
 
     wrap.innerHTML =
       '<div class="thread-detail-card">' +
-        '<p style="font-size:12px;cursor:pointer;color:var(--coral-dark);font-weight:700;" id="back-btn">&larr; Back to threads</p>' +
+        '<p style="font-size:12px;cursor:pointer;color:var(--coral-dark);font-weight:700;" id="back-btn">&larr; Înapoi la subiecte</p>' +
         '<div class="post-head">' + avatarHtml(t) + whoHtml(t) + '</div>' +
         '<h2 style="font-size:20px; margin-top:10px;">' + escapeHtml(t.title) + '</h2>' +
-        '<p style="font-size:12px;color:var(--ink-soft);">' + new Date(t.createdAt).toLocaleDateString() + (t.editedAt ? ' &middot; edited' : '') + '</p>' +
+        '<p style="font-size:12px;color:var(--ink-soft);">' + new Date(t.createdAt).toLocaleDateString() + (t.editedAt ? ' &middot; editat' : '') + '</p>' +
         (t.body ? '<p style="margin-top:10px; white-space:pre-wrap;">' + escapeHtml(t.body) + '</p>' : '') +
         '<div id="thread-actions-wrap">' + threadActions + '</div>' +
         '<div id="thread-edit-slot"></div>' +
@@ -752,7 +742,7 @@ document.addEventListener('DOMContentLoaded', function(){
           '<p class="composer-session-line" id="reply-session-line"></p>' +
           (me ? '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
             '<input id="reply-body" placeholder="Write a reply..." style="flex:1; min-width:160px;">' +
-            '<button class="btn btn-primary btn-small" id="reply-btn">Reply</button>' +
+            '<button class="btn btn-primary btn-small" id="reply-btn">Răspunde</button>' +
           '</div>' : '') +
         '</div>' +
       '</div>';
@@ -778,7 +768,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     if(canManageThread){
       document.getElementById('thread-delete-btn').addEventListener('click', function(){
-        if(!confirm('Delete this thread? This cannot be undone.')) return;
+        if(!confirm('Ștergi acest subiect? Acțiunea nu poate fi anulată.')) return;
         api('/api/forum/posts/' + viewingThread, { method: 'DELETE' })
           .then(function(r){
             if(!r.ok){ alert(r.d.error || 'Nu s-a putut șterge.'); return; }
@@ -794,7 +784,7 @@ document.addEventListener('DOMContentLoaded', function(){
     });
     wrap.querySelectorAll('.reply-delete-btn').forEach(function(btn){
       btn.addEventListener('click', function(){
-        if(!confirm('Delete this reply?')) return;
+        if(!confirm('Ștergi acest răspuns?')) return;
         api('/api/forum/comments/' + btn.getAttribute('data-idx'), { method: 'DELETE' })
           .then(function(r){
             if(!r.ok){ alert(r.d.error || 'Nu s-a putut șterge.'); return; }
@@ -816,7 +806,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     card.style.display = 'block';
     var visible = posts.filter(function(p){ return !p.isDeleted; });
-    if(visible.length === 0){ wrap.innerHTML = '<div class="empty-state">No threads in this category yet. Start one above!</div>'; return; }
+    if(visible.length === 0){ wrap.innerHTML = '<div class="empty-state">Niciun subiect în această categorie. Deschide unul mai sus!</div>'; return; }
     wrap.innerHTML = visible.map(function(t){
       var roleCls = t.authorRole === 'club' ? 'role-club' : 'role-member';
       return '<div class="thread-card ' + roleCls + '" data-id="' + t.id + '">' +
@@ -864,27 +854,27 @@ document.addEventListener('DOMContentLoaded', function(){
     if(!btn) return;
     var toast = document.getElementById('fab-toast');
     if(!toast) return;
-    toast.textContent = '📖 Mock only — will open the official regulations once connected';
+    toast.textContent = '📖 Doar machetă — va deschide regulamentul oficial după conectare';
     toast.classList.add('show');
     clearTimeout(rulesToastTimer);
     rulesToastTimer = setTimeout(function(){
       toast.classList.remove('show');
-      setTimeout(function(){ toast.textContent = 'Link copied!'; }, 300);
+      setTimeout(function(){ toast.textContent = 'Link copiat!'; }, 300);
     }, 2200);
   });
 
 });
 </script>
   <div class="fab-stack">
-    <button class="fab" id="fab-share" title="Share ROcodeFest" aria-label="Share">
+    <button class="fab" id="fab-share" title="Distribuie IMPULS" aria-label="Distribuie">
       <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>
-      Share
+      Distribuie
     </button>
-    <button class="fab" id="fab-top" title="Back to top" aria-label="Back to top">
+    <button class="fab" id="fab-top" title="Înapoi sus" aria-label="Înapoi sus">
       <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
-      Top
+      Sus
     </button>
   </div>
-  <div class="fab-toast" id="fab-toast">Link copied!</div>
+  <div class="fab-toast" id="fab-toast">Link copiat!</div>
 </body>
 </html>

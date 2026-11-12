@@ -1,27 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Join ROcodeFest — Choose your path</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>Participă la IMPULS 2027 — Alege-ți drumul</title>
 <style>
-  :root{
-    --cream:#FFF9EF; --ink:#2B2A28; --ink-soft:#6B6660;
-    --blue:#3E9DD1; --blue-light:#E4F3FA;
-    --yellow:#FFC857; --yellow-light:#FFF3D9;
-    --coral:#FF6B4A; --coral-dark:#D8492C;
-    --green:#4CAF7D; --green-light:#E4F5EC;
-    --radius-lg:28px; --radius-md:18px;
-  }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Nunito',sans-serif;line-height:1.6;}
-  h1,h2,h3{font-family:'Baloo 2',sans-serif;font-weight:700;margin:0;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Jost',sans-serif;line-height:1.6;}
+  h1,h2,h3{font-family:'VT323',sans-serif;font-weight:700;margin:0;}
   .wrap{max-width:1040px;margin:0 auto;padding:0 28px;}
   a{color:inherit;}
   nav{display:flex;justify-content:space-between;align-items:center;padding:24px 0;}
-  .logo{display:flex;align-items:center;gap:10px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'VT323',sans-serif;font-weight:800;font-size:20px;}
   .logo-dot{width:34px;height:34px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;}
 
   @media (max-width:860px){ .nav-links{display:none;} }
@@ -35,16 +25,16 @@
   .join-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
   @media (max-width:900px){ .join-grid{grid-template-columns:1fr;} }
   .join-card{
-    background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg); padding:32px 28px;
+    background:var(--panel); border:2px solid var(--line); border-radius:var(--radius-lg); padding:32px 28px;
     text-align:center; display:flex; flex-direction:column; align-items:center;
   }
   .join-card .icon{font-size:38px; margin-bottom:14px;}
   .join-card h3{font-size:20px; margin-bottom:8px;}
   .join-card p{font-size:14px; color:var(--ink-soft); margin:0 0 22px; flex:1;}
 
-  .btn{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;display:inline-block;}
+  .btn{font-family:'VT323',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:0;border:none;cursor:pointer;text-decoration:none;display:inline-block;}
   .btn-primary{background:var(--coral);color:#fff;}
-  .btn-secondary{background:#fff; color:var(--ink); border:2px solid var(--ink);}
+  .btn-secondary{background:var(--panel); color:var(--ink); border:2px solid var(--line);}
 
   .club-note{
     max-width:560px; margin:32px auto 0; text-align:center; font-size:14px; color:var(--ink-soft);
@@ -114,7 +104,7 @@
   .fab{
     width:46px; height:46px;
     border-radius:50%;
-    background:var(--ink);
+    background:var(--ink-bg);
     color:#fff;
     border:none;
     cursor:pointer;
@@ -138,12 +128,12 @@
   .fab-toast{
     position:fixed;
     bottom:24px; right:82px;
-    background:var(--ink);
+    background:var(--ink-bg);
     color:#fff;
     font-size:13px;
     font-weight:700;
     padding:10px 16px;
-    border-radius:10px;
+    border-radius:0;
     opacity:0;
     transform:translateY(6px);
     transition:opacity 0.25s ease, transform 0.25s ease;
@@ -157,10 +147,10 @@
     align-items:center;
   }
   .partner-link{
-    background:var(--ink);
+    background:var(--ink-bg);
     color:#fff !important;
     padding:8px 16px;
-    border-radius:999px;
+    border-radius:0;
     font-size:13px;
     transition:transform 0.2s ease, box-shadow 0.2s ease;
   }
@@ -181,7 +171,7 @@
   }
   .rules-badge.show{display:block;}
 
-  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:0;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
   .speaker-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
   .speaker-link::after{display:none !important;}
 
@@ -191,7 +181,7 @@
     background:var(--coral);
     color:#fff !important;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:14px;
+    font-family:'VT323', sans-serif; font-weight:800; font-size:14px;
     text-decoration:none;
     transition:transform 0.2s ease, box-shadow 0.2s ease; background-size:cover; background-position:center;
   }
@@ -214,9 +204,9 @@
     align-items:center;
     gap:5px;
     width:40px;height:40px;
-    border:2px solid var(--ink);
-    border-radius:10px;
-    background:#fff;
+    border:2px solid var(--line);
+    border-radius:0;
+    background:var(--panel);
     cursor:pointer;
     padding:0;
     flex-shrink:0;
@@ -224,7 +214,7 @@
   .nav-toggle span{
     display:block;
     width:20px;height:2px;
-    background:var(--ink);
+    background:var(--ink-bg);
     border-radius:2px;
     transition:transform 0.2s ease, opacity 0.2s ease;
   }
@@ -241,8 +231,8 @@
       align-items:flex-start;
       gap:16px;
       background:var(--cream);
-      border:2px solid var(--ink);
-      border-radius:14px;
+      border:2px solid var(--line);
+      border-radius:0;
       padding:20px;
       margin-top:8px;
       z-index:200;
@@ -254,7 +244,7 @@
     background:var(--coral);
     color:#fff !important;
     padding:9px 18px;
-    border-radius:999px;
+    border-radius:0;
     font-size:13px;
     font-weight:800;
     transition:transform 0.2s ease, box-shadow 0.2s ease;
@@ -264,29 +254,30 @@
     box-shadow:0 8px 16px rgba(43,42,40,0.18);
   }
   .join-cta-link::after{display:none !important;}
-  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
+  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Jost',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
   .back-nav-btn:hover{color:var(--coral-dark);}
 </style>
+<link rel="stylesheet" href="impuls.css">
 </head>
 <body>
 <div class="wrap">
   <nav>
     <a href="index.html" style="text-decoration:none;">
-      <div class="logo">
-        <div class="logo-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="8" width="14" height="11" rx="4" fill="white"/><rect x="9" y="3" width="2.5" height="6" rx="1.25" fill="white"/><circle cx="10" cy="2.5" r="1.5" fill="white"/><circle cx="9.5" cy="13.5" r="1.8" fill="#FF6B4A"/><circle cx="14.5" cy="13.5" r="1.8" fill="#FF6B4A"/></svg></div>
-        ROcodeFest
-      </div>
+      <a class="logo" href="index.html" aria-label="IMPULS 2027 — acasă">
+      <span class="logo-mark"><img src="assets/impuls-logo.png" alt="" width="50" height="50"></span>
+      <span class="logo-text"><b>IMPULS 2027</b><small>EU CODEZ // PIATRA NEAMȚ</small></span>
     </a>
-    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </a>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Meniu" aria-expanded="false"><span></span><span></span><span></span></button>
     <div class="nav-links">
-      <a href="learn-more.html">About</a>
-      <span class="nav-rules-wrap"><a href="rules.html">Rules</a><span class="rules-badge" id="rules-badge"></span></span>
-      <a href="events.html">Events</a>
-      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Contest Day</a>
+      <a href="learn-more.html">Despre</a>
+      <span class="nav-rules-wrap"><a href="rules.html">Reguli</a><span class="rules-badge" id="rules-badge"></span></span>
+      <a href="events.html">Evenimente</a>
+      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Ziua concursului</a>
       <a href="forum.html">Forum</a>
-      <a href="login.html" id="nav-login-link" style="font-size:13px;">Log in</a>
-      <a href="register.html" id="nav-register-link">Register</a>
-      <a href="join-as.html" class="join-cta-link">Get involved</a>
+      <a href="login.html" id="nav-login-link">Autentificare</a>
+      <a href="register.html" id="nav-register-link">Înregistrare</a>
+      <a href="join-as.html" class="join-cta-link">// Participă</a>
     </div>
   </nav>
 <script>
@@ -358,7 +349,7 @@
   if(isContestDay || preview){ contestDayLink.style.display = ''; }
 })();
 </script>
-  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Go back">&larr; Back</button>
+  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Înapoi">&larr; Înapoi</button>
 <script>
   // TODO: provisional -- prefers the page that actually linked here
   // (deterministic, avoids bouncing in a back/forward loop); falls back to
@@ -375,44 +366,44 @@
 </script>
 
   <section class="page-hero">
-    <div class="eyebrow">Get involved</div>
-    <h1>How do you want to join ROcodeFest?</h1>
-    <p>Pick the path that fits — you can always come back and add another.</p>
+    <div class="eyebrow">Participă</div>
+    <h1>Cum vrei să participi la IMPULS?</h1>
+    <p>Alege varianta care ți se potrivește — poți reveni oricând să adaugi alta.</p>
   </section>
 
   <section class="section reveal">
     <div class="join-grid">
       <div class="join-card">
         <div class="icon">🤖</div>
-        <h3>Competitor</h3>
-        <p>Join an existing team or create a member profile so a club can find you. Building and competing is the core of ROcodeFest.</p>
-        <a class="btn btn-primary" href="join.html">Join as a member →</a>
+        <h3>Concurent</h3>
+        <p>Intră într-o echipă existentă sau creează-ți un profil de membru, ca un club să te poată găsi. Să construiești și să concurezi este esența IMPULS.</p>
+        <a class="btn btn-primary" href="join.html">Intră ca membru →</a>
       </div>
       <div class="join-card">
         <div class="icon">🎤</div>
         <h3>Speaker</h3>
-        <p>Share your expertise with student teams — workshops, opening talks, or mentoring sessions during the season.</p>
-        <a class="btn btn-primary" href="speaker.html">Apply as a speaker →</a>
+        <p>Împărtășește-ți experiența cu echipele de elevi — ateliere, prezentări de deschidere sau sesiuni de mentorat în timpul sezonului.</p>
+        <a class="btn btn-primary" href="speaker.html">Înscrie-te ca speaker →</a>
       </div>
       <div class="join-card">
         <div class="icon">🤝</div>
-        <h3>Partner</h3>
-        <p>Sponsor prizes, starter kits, or mentor support, and help fund a great first season for founding teams.</p>
-        <a class="btn btn-primary" href="partner.html">Apply as a partner →</a>
+        <h3>Partener</h3>
+        <p>Sponsorizează premii, kituri de început sau mentorat și ajută la finanțarea unui prim sezon reușit pentru echipele fondatoare.</p>
+        <a class="btn btn-primary" href="partner.html">Înscrie-te ca partener →</a>
       </div>
     </div>
 
-    <p class="club-note">Running a club or coaching a group of students? <a href="register.html">Register your club instead →</a></p>
+    <p class="club-note">Conduci un club sau pregătești un grup de elevi? <a href="register.html">Înregistrează-ți clubul →</a></p>
   </section>
 
   <footer>
         <div class="footer-nav">
-      <a href="news.html">News</a> <a href="resources.html">Resources</a>
-      <a href="founding-teams.html">Teams</a> <a href="organizations.html">Clubs</a>
-      <a href="leaderboard.html">Leaderboard</a> <a href="forum.html">Forum</a>
+      <a href="news.html">Noutăți</a> <a href="resources.html">Resurse</a>
+      <a href="founding-teams.html">Echipe</a> <a href="organizations.html">Cluburi</a>
+      <a href="leaderboard.html">Clasament</a> <a href="forum.html">Forum</a>
       <a href="livestream.html">Live</a> <a href="contact.html">Contact</a>
     </div>
-    ROcodeFest · Season 1 · Built by students, for students
+    IMPULS 2027 // EU CODEZ // PIATRA NEAMȚ
   </footer>
 </div>
 
@@ -441,14 +432,14 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
   <div class="fab-stack">
-    <button class="fab" id="fab-share" title="Share ROcodeFest" aria-label="Share">
+    <button class="fab" id="fab-share" title="Distribuie IMPULS" aria-label="Distribuie">
       <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>
     </button>
-    <button class="fab" id="fab-top" title="Back to top" aria-label="Back to top">
+    <button class="fab" id="fab-top" title="Înapoi sus" aria-label="Înapoi sus">
       <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
     </button>
   </div>
-  <div class="fab-toast" id="fab-toast">Link copied!</div>
+  <div class="fab-toast" id="fab-toast">Link copiat!</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
@@ -467,8 +458,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
   shareBtn.addEventListener('click', function(){
     var shareData = {
-      title: 'ROcodeFest',
-      text: 'Check out ROcodeFest — a brand-new robotics festival for student teams.',
+      title: 'IMPULS',
+      text: 'Descoperă IMPULS — un festival de tehnologie și robotică pentru echipe de elevi și studenți.',
       url: window.location.href
     };
     if(navigator.share){

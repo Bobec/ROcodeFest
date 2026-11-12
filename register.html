@@ -1,36 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Register — ROcodeFest</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>Înregistrare — IMPULS 2027</title>
 <style>
-  :root{
-    --cream:#FFF9EF; --ink:#2B2A28; --ink-soft:#6B6660;
-    --blue:#3E9DD1; --blue-light:#E4F3FA;
-    --yellow:#FFC857; --yellow-light:#FFF3D9;
-    --coral:#FF6B4A; --coral-dark:#D8492C;
-    --green:#4CAF7D; --green-light:#E4F5EC;
-    --radius-lg:28px; --radius-md:18px;
-  }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Nunito',sans-serif;line-height:1.6;}
-  h1,h2,h3{font-family:'Baloo 2',sans-serif;font-weight:700;margin:0;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Jost',sans-serif;line-height:1.6;}
+  h1,h2,h3{font-family:'VT323',sans-serif;font-weight:700;margin:0;}
   .wrap{max-width:1040px;margin:0 auto;padding:0 28px;}
   a{color:inherit;}
   nav{display:flex;justify-content:space-between;align-items:center;padding:24px 0;}
-  .logo{display:flex;align-items:center;gap:10px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'VT323',sans-serif;font-weight:800;font-size:20px;}
   .logo-dot{width:34px;height:34px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;}
   
   @media (max-width:860px){ .nav-links{display:none;} }
   .center-card{
-    background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg);
+    background:var(--panel); border:2px solid var(--line); border-radius:var(--radius-lg);
     padding:56px 40px; text-align:center; margin:40px 0 60px;
   }
   .form-card{
-    background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg);
+    background:var(--panel); border:2px solid var(--line); border-radius:var(--radius-lg);
     padding:36px; max-width:560px; margin:20px auto 30px;
   }
   .field{margin-bottom:18px; text-align:left;}
@@ -40,8 +30,8 @@
     display:block; font-weight:700; font-size:13px; margin-bottom:6px; color:var(--ink);
   }
   input, textarea{
-    width:100%; padding:11px 14px; border-radius:12px;
-    border:2px solid #E4E1D8; font-family:'Nunito',sans-serif; font-size:14px;
+    width:100%; padding:11px 14px; border-radius:0;
+    border:2px solid #3A3A3A; font-family:'Jost',sans-serif; font-size:14px;
     background:var(--cream); transition:border-color 0.2s ease;
   }
   input:focus, textarea:focus{
@@ -73,7 +63,7 @@
   .eyebrow{font-weight:800;color:var(--coral-dark);font-size:13px;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:10px;}
   .center-card h1{font-size:32px;margin-bottom:14px;}
   .center-card p{color:var(--ink-soft);font-size:16px;max-width:480px;margin:0 auto 26px;}
-  .btn{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;display:inline-block;}
+  .btn{font-family:'VT323',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:0;border:none;cursor:pointer;text-decoration:none;display:inline-block;}
   .btn-primary{background:var(--coral);color:#fff;}
   footer{padding:24px 0 40px;text-align:center;font-size:13px;color:var(--ink-soft);}
   .footer-nav{
@@ -148,7 +138,7 @@
   .fab{
     width:46px; height:46px;
     border-radius:50%;
-    background:var(--ink);
+    background:var(--ink-bg);
     color:#fff;
     border:none;
     cursor:pointer;
@@ -172,12 +162,12 @@
   .fab-toast{
     position:fixed;
     bottom:24px; right:82px;
-    background:var(--ink);
+    background:var(--ink-bg);
     color:#fff;
     font-size:13px;
     font-weight:700;
     padding:10px 16px;
-    border-radius:10px;
+    border-radius:0;
     opacity:0;
     transform:translateY(6px);
     transition:opacity 0.25s ease, transform 0.25s ease;
@@ -191,10 +181,10 @@
     align-items:center;
   }
   .partner-link{
-    background:var(--ink);
+    background:var(--ink-bg);
     color:#fff !important;
     padding:8px 16px;
-    border-radius:999px;
+    border-radius:0;
     font-size:13px;
     transition:transform 0.2s ease, box-shadow 0.2s ease;
   }
@@ -215,7 +205,7 @@
   }
   .rules-badge.show{display:block;}
 
-  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:0;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
   .speaker-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
   .speaker-link::after{display:none !important;}
 
@@ -225,7 +215,7 @@
     background:var(--coral);
     color:#fff !important;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:14px;
+    font-family:'VT323', sans-serif; font-weight:800; font-size:14px;
     text-decoration:none;
     transition:transform 0.2s ease, box-shadow 0.2s ease; background-size:cover; background-position:center;
   }
@@ -249,9 +239,9 @@
     align-items:center;
     gap:5px;
     width:40px;height:40px;
-    border:2px solid var(--ink);
-    border-radius:10px;
-    background:#fff;
+    border:2px solid var(--line);
+    border-radius:0;
+    background:var(--panel);
     cursor:pointer;
     padding:0;
     flex-shrink:0;
@@ -259,7 +249,7 @@
   .nav-toggle span{
     display:block;
     width:20px;height:2px;
-    background:var(--ink);
+    background:var(--ink-bg);
     border-radius:2px;
     transition:transform 0.2s ease, opacity 0.2s ease;
   }
@@ -276,8 +266,8 @@
       align-items:flex-start;
       gap:16px;
       background:var(--cream);
-      border:2px solid var(--ink);
-      border-radius:14px;
+      border:2px solid var(--line);
+      border-radius:0;
       padding:20px;
       margin-top:8px;
       z-index:200;
@@ -289,7 +279,7 @@
     background:var(--coral);
     color:#fff !important;
     padding:9px 18px;
-    border-radius:999px;
+    border-radius:0;
     font-size:13px;
     font-weight:800;
     transition:transform 0.2s ease, box-shadow 0.2s ease;
@@ -299,29 +289,30 @@
     box-shadow:0 8px 16px rgba(43,42,40,0.18);
   }
   .join-cta-link::after{display:none !important;}
-  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
+  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Jost',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
   .back-nav-btn:hover{color:var(--coral-dark);}
 </style>
+<link rel="stylesheet" href="impuls.css">
 </head>
 <body>
 <div class="wrap">
   <nav>
     <a href="index.html" style="text-decoration:none;">
-      <div class="logo">
-        <div class="logo-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="8" width="14" height="11" rx="4" fill="white"/><rect x="9" y="3" width="2.5" height="6" rx="1.25" fill="white"/><circle cx="10" cy="2.5" r="1.5" fill="white"/><circle cx="9.5" cy="13.5" r="1.8" fill="#FF6B4A"/><circle cx="14.5" cy="13.5" r="1.8" fill="#FF6B4A"/></svg></div>
-        ROcodeFest
-      </div>
+      <a class="logo" href="index.html" aria-label="IMPULS 2027 — acasă">
+      <span class="logo-mark"><img src="assets/impuls-logo.png" alt="" width="50" height="50"></span>
+      <span class="logo-text"><b>IMPULS 2027</b><small>EU CODEZ // PIATRA NEAMȚ</small></span>
     </a>
-            <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </a>
+            <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Meniu" aria-expanded="false"><span></span><span></span><span></span></button>
     <div class="nav-links">
-      <a href="learn-more.html">About</a>
-      <span class="nav-rules-wrap"><a href="rules.html">Rules</a><span class="rules-badge" id="rules-badge"></span></span>
-      <a href="events.html">Events</a>
-      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Contest Day</a>
+      <a href="learn-more.html">Despre</a>
+      <span class="nav-rules-wrap"><a href="rules.html">Reguli</a><span class="rules-badge" id="rules-badge"></span></span>
+      <a href="events.html">Evenimente</a>
+      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Ziua concursului</a>
       <a href="forum.html">Forum</a>
-      <a href="login.html" id="nav-login-link" style="font-size:13px;">Log in</a>
-      <a href="register.html" id="nav-register-link">Register</a>
-      <a href="join-as.html" class="join-cta-link">Get involved</a>
+      <a href="login.html" id="nav-login-link">Autentificare</a>
+      <a href="register.html" id="nav-register-link">Înregistrare</a>
+      <a href="join-as.html" class="join-cta-link">// Participă</a>
     </div>
   </nav>
 <script>
@@ -393,7 +384,7 @@
   if(isContestDay || preview){ contestDayLink.style.display = ''; }
 })();
 </script>
-  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Go back">&larr; Back</button>
+  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Înapoi">&larr; Înapoi</button>
 <script>
   // TODO: provisional -- prefers the page that actually linked here
   // (deterministic, avoids bouncing in a back/forward loop); falls back to
@@ -410,81 +401,81 @@
 </script>
 
   <section class="page-hero" style="padding:30px 0 10px;">
-    <div class="eyebrow">Registration</div>
-    <h1>Register your club</h1>
-    <p>Register once as a club — you can add one or more teams (Robotics, Programming, Design, etc.) afterward from your club profile.</p>
-    <p style="font-size:14px; margin-top:10px;">Want to join an existing team instead of starting a club? <a href="join.html" style="color:var(--coral-dark); font-weight:700; text-decoration:underline;">Join as a member →</a></p>
+    <div class="eyebrow">Înregistrare</div>
+    <h1>Înregistrează-ți clubul</h1>
+    <p>Te înregistrezi o singură dată, ca club — apoi poți adăuga una sau mai multe echipe (Robotică, Programare, Design etc.) din profilul clubului.</p>
+    <p style="font-size:14px; margin-top:10px;">Vrei să intri într-o echipă existentă în loc să pornești un club? <a href="join.html" style="color:var(--coral-dark); font-weight:700; text-decoration:underline;">Intră ca membru →</a></p>
   </section>
 
   <div id="welcome-back-panel" class="form-card" style="display:none; text-align:center;">
     <div class="success-badge">👋</div>
-    <h2 id="wb-heading">Welcome back!</h2>
+    <h2 id="wb-heading">Bine ai revenit!</h2>
     <p id="wb-detail" style="color:var(--ink-soft); margin-bottom:20px;"></p>
-    <a class="btn btn-primary" href="profile.html">Go to your club profile →</a>
-    <p style="margin-top:18px;"><a href="#" id="logout-link" style="font-size:13px; color:var(--ink-soft); text-decoration:underline;">Not your club? Log out</a></p>
+    <a class="btn btn-primary" href="profile.html">Mergi la profilul clubului →</a>
+    <p style="margin-top:18px;"><a href="#" id="logout-link" style="font-size:13px; color:var(--ink-soft); text-decoration:underline;">Nu e clubul tău? Deconectează-te</a></p>
   </div>
 
   <div class="form-card reveal" id="form-wrap">
     <form id="register-form" novalidate>
       <div class="field">
-        <label for="organization">Club / organization / school name *</label>
-        <input type="text" id="organization" required placeholder="e.g. CNI Piatra Neamț">
-        <span class="error" id="err-organization">Please enter your club or organization name.</span>
+        <label for="organization">Numele clubului / organizației / școlii *</label>
+        <input type="text" id="organization" required placeholder="ex. CNI Piatra Neamț">
+        <span class="error" id="err-organization">Introdu numele clubului sau al organizației.</span>
       </div>
 
       <div class="field">
-        <label for="city">City *</label>
-        <input type="text" id="city" required placeholder="e.g. Cluj-Napoca">
-        <span class="error" id="err-city">Please enter your city.</span>
+        <label for="city">Oraș *</label>
+        <input type="text" id="city" required placeholder="ex. Cluj-Napoca">
+        <span class="error" id="err-city">Introdu orașul.</span>
       </div>
 
       <div class="field-row">
         <div class="field">
-          <label for="coach-name">Main contact / coordinator name *</label>
-          <input type="text" id="coach-name" required placeholder="Full name">
-          <span class="error" id="err-coach-name">Please enter a name.</span>
+          <label for="coach-name">Persoana de contact / coordonatorul *</label>
+          <input type="text" id="coach-name" required placeholder="Nume complet">
+          <span class="error" id="err-coach-name">Introdu un nume.</span>
         </div>
         <div class="field">
-          <label for="email">Contact email *</label>
-          <input type="email" id="email" required placeholder="you@example.com" autocomplete="username">
-          <span class="error" id="err-email">Please enter a valid email.</span>
+          <label for="email">Email de contact *</label>
+          <input type="email" id="email" required placeholder="tu@exemplu.com" autocomplete="username">
+          <span class="error" id="err-email">Introdu un email valid.</span>
         </div>
         <div class="field">
-          <label for="password">Password *</label>
+          <label for="password">Parolă *</label>
           <input type="password" id="password" required placeholder="Cel puțin 8 caractere" autocomplete="new-password">
           <span class="error" id="err-password">Parola trebuie să aibă cel puțin 8 caractere.</span>
         </div>
       </div>
 
       <div class="field">
-        <label for="notes">Anything else we should know?</label>
-        <textarea id="notes" rows="3" placeholder="Optional"></textarea>
+        <label for="notes">Mai e ceva ce ar trebui să știm?</label>
+        <textarea id="notes" rows="3" placeholder="Opțional"></textarea>
       </div>
 
-      <button type="submit" class="btn btn-primary" style="width:100%;">Register club →</button>
-      <p class="form-note">This is a working demo form — see the note below about how submissions are currently handled. Once registered, you'll add your teams from your club profile.</p>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Înregistrează clubul →</button>
+      <p class="form-note">Acesta este un formular demo funcțional — vezi nota de mai jos despre cum sunt gestionate înscrierile. După înregistrare, îți adaugi echipele din profilul clubului.</p>
     </form>
 
     <div id="success-panel" class="success-panel">
       <div class="success-badge">🎉</div>
-      <h2 id="success-heading">You're in!</h2>
-      <p id="success-detail">Welcome, founding club.</p>
-      <a class="btn btn-secondary" href="profile.html">Go add your teams →</a>
+      <h2 id="success-heading">Ești înscris!</h2>
+      <p id="success-detail">Bine ai venit, club fondator.</p>
+      <a class="btn btn-secondary" href="profile.html">Adaugă-ți echipele →</a>
     </div>
   </div>
 
   <div class="demo-note reveal">
-    <p><strong>How this works right now:</strong> this form saves entries to your own browser only (a local demo), so submissions won't be visible to other visitors yet. To make it a real, shared registration system, this needs to be connected to a form backend (like Formspree or Google Sheets) or a small database — happy to help wire that up whenever you're ready to go live.</p>
+    <p><strong>Cum funcționează acum:</strong> formularul salvează datele doar în browserul tău (demo local), deci înscrierile nu sunt încă vizibile altor vizitatori. Pentru un sistem real, comun, de înregistrare, trebuie conectat la un serviciu de formulare sau la o bază de date mică.</p>
   </div>
 
   <footer>
         <div class="footer-nav">
-      <a href="news.html">News</a> <a href="resources.html">Resources</a>
-      <a href="founding-teams.html">Teams</a> <a href="organizations.html">Clubs</a>
-      <a href="leaderboard.html">Leaderboard</a> <a href="forum.html">Forum</a>
+      <a href="news.html">Noutăți</a> <a href="resources.html">Resurse</a>
+      <a href="founding-teams.html">Echipe</a> <a href="organizations.html">Cluburi</a>
+      <a href="leaderboard.html">Clasament</a> <a href="forum.html">Forum</a>
       <a href="livestream.html">Live</a> <a href="contact.html">Contact</a>
     </div>
-    ROcodeFest · Season 1 · Built by students, for students
+    IMPULS 2027 // EU CODEZ // PIATRA NEAMȚ
   </footer>
 </div>
 
@@ -513,14 +504,14 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
   <div class="fab-stack">
-    <button class="fab" id="fab-share" title="Share ROcodeFest" aria-label="Share">
+    <button class="fab" id="fab-share" title="Distribuie IMPULS" aria-label="Distribuie">
       <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>
     </button>
-    <button class="fab" id="fab-top" title="Back to top" aria-label="Back to top">
+    <button class="fab" id="fab-top" title="Înapoi sus" aria-label="Înapoi sus">
       <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
     </button>
   </div>
-  <div class="fab-toast" id="fab-toast">Link copied!</div>
+  <div class="fab-toast" id="fab-toast">Link copiat!</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
@@ -539,8 +530,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
   shareBtn.addEventListener('click', function(){
     var shareData = {
-      title: 'ROcodeFest',
-      text: 'Check out ROcodeFest — a brand-new robotics festival for student teams.',
+      title: 'IMPULS',
+      text: 'Descoperă IMPULS — un festival de tehnologie și robotică pentru echipe de elevi și studenți.',
       url: window.location.href
     };
     if(navigator.share){
@@ -632,8 +623,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
       formWrap.style.display = 'none';
       welcomePanel.style.display = 'block';
-      document.getElementById('wb-heading').textContent = 'Welcome back, ' + a.clubName + '!';
-      document.getElementById('wb-detail').textContent = "You're founding club #" + a.foundingNumber + '.';
+      document.getElementById('wb-heading').textContent = 'Bine ai revenit, ' + a.clubName + '!';
+      document.getElementById('wb-detail').textContent = "Ești clubul fondator #" + a.foundingNumber + '.';
 
       document.getElementById('logout-link').addEventListener('click', function(e){
         e.preventDefault();
@@ -723,9 +714,9 @@ document.addEventListener('DOMContentLoaded', function(){
       // guessed, because the server is what assigned it.
       return fetch('/auth/me').then(function(r){ return r.json(); }).then(function(me){
         var n = (me.account && me.account.foundingNumber) || '?';
-        document.getElementById('success-heading').textContent = 'Welcome, ' + clubName + '!';
+        document.getElementById('success-heading').textContent = 'Bine ai venit, ' + clubName + '!';
         document.getElementById('success-detail').textContent =
-          "You're founding club #" + n + '. Now add your teams from your club profile.';
+          "Ești clubul fondator #" + n + '. Now add your teams from your club profile.';
         form.classList.add('hide');
         document.getElementById('success-panel').classList.add('show');
       });

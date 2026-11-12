@@ -1,27 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rules & Game — ROcodeFest</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>Reguli și joc — IMPULS 2027</title>
 <style>
-  :root{
-    --cream:#FFF9EF; --ink:#2B2A28; --ink-soft:#6B6660;
-    --blue:#3E9DD1; --blue-light:#E4F3FA;
-    --yellow:#FFC857; --yellow-light:#FFF3D9;
-    --coral:#FF6B4A; --coral-dark:#D8492C;
-    --green:#4CAF7D; --green-light:#E4F5EC;
-    --radius-lg:28px; --radius-md:18px;
-  }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Nunito',sans-serif;line-height:1.6;}
-  h1,h2,h3{font-family:'Baloo 2',sans-serif;font-weight:700;margin:0;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Jost',sans-serif;line-height:1.6;}
+  h1,h2,h3{font-family:'VT323',sans-serif;font-weight:700;margin:0;}
   .wrap{max-width:1040px;margin:0 auto;padding:0 28px;}
   a{color:inherit;}
   nav{display:flex;justify-content:space-between;align-items:center;padding:24px 0;}
-  .logo{display:flex;align-items:center;gap:10px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'VT323',sans-serif;font-weight:800;font-size:20px;}
   .logo-dot{width:34px;height:34px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;}
   
   @media (max-width:860px){ .nav-links{display:none;} }
@@ -37,38 +27,38 @@
   .stage-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
   @media (max-width:700px){ .stage-grid{grid-template-columns:1fr;} }
   .stage-card{
-    background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg);
+    background:var(--panel); border:2px solid var(--line); border-radius:var(--radius-lg);
     padding:28px; position:relative;
   }
   .stage-card .num{
     position:absolute; top:-16px; left:24px;
-    background:var(--yellow); border:2px solid var(--ink); border-radius:50%;
+    background:var(--yellow); border:2px solid var(--line); border-radius:50%;
     width:34px;height:34px; display:flex;align-items:center;justify-content:center;
-    font-family:'Baloo 2'; font-weight:800;
+    font-family:'VT323'; font-weight:800;
   }
   .stage-card h3{font-size:19px; margin:10px 0 8px;}
   .stage-card p{font-size:14px;color:var(--ink-soft);margin:0;}
 
-  .rule-list{background:#fff; border-radius:var(--radius-md); padding:26px 30px;}
+  .rule-list{background:var(--panel); border-radius:var(--radius-md); padding:26px 30px;}
   .rule-list li{margin-bottom:12px; font-size:15px; scroll-margin-top:90px;}
   .rule-list li strong{color:var(--coral-dark);}
-  .rule-list li.rule-highlight{background:var(--yellow-light); border-radius:12px; padding:10px 12px; margin:0 -12px 12px; animation:ruleFlash 2s ease 1;}
-  @keyframes ruleFlash{ 0%,100%{background:var(--yellow-light);} 50%{background:#FFE49B;} }
+  .rule-list li.rule-highlight{background:var(--yellow-light); border-radius:0; padding:10px 12px; margin:0 -12px 12px; animation:ruleFlash 2s ease 1;}
+  @keyframes ruleFlash{ 0%,100%{background:var(--yellow-light);} 50%{background:rgba(53,212,0,0.3);} }
   .rule-code{
-    display:inline-block; font-family:'Baloo 2',sans-serif; font-weight:800; font-size:11px;
-    background:var(--ink); color:#fff; padding:2px 8px; border-radius:999px; margin-right:8px; vertical-align:1px;
+    display:inline-block; font-family:'VT323',sans-serif; font-weight:800; font-size:11px;
+    background:var(--ink-bg); color:#fff; padding:2px 8px; border-radius:0; margin-right:8px; vertical-align:1px;
   }
 
   .prize-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
   @media (max-width:700px){ .prize-row{grid-template-columns:1fr;} }
   .prize{background:var(--green-light); border-radius:var(--radius-md); padding:22px; text-align:center;}
-  .prize span{display:block;font-family:'Baloo 2';font-weight:800;font-size:20px;color:var(--green);}
+  .prize span{display:block;font-family:'VT323';font-weight:800;font-size:20px;color:var(--green);}
   .prize p{font-size:13px;color:var(--ink-soft);margin:4px 0 0;}
 
-  .final-cta{background:var(--ink); color:#fff; border-radius:var(--radius-lg); padding:44px 32px; text-align:center; margin:20px 0 40px;}
+  .final-cta{background:var(--ink-bg); color:#fff; border-radius:var(--radius-lg); padding:44px 32px; text-align:center; margin:20px 0 40px;}
   .final-cta h2{color:#fff; font-size:24px; margin-bottom:10px;}
-  .final-cta p{color:#D8D5CE; margin-bottom:22px;}
-  .btn{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;display:inline-block;}
+  .final-cta p{color:var(--ink-soft); margin-bottom:22px;}
+  .btn{font-family:'VT323',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:0;border:none;cursor:pointer;text-decoration:none;display:inline-block;}
   .btn-primary{background:var(--coral);color:#fff;}
 
   .footer-nav{display:flex; justify-content:center; gap:22px; font-size:13px; font-weight:700; color:var(--ink-soft); margin-bottom:10px;}
@@ -140,7 +130,7 @@
   .fab{
     width:46px; height:46px;
     border-radius:50%;
-    background:var(--ink);
+    background:var(--ink-bg);
     color:#fff;
     border:none;
     cursor:pointer;
@@ -164,12 +154,12 @@
   .fab-toast{
     position:fixed;
     bottom:24px; right:82px;
-    background:var(--ink);
+    background:var(--ink-bg);
     color:#fff;
     font-size:13px;
     font-weight:700;
     padding:10px 16px;
-    border-radius:10px;
+    border-radius:0;
     opacity:0;
     transform:translateY(6px);
     transition:opacity 0.25s ease, transform 0.25s ease;
@@ -183,10 +173,10 @@
     align-items:center;
   }
   .partner-link{
-    background:var(--ink);
+    background:var(--ink-bg);
     color:#fff !important;
     padding:8px 16px;
-    border-radius:999px;
+    border-radius:0;
     font-size:13px;
     transition:transform 0.2s ease, box-shadow 0.2s ease;
   }
@@ -207,7 +197,7 @@
   }
   .rules-badge.show{display:block;}
 
-  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:0;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
   .speaker-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
   .speaker-link::after{display:none !important;}
 
@@ -217,7 +207,7 @@
     background:var(--coral);
     color:#fff !important;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:14px;
+    font-family:'VT323', sans-serif; font-weight:800; font-size:14px;
     text-decoration:none;
     transition:transform 0.2s ease, box-shadow 0.2s ease; background-size:cover; background-position:center;
   }
@@ -241,9 +231,9 @@
     align-items:center;
     gap:5px;
     width:40px;height:40px;
-    border:2px solid var(--ink);
-    border-radius:10px;
-    background:#fff;
+    border:2px solid var(--line);
+    border-radius:0;
+    background:var(--panel);
     cursor:pointer;
     padding:0;
     flex-shrink:0;
@@ -251,7 +241,7 @@
   .nav-toggle span{
     display:block;
     width:20px;height:2px;
-    background:var(--ink);
+    background:var(--ink-bg);
     border-radius:2px;
     transition:transform 0.2s ease, opacity 0.2s ease;
   }
@@ -268,8 +258,8 @@
       align-items:flex-start;
       gap:16px;
       background:var(--cream);
-      border:2px solid var(--ink);
-      border-radius:14px;
+      border:2px solid var(--line);
+      border-radius:0;
       padding:20px;
       margin-top:8px;
       z-index:200;
@@ -281,7 +271,7 @@
     background:var(--coral);
     color:#fff !important;
     padding:9px 18px;
-    border-radius:999px;
+    border-radius:0;
     font-size:13px;
     font-weight:800;
     transition:transform 0.2s ease, box-shadow 0.2s ease;
@@ -291,29 +281,30 @@
     box-shadow:0 8px 16px rgba(43,42,40,0.18);
   }
   .join-cta-link::after{display:none !important;}
-  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
+  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Jost',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
   .back-nav-btn:hover{color:var(--coral-dark);}
 </style>
+<link rel="stylesheet" href="impuls.css">
 </head>
 <body>
 <div class="wrap">
   <nav>
     <a href="index.html" style="text-decoration:none;">
-      <div class="logo">
-        <div class="logo-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="8" width="14" height="11" rx="4" fill="white"/><rect x="9" y="3" width="2.5" height="6" rx="1.25" fill="white"/><circle cx="10" cy="2.5" r="1.5" fill="white"/><circle cx="9.5" cy="13.5" r="1.8" fill="#FF6B4A"/><circle cx="14.5" cy="13.5" r="1.8" fill="#FF6B4A"/></svg></div>
-        ROcodeFest
-      </div>
+      <a class="logo" href="index.html" aria-label="IMPULS 2027 — acasă">
+      <span class="logo-mark"><img src="assets/impuls-logo.png" alt="" width="50" height="50"></span>
+      <span class="logo-text"><b>IMPULS 2027</b><small>EU CODEZ // PIATRA NEAMȚ</small></span>
     </a>
-        <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </a>
+        <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Meniu" aria-expanded="false"><span></span><span></span><span></span></button>
     <div class="nav-links">
-      <a href="learn-more.html">About</a>
-      <span class="nav-rules-wrap"><a href="rules.html">Rules</a><span class="rules-badge" id="rules-badge"></span></span>
-      <a href="events.html">Events</a>
-      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Contest Day</a>
+      <a href="learn-more.html">Despre</a>
+      <span class="nav-rules-wrap"><a href="rules.html">Reguli</a><span class="rules-badge" id="rules-badge"></span></span>
+      <a href="events.html">Evenimente</a>
+      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Ziua concursului</a>
       <a href="forum.html">Forum</a>
-      <a href="login.html" id="nav-login-link" style="font-size:13px;">Log in</a>
-      <a href="register.html" id="nav-register-link">Register</a>
-      <a href="join-as.html" class="join-cta-link">Get involved</a>
+      <a href="login.html" id="nav-login-link">Autentificare</a>
+      <a href="register.html" id="nav-register-link">Înregistrare</a>
+      <a href="join-as.html" class="join-cta-link">// Participă</a>
     </div>
   </nav>
 <script>
@@ -385,7 +376,7 @@
   if(isContestDay || preview){ contestDayLink.style.display = ''; }
 })();
 </script>
-  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Go back">&larr; Back</button>
+  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Înapoi">&larr; Înapoi</button>
 <script>
   // TODO: provisional -- prefers the page that actually linked here
   // (deterministic, avoids bouncing in a back/forward loop); falls back to
@@ -402,91 +393,91 @@
 </script>
 
   <section class="page-hero">
-    <div class="eyebrow">Rules & game</div>
-    <h1>How the competition actually works</h1>
-    <p>Two stages, one identical challenge for everyone, and a live final to decide the winners.</p>
+    <div class="eyebrow">Reguli și joc</div>
+    <h1>Cum funcționează, de fapt, competiția</h1>
+    <p>Două etape, o probă identică pentru toți și o finală live care decide câștigătorii.</p>
   </section>
 
   <section class="section reveal">
-    <h2>The two stages</h2>
+    <h2>Cele două etape</h2>
     <div class="stage-grid">
       <div class="stage-card">
         <div class="num">1</div>
-        <h3>City challenge</h3>
-        <p>Every team completes the exact same mission in their own city. No two teams get an easier or harder version — the task, the scoring, and the deadline are identical nationwide.</p>
+        <h3>Proba orașului</h3>
+        <p>Fiecare echipă îndeplinește exact aceeași misiune în orașul ei. Nicio echipă nu primește o variantă mai ușoară sau mai grea — sarcina, punctajul și termenul sunt identice în toată țara.</p>
       </div>
       <div class="stage-card">
         <div class="num">2</div>
-        <h3>The final — Piatra Neamț</h3>
-        <p>Teams that pass the city stage advance to a live final held in Piatra Neamț, where the top teams compete head-to-head to decide the season's winners.</p>
+        <h3>Finala — Piatra Neamț</h3>
+        <p>Echipele care trec de etapa orașului merg într-o finală live la Piatra Neamț, unde cele mai bune echipe concurează față în față pentru a decide câștigătorii sezonului.</p>
       </div>
     </div>
   </section>
 
   <section class="section reveal">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
-      <h2 style="margin:0;">📋 General rules</h2>
-      <a class="btn btn-secondary btn-small" href="rocodefest-rules.pdf" download>📄 Download full rules PDF</a>
+      <h2 style="margin:0;">📋 Reguli generale</h2>
+      <a class="btn btn-secondary btn-small" href="rocodefest-rules.pdf" download>📄 Descarcă regulamentul complet (PDF)</a>
     </div>
     <!-- TODO: placeholder — rule codes (G1-G6 below, S1-S6 further down) are a
          mock taxonomy so the Appeal/Forum "Reference Rules" selectors have
          something to display. Official codes will come from the regulations
          via the backend. -->
     <ul class="rule-list">
-      <li id="rule-G1"><span class="rule-code">G1</span><strong>Same task, every city.</strong> Fairness comes first — nobody gets a locational advantage.</li>
-      <li id="rule-G2"><span class="rule-code">G2</span><strong>Team size and eligibility.</strong> Open to student teams, any experience level, with a coach or mentor.</li>
-      <li id="rule-G3"><span class="rule-code">G3</span><strong>Club structure.</strong> A club can register multiple teams, each in a different category (Robotics, Programming, Design, etc.).</li>
-      <li id="rule-G4"><span class="rule-code">G4</span><strong>Conduct.</strong> Standard fair-play and safety rules apply at every stage. Unsportsmanlike behavior results in disqualification.</li>
-      <li id="rule-E2"><span class="rule-code">E2</span><strong>Intellectual property.</strong> All work submitted must be the team's own. Plagiarism or unauthorized use of external code/designs leads to elimination.</li>
-      <li id="rule-A21"><span class="rule-code">A21</span><strong>Appeals.</strong> Each team can file up to 3 appeals per event day, referencing a specific timestamp in the live feed. After 3 rejected appeals, no further appeals are accepted.</li>
+      <li id="rule-G1"><span class="rule-code">G1</span><strong>Aceeași sarcină, în fiecare oraș.</strong> Corectitudinea e pe primul loc — nimeni nu are un avantaj dat de locație.</li>
+      <li id="rule-G2"><span class="rule-code">G2</span><strong>Mărimea echipei și eligibilitatea.</strong> Deschis echipelor de elevi, cu orice nivel de experiență, însoțite de un profesor coordonator sau de un mentor.</li>
+      <li id="rule-G3"><span class="rule-code">G3</span><strong>Structura clubului.</strong> Un club poate înscrie mai multe echipe, fiecare în altă categorie (Robotică, Programare, Design etc.).</li>
+      <li id="rule-G4"><span class="rule-code">G4</span><strong>Conduită.</strong> Regulile obișnuite de fair-play și siguranță se aplică în fiecare etapă. Comportamentul nesportiv duce la descalificare.</li>
+      <li id="rule-E2"><span class="rule-code">E2</span><strong>Proprietate intelectuală.</strong> Tot ce se trimite trebuie să fie munca echipei. Plagiatul sau folosirea neautorizată a codului ori a design-urilor externe duce la eliminare.</li>
+      <li id="rule-A21"><span class="rule-code">A21</span><strong>Contestații.</strong> Fiecare echipă poate depune cel mult 3 contestații pe zi de eveniment, indicând un moment precis din transmisiunea live. După 3 contestații respinse, nu mai sunt acceptate altele.</li>
     </ul>
   </section>
 
   <section class="section reveal">
-    <h2>🏆 Season challenge rules</h2>
+    <h2>🏆 Regulile probei de sezon</h2>
     <ul class="rule-list">
-      <li id="rule-S1"><span class="rule-code">S1</span><strong>City challenge (Stage 1).</strong> Every team completes the identical mission in their own city within the same deadline. Scoring is standardized across all cities.</li>
-      <li id="rule-S2"><span class="rule-code">S2</span><strong>Scoring rubric.</strong> Four criteria: Innovation (1-10), Technical Execution (1-10), Presentation (1-10), Teamwork (1-10). Maximum total: 40 points per judge.</li>
-      <li id="rule-S3"><span class="rule-code">S3</span><strong>Advancement.</strong> The highest-scoring teams from each city advance to the final. The exact cutoff depends on the number of participants.</li>
-      <li id="rule-S4"><span class="rule-code">S4</span><strong>The final (Stage 2).</strong> Held live in Piatra Neamț. Top teams compete head-to-head in a live-judged event. Results are final, subject only to the appeals process.</li>
-      <li id="rule-S5"><span class="rule-code">S5</span><strong>Prizes.</strong> Cash prizes for top finishers, sponsor vouchers for runners-up, and founding-team recognition for every team that participated in Season 1.</li>
-      <li id="rule-S6"><span class="rule-code">S6</span><strong>Certificates.</strong> Generated automatically once results are finalized and available for download from each club's profile.</li>
+      <li id="rule-S1"><span class="rule-code">S1</span><strong>Proba orașului (etapa 1).</strong> Fiecare echipă îndeplinește aceeași misiune în orașul ei, în același termen. Punctajul este standardizat în toate orașele.</li>
+      <li id="rule-S2"><span class="rule-code">S2</span><strong>Grila de punctare.</strong> Patru criterii: Inovație (1-10), Execuție tehnică (1-10), Prezentare (1-10), Lucru în echipă (1-10). Total maxim: 40 de puncte de la fiecare arbitru.</li>
+      <li id="rule-S3"><span class="rule-code">S3</span><strong>Calificare.</strong> Echipele cu cele mai mari punctaje din fiecare oraș merg în finală. Pragul exact depinde de numărul de participanți.</li>
+      <li id="rule-S4"><span class="rule-code">S4</span><strong>Finala (etapa 2).</strong> Are loc live la Piatra Neamț. Cele mai bune echipe concurează față în față, cu arbitraj pe loc. Rezultatele sunt definitive, cu excepția procedurii de contestație.</li>
+      <li id="rule-S5"><span class="rule-code">S5</span><strong>Premii.</strong> Premii în bani pentru primele locuri, vouchere de la sponsori pentru următoarele clasate și recunoaștere de echipă fondatoare pentru fiecare echipă participantă în sezonul 1.</li>
+      <li id="rule-S6"><span class="rule-code">S6</span><strong>Diplome.</strong> Se generează automat după ce rezultatele devin finale și pot fi descărcate din profilul fiecărui club.</li>
     </ul>
   </section>
 
   <section class="section reveal">
-    <h2>Prizes for the final</h2>
+    <h2>Premiile finalei</h2>
     <div class="prize-row">
-      <div class="prize"><span>🏆</span><p>Cash prize for 1st place</p></div>
-      <div class="prize"><span>🎟️</span><p>Sponsor vouchers for top teams</p></div>
-      <div class="prize"><span>🥇</span><p>Founding-team recognition for everyone</p></div>
+      <div class="prize"><span>🏆</span><p>Premiu în bani pentru locul 1</p></div>
+      <div class="prize"><span>🎟️</span><p>Vouchere de la sponsori pentru cele mai bune echipe</p></div>
+      <div class="prize"><span>🥇</span><p>Recunoaștere de echipă fondatoare pentru toți</p></div>
     </div>
   </section>
 
   <section class="section reveal" style="text-align:center;">
-    <h2>More pages for the competition</h2>
+    <h2>Alte pagini ale competiției</h2>
     <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:10px;">
-      <a class="btn btn-secondary btn-small" href="submissions.html">Submissions</a>
-      <a class="btn btn-secondary btn-small" href="leaderboard.html">Leaderboard</a>
-      <a class="btn btn-secondary btn-small" href="appeals.html">Appeals</a>
-      <a class="btn btn-secondary btn-small" href="certificates.html">Certificates</a>
+      <a class="btn btn-secondary btn-small" href="submissions.html">Lucrări</a>
+      <a class="btn btn-secondary btn-small" href="leaderboard.html">Clasament</a>
+      <a class="btn btn-secondary btn-small" href="appeals.html">Contestații</a>
+      <a class="btn btn-secondary btn-small" href="certificates.html">Diplome</a>
     </div>
   </section>
 
   <div class="final-cta reveal" id="final-cta">
-    <h2>Ready to take on the challenge?</h2>
-    <p>Registration is open for founding clubs right now.</p>
-    <a class="btn btn-primary" href="register.html">Register your club →</a>
+    <h2>Ești gata să accepți provocarea?</h2>
+    <p>Înscrierile pentru cluburile fondatoare sunt deschise chiar acum.</p>
+    <a class="btn btn-primary" href="register.html">Înscrie-ți clubul →</a>
   </div>
 
   <footer>
         <div class="footer-nav">
-      <a href="news.html">News</a> <a href="resources.html">Resources</a>
-      <a href="founding-teams.html">Teams</a> <a href="organizations.html">Clubs</a>
-      <a href="leaderboard.html">Leaderboard</a> <a href="forum.html">Forum</a>
+      <a href="news.html">Noutăți</a> <a href="resources.html">Resurse</a>
+      <a href="founding-teams.html">Echipe</a> <a href="organizations.html">Cluburi</a>
+      <a href="leaderboard.html">Clasament</a> <a href="forum.html">Forum</a>
       <a href="livestream.html">Live</a> <a href="contact.html">Contact</a>
     </div>
-    ROcodeFest · Season 1 · Built by students, for students
+    IMPULS 2027 // EU CODEZ // PIATRA NEAMȚ
   </footer>
 </div>
 
@@ -515,14 +506,14 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
   <div class="fab-stack">
-    <button class="fab" id="fab-share" title="Share ROcodeFest" aria-label="Share">
+    <button class="fab" id="fab-share" title="Distribuie IMPULS" aria-label="Distribuie">
       <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>
     </button>
-    <button class="fab" id="fab-top" title="Back to top" aria-label="Back to top">
+    <button class="fab" id="fab-top" title="Înapoi sus" aria-label="Înapoi sus">
       <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
     </button>
   </div>
-  <div class="fab-toast" id="fab-toast">Link copied!</div>
+  <div class="fab-toast" id="fab-toast">Link copiat!</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
@@ -541,8 +532,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
   shareBtn.addEventListener('click', function(){
     var shareData = {
-      title: 'ROcodeFest',
-      text: 'Check out ROcodeFest — a brand-new robotics festival for student teams.',
+      title: 'IMPULS',
+      text: 'Descoperă IMPULS — un festival de tehnologie și robotică pentru echipe de elevi și studenți.',
       url: window.location.href
     };
     if(navigator.share){

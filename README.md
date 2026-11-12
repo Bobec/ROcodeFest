@@ -17,6 +17,10 @@ db/proposals/            the reasoning behind each schema change (see below)
 api/                     the application layer — Express, sessions, routes
 *.html                   29 pages: index, login, forum, leaderboard,
                          judge-scoring, partner-dashboard, submissions, …
+impuls.css               the shared IMPULS 2027 theme: palette, type, header,
+                         buttons, background artwork — linked by every page
+assets/                  the artwork, the logo and the two fonts (hosted here,
+                         so the pages make no third-party request)
 qa_frontend.ps1          static checks over those pages
 rocodefest-rules.pdf     the competition rulebook
 ```

@@ -1,37 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Learn more — ROcodeFest</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>Află mai multe — IMPULS 2027</title>
 <style>
-  :root{
-    --cream:#FFF9EF;
-    --ink:#2B2A28;
-    --ink-soft:#6B6660;
-    --blue:#3E9DD1;
-    --blue-light:#E4F3FA;
-    --yellow:#FFC857;
-    --yellow-light:#FFF3D9;
-    --coral:#FF6B4A;
-    --coral-dark:#D8492C;
-    --green:#4CAF7D;
-    --green-light:#E4F5EC;
-    --radius-lg:28px;
-    --radius-md:18px;
-  }
   *{box-sizing:border-box;}
   body{
     margin:0;
     background:var(--cream);
     color:var(--ink);
-    font-family:'Nunito', sans-serif;
+    font-family:'Jost', sans-serif;
     line-height:1.6;
   }
   h1,h2,h3{
-    font-family:'Baloo 2', sans-serif;
+    font-family:'VT323', sans-serif;
     font-weight:700;
     margin:0;
   }
@@ -52,7 +35,7 @@
     display:flex;
     align-items:center;
     gap:10px;
-    font-family:'Baloo 2', sans-serif;
+    font-family:'VT323', sans-serif;
     font-weight:800;
     font-size:20px;
   }
@@ -95,8 +78,8 @@
   .section p.section-lead{color:var(--ink-soft); max-width:600px; margin-bottom:28px; font-size:16px;}
 
   .story-card{
-    background:#fff;
-    border:2px solid var(--ink);
+    background:var(--panel);
+    border:2px solid var(--line);
     border-radius:var(--radius-lg);
     padding:32px;
     margin-bottom:20px;
@@ -133,7 +116,7 @@
   }
   .stat span{
     display:block;
-    font-family:'Baloo 2';
+    font-family:'VT323';
     font-weight:800;
     font-size:26px;
     color:var(--green);
@@ -141,7 +124,7 @@
   .stat p{font-size:13px;color:var(--ink-soft);margin:4px 0 0;}
 
   .final-cta{
-    background:var(--ink);
+    background:var(--ink-bg);
     color:#fff;
     border-radius:var(--radius-lg);
     padding:48px 32px;
@@ -149,13 +132,13 @@
     margin:20px 0 60px;
   }
   .final-cta h2{color:#fff; font-size:26px; margin-bottom:10px;}
-  .final-cta p{color:#D8D5CE; margin-bottom:24px;}
+  .final-cta p{color:var(--ink-soft); margin-bottom:24px;}
   .btn{
-    font-family:'Baloo 2', sans-serif;
+    font-family:'VT323', sans-serif;
     font-weight:700;
     font-size:16px;
     padding:14px 28px;
-    border-radius:999px;
+    border-radius:0;
     border:none;
     cursor:pointer;
     text-decoration:none;
@@ -241,7 +224,7 @@
   .fab{
     width:46px; height:46px;
     border-radius:50%;
-    background:var(--ink);
+    background:var(--ink-bg);
     color:#fff;
     border:none;
     cursor:pointer;
@@ -265,12 +248,12 @@
   .fab-toast{
     position:fixed;
     bottom:24px; right:82px;
-    background:var(--ink);
+    background:var(--ink-bg);
     color:#fff;
     font-size:13px;
     font-weight:700;
     padding:10px 16px;
-    border-radius:10px;
+    border-radius:0;
     opacity:0;
     transform:translateY(6px);
     transition:opacity 0.25s ease, transform 0.25s ease;
@@ -284,10 +267,10 @@
     align-items:center;
   }
   .partner-link{
-    background:var(--ink);
+    background:var(--ink-bg);
     color:#fff !important;
     padding:8px 16px;
-    border-radius:999px;
+    border-radius:0;
     font-size:13px;
     transition:transform 0.2s ease, box-shadow 0.2s ease;
   }
@@ -308,7 +291,7 @@
   }
   .rules-badge.show{display:block;}
 
-  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:0;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
   .speaker-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
   .speaker-link::after{display:none !important;}
 
@@ -318,7 +301,7 @@
     background:var(--coral);
     color:#fff !important;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:14px;
+    font-family:'VT323', sans-serif; font-weight:800; font-size:14px;
     text-decoration:none;
     transition:transform 0.2s ease, box-shadow 0.2s ease; background-size:cover; background-position:center;
   }
@@ -342,9 +325,9 @@
     align-items:center;
     gap:5px;
     width:40px;height:40px;
-    border:2px solid var(--ink);
-    border-radius:10px;
-    background:#fff;
+    border:2px solid var(--line);
+    border-radius:0;
+    background:var(--panel);
     cursor:pointer;
     padding:0;
     flex-shrink:0;
@@ -352,7 +335,7 @@
   .nav-toggle span{
     display:block;
     width:20px;height:2px;
-    background:var(--ink);
+    background:var(--ink-bg);
     border-radius:2px;
     transition:transform 0.2s ease, opacity 0.2s ease;
   }
@@ -369,8 +352,8 @@
       align-items:flex-start;
       gap:16px;
       background:var(--cream);
-      border:2px solid var(--ink);
-      border-radius:14px;
+      border:2px solid var(--line);
+      border-radius:0;
       padding:20px;
       margin-top:8px;
       z-index:200;
@@ -382,7 +365,7 @@
     background:var(--coral);
     color:#fff !important;
     padding:9px 18px;
-    border-radius:999px;
+    border-radius:0;
     font-size:13px;
     font-weight:800;
     transition:transform 0.2s ease, box-shadow 0.2s ease;
@@ -392,9 +375,10 @@
     box-shadow:0 8px 16px rgba(43,42,40,0.18);
   }
   .join-cta-link::after{display:none !important;}
-  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
+  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Jost',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
   .back-nav-btn:hover{color:var(--coral-dark);}
 </style>
+<link rel="stylesheet" href="impuls.css">
 </head>
 <body>
 
@@ -402,23 +386,21 @@
 
   <nav>
     <a href="index.html" style="text-decoration:none;">
-      <div class="logo">
-        <div class="logo-dot">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="8" width="14" height="11" rx="4" fill="white"/><rect x="9" y="3" width="2.5" height="6" rx="1.25" fill="white"/><circle cx="10" cy="2.5" r="1.5" fill="white"/><circle cx="9.5" cy="13.5" r="1.8" fill="#FF6B4A"/><circle cx="14.5" cy="13.5" r="1.8" fill="#FF6B4A"/></svg>
-        </div>
-        ROcodeFest
-      </div>
+      <a class="logo" href="index.html" aria-label="IMPULS 2027 — acasă">
+      <span class="logo-mark"><img src="assets/impuls-logo.png" alt="" width="50" height="50"></span>
+      <span class="logo-text"><b>IMPULS 2027</b><small>EU CODEZ // PIATRA NEAMȚ</small></span>
     </a>
-            <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </a>
+            <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Meniu" aria-expanded="false"><span></span><span></span><span></span></button>
     <div class="nav-links">
-      <a href="learn-more.html">About</a>
-      <span class="nav-rules-wrap"><a href="rules.html">Rules</a><span class="rules-badge" id="rules-badge"></span></span>
-      <a href="events.html">Events</a>
-      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Contest Day</a>
+      <a href="learn-more.html">Despre</a>
+      <span class="nav-rules-wrap"><a href="rules.html">Reguli</a><span class="rules-badge" id="rules-badge"></span></span>
+      <a href="events.html">Evenimente</a>
+      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Ziua concursului</a>
       <a href="forum.html">Forum</a>
-      <a href="login.html" id="nav-login-link" style="font-size:13px;">Log in</a>
-      <a href="register.html" id="nav-register-link">Register</a>
-      <a href="join-as.html" class="join-cta-link">Get involved</a>
+      <a href="login.html" id="nav-login-link">Autentificare</a>
+      <a href="register.html" id="nav-register-link">Înregistrare</a>
+      <a href="join-as.html" class="join-cta-link">// Participă</a>
     </div>
   </nav>
 <script>
@@ -490,7 +472,7 @@
   if(isContestDay || preview){ contestDayLink.style.display = ''; }
 })();
 </script>
-  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Go back">&larr; Back</button>
+  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Înapoi">&larr; Înapoi</button>
 <script>
   // TODO: provisional -- prefers the page that actually linked here
   // (deterministic, avoids bouncing in a back/forward loop); falls back to
@@ -507,76 +489,76 @@
 </script>
 
   <section class="page-hero">
-    <div class="eyebrow">Learn more</div>
-    <h1>What is ROcodeFest, really?</h1>
-    <p>A robotics festival built from scratch for students who want to build, code, and compete — starting with zero assumptions about what you already know.</p>
+    <div class="eyebrow">Află mai multe</div>
+    <h1>Ce este, de fapt, IMPULS?</h1>
+    <p>Un festival de robotică construit de la zero pentru elevii care vor să construiască, să programeze și să concureze — fără nicio presupunere despre ce știi deja.</p>
   </section>
 
   <section class="section reveal">
     <div class="story-card">
-      <h2 style="font-size:20px;">The idea</h2>
-      <p>Most robotics competitions have been running for decades, with established teams, deep budgets, and years of institutional knowledge. That's intimidating if you're starting from zero. ROcodeFest exists to be the on-ramp: a real competition, with real robots and real stakes, built specifically so a first-time team can walk in without feeling behind.</p>
+      <h2 style="font-size:20px;">Ideea</h2>
+      <p>Cele mai multe competiții de robotică există de zeci de ani, cu echipe consacrate, bugete mari și ani de experiență acumulată. Asta intimidează dacă pornești de la zero. IMPULS există ca să fie rampa de lansare: o competiție reală, cu roboți reali și mize reale, gândită anume ca o echipă aflată la început să poată intra fără să se simtă în urmă.</p>
     </div>
     <div class="story-card">
-      <h2 style="font-size:20px;">How it works</h2>
-      <p>ROcodeFest plays out in two stages. First, every team takes on the same mission, in their own city — a hands-on challenge that tests how your robot performs out in the real world, not just on a practice table. It's part competition, part scavenger hunt, and it's where most of the season happens.</p>
-      <p>Because every team faces the exact same task, results are directly comparable across cities — no home-field advantage, no easier or harder version depending on where you're based.</p>
-      <p>Teams that make it through this local stage earn a spot in the final, held live in Piatra Neamț, where the strongest teams from every city go head-to-head to decide the season's winners.</p>
+      <h2 style="font-size:20px;">Cum funcționează</h2>
+      <p>IMPULS se desfășoară în două etape. Mai întâi, fiecare echipă primește aceeași misiune, în orașul ei — o probă practică ce testează cum se descurcă robotul în lumea reală, nu doar pe o masă de antrenament. Este pe jumătate competiție, pe jumătate vânătoare de comori, și aici se petrece cea mai mare parte a sezonului.</p>
+      <p>Pentru că fiecare echipă are exact aceeași sarcină, rezultatele se pot compara direct între orașe — fără avantajul terenului propriu, fără variante mai ușoare sau mai grele în funcție de locul în care te afli.</p>
+      <p>Echipele care trec de etapa locală câștigă un loc în finala organizată live la Piatra Neamț, unde cele mai puternice echipe din fiecare oraș se întrec față în față pentru a decide câștigătorii sezonului.</p>
     </div>
     <div class="story-card">
-      <h2 style="font-size:20px;">The prizes</h2>
-      <p>Winning teams take home cash prizes plus vouchers from our sponsors — real rewards for a first season built entirely by founding teams.</p>
+      <h2 style="font-size:20px;">Premiile</h2>
+      <p>Echipele câștigătoare pleacă acasă cu premii în bani și vouchere de la sponsorii noștri — recompense reale pentru un prim sezon construit în întregime de echipele fondatoare.</p>
     </div>
   </section>
 
   <section class="section reveal">
-    <div class="eyebrow">By the numbers</div>
-    <h2>Season one, so far.</h2>
+    <div class="eyebrow">În cifre</div>
+    <h2>Primul sezon, până acum.</h2>
     <div class="stat-row">
-      <div class="stat"><span>120+</span><p>teams registered</p></div>
-      <div class="stat"><span>18</span><p>events planned</p></div>
-      <div class="stat"><span>2,000+</span><p>students involved</p></div>
+      <div class="stat"><span>120+</span><p>echipe înscrise</p></div>
+      <div class="stat"><span>18</span><p>evenimente planificate</p></div>
+      <div class="stat"><span>2,000+</span><p>elevi implicați</p></div>
     </div>
   </section>
 
   <section class="section reveal">
-    <div class="eyebrow">Good to know</div>
-    <h2>Details that matter.</h2>
+    <div class="eyebrow">Bine de știut</div>
+    <h2>Detalii care contează.</h2>
     <div class="grid-2">
       <div class="info-card">
-        <h3>Who can join</h3>
-        <p>Any student team, any experience level. Middle and high school teams are both welcome.</p>
+        <h3>Cine poate participa</h3>
+        <p>Orice echipă de elevi, cu orice nivel de experiență. Sunt binevenite atât echipele de gimnaziu, cât și cele de liceu.</p>
       </div>
       <div class="info-card alt">
-        <h3>What it costs</h3>
-        <p>Registration is kept low-cost, with additional support available for teams that need it.</p>
+        <h3>Cât costă</h3>
+        <p>Taxa de înscriere este mică, iar echipele care au nevoie pot primi sprijin suplimentar.</p>
       </div>
       <div class="info-card alt">
-        <h3>What you'll need</h3>
-        <p>A team of students, a coach or mentor, and curiosity. Starter kits cover the rest.</p>
+        <h3>De ce ai nevoie</h3>
+        <p>O echipă de elevi, un profesor coordonator sau un mentor și curiozitate. De rest se ocupă kiturile de început.</p>
       </div>
       <div class="info-card">
-        <h3>Where events happen</h3>
-        <p>Local qualifying events lead up to a regional championship at the end of the season.</p>
+        <h3>Unde au loc evenimentele</h3>
+        <p>Calificările locale duc la un campionat regional la sfârșitul sezonului.</p>
       </div>
     </div>
   </section>
 
   <div class="final-cta reveal" id="final-cta">
-    <h2>Ready to see if it's for you?</h2>
-    <p>Registration is open for founding teams right now.</p>
-    <a class="btn btn-primary" href="register.html">Register your club →</a>
+    <h2>Vrei să vezi dacă e pentru tine?</h2>
+    <p>Înscrierile pentru echipele fondatoare sunt deschise chiar acum.</p>
+    <a class="btn btn-primary" href="register.html">Înscrie-ți clubul →</a>
   </div>
 
   <footer>
         <div class="footer-nav">
-      <a href="news.html">News</a> <a href="resources.html">Resources</a>
-      <a href="founding-teams.html">Teams</a> <a href="organizations.html">Clubs</a>
-      <a href="leaderboard.html">Leaderboard</a> <a href="forum.html">Forum</a>
+      <a href="news.html">Noutăți</a> <a href="resources.html">Resurse</a>
+      <a href="founding-teams.html">Echipe</a> <a href="organizations.html">Cluburi</a>
+      <a href="leaderboard.html">Clasament</a> <a href="forum.html">Forum</a>
       <a href="livestream.html">Live</a> <a href="contact.html">Contact</a>
     </div>
     
-    ROcodeFest · Season 1 · Built by students, for students
+    IMPULS 2027 // EU CODEZ // PIATRA NEAMȚ
   
   </footer>
 
@@ -608,14 +590,14 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
   <div class="fab-stack">
-    <button class="fab" id="fab-share" title="Share ROcodeFest" aria-label="Share">
+    <button class="fab" id="fab-share" title="Distribuie IMPULS" aria-label="Distribuie">
       <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>
     </button>
-    <button class="fab" id="fab-top" title="Back to top" aria-label="Back to top">
+    <button class="fab" id="fab-top" title="Înapoi sus" aria-label="Înapoi sus">
       <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
     </button>
   </div>
-  <div class="fab-toast" id="fab-toast">Link copied!</div>
+  <div class="fab-toast" id="fab-toast">Link copiat!</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
@@ -634,8 +616,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
   shareBtn.addEventListener('click', function(){
     var shareData = {
-      title: 'ROcodeFest',
-      text: 'Check out ROcodeFest — a brand-new robotics festival for student teams.',
+      title: 'IMPULS',
+      text: 'Descoperă IMPULS — un festival de tehnologie și robotică pentru echipe de elevi și studenți.',
       url: window.location.href
     };
     if(navigator.share){

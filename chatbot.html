@@ -1,24 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Help — ROcodeFest</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>Ajutor — IMPULS 2027</title>
 <style>
-  :root{
-    --cream:#FFF9EF; --ink:#2B2A28; --ink-soft:#6B6660;
-    --blue:#3E9DD1; --blue-light:#E4F3FA;
-    --yellow:#FFC857; --yellow-light:#FFF3D9;
-    --coral:#FF6B4A; --coral-dark:#D8492C;
-    --green:#4CAF7D; --green-light:#E4F5EC;
-    --purple:#8B7FD1; --purple-light:#ECEAFA;
-    --radius-lg:28px; --radius-md:18px;
-  }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Nunito',sans-serif;line-height:1.6;}
-  h1,h2,h3{font-family:'Baloo 2',sans-serif;font-weight:700;margin:0;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Jost',sans-serif;line-height:1.6;}
+  h1,h2,h3{font-family:'VT323',sans-serif;font-weight:700;margin:0;}
   .wrap{max-width:1040px;margin:0 auto;padding:0 28px;}
   a{color:inherit;}
   html{scroll-behavior:smooth;}
@@ -28,17 +17,17 @@
     background:var(--cream); transition:box-shadow 0.3s ease;
   }
   nav.scrolled{box-shadow:0 2px 14px rgba(43,42,40,0.08);}
-  .logo{display:flex;align-items:center;gap:10px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'VT323',sans-serif;font-weight:800;font-size:20px;}
   .logo-dot{width:34px;height:34px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;}
   .nav-links{display:flex;gap:18px;font-weight:700;font-size:14px;color:var(--ink-soft);align-items:center;}
   .nav-links a{text-decoration:none; position:relative; transition:color 0.2s ease;}
   .nav-links a::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:2px;background:var(--coral);transition:width 0.25s ease;}
   .nav-links a:hover{color:var(--coral-dark);}
   .nav-links a:hover::after{width:100%;}
-  .partner-link{background:var(--ink);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .partner-link{background:var(--ink-bg);color:#fff !important;padding:8px 16px;border-radius:0;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
   .partner-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
   .partner-link::after{display:none !important;}
-  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:999px;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .speaker-link{background:var(--blue);color:#fff !important;padding:8px 16px;border-radius:0;font-size:13px;transition:transform 0.2s ease, box-shadow 0.2s ease;}
   .speaker-link:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(43,42,40,0.18);}
   .speaker-link::after{display:none !important;}
   .nav-rules-wrap{position:relative;}
@@ -47,7 +36,7 @@
   .profile-avatar{
     width:32px; height:32px; border-radius:50%; background:var(--coral); color:#fff !important;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:14px; text-decoration:none;
+    font-family:'VT323', sans-serif; font-weight:800; font-size:14px; text-decoration:none;
     transition:transform 0.2s ease, box-shadow 0.2s ease; background-size:cover; background-position:center;
   }
   .profile-avatar:hover{transform:translateY(-2px); box-shadow:0 8px 16px rgba(43,42,40,0.18);}
@@ -60,8 +49,8 @@
   .page-hero h1{font-size:38px;max-width:640px;margin:0 auto 16px;}
   .page-hero p{color:var(--ink-soft);font-size:17px;max-width:560px;margin:0 auto;}
 
-  .card{background:#fff; border:2px solid var(--ink); border-radius:var(--radius-lg); padding:26px; margin-bottom:16px;}
-  .card-light{background:#fff; border-radius:var(--radius-md); padding:20px; border:1.5px solid #E4E1D8; margin-bottom:12px;}
+  .card{background:var(--panel); border:2px solid var(--line); border-radius:var(--radius-lg); padding:26px; margin-bottom:16px;}
+  .card-light{background:var(--panel); border-radius:var(--radius-md); padding:20px; border:1.5px solid #3A3A3A; margin-bottom:12px;}
   .section{padding:24px 0;}
   .section h2{font-size:22px; margin-bottom:14px;}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -71,25 +60,25 @@
   .field{margin-bottom:16px; text-align:left;}
   label{display:block; font-weight:700; font-size:13px; margin-bottom:6px; color:var(--ink);}
   input, textarea, select{
-    width:100%; padding:11px 14px; border-radius:12px;
-    border:2px solid #E4E1D8; font-family:'Nunito',sans-serif; font-size:14px;
+    width:100%; padding:11px 14px; border-radius:0;
+    border:2px solid #3A3A3A; font-family:'Jost',sans-serif; font-size:14px;
     background:var(--cream); transition:border-color 0.2s ease;
   }
   input:focus, textarea:focus, select:focus{ outline:none; border-color:var(--blue); }
-  .btn{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:999px;border:none;cursor:pointer;text-decoration:none;display:inline-block;transition:transform 0.2s ease, box-shadow 0.2s ease;}
+  .btn{font-family:'VT323',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:0;border:none;cursor:pointer;text-decoration:none;display:inline-block;transition:transform 0.2s ease, box-shadow 0.2s ease;}
   .btn:hover{transform:translateY(-3px);box-shadow:0 10px 20px rgba(43,42,40,0.15);}
   .btn-primary{background:var(--coral);color:#fff;}
-  .btn-secondary{background:#fff; color:var(--ink); border:2px solid var(--ink);}
+  .btn-secondary{background:var(--panel); color:var(--ink); border:2px solid var(--line);}
   .btn-small{font-size:13px; padding:9px 16px;}
   #chat-send{padding:12px 20px;}
 
   .tab-row{display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;}
-  .tab-btn{font-family:'Baloo 2'; font-weight:700; font-size:13px; padding:9px 18px; border-radius:999px; border:2px solid var(--ink); background:#fff; cursor:pointer; transition:all 0.2s ease;}
-  .tab-btn.active{background:var(--ink); color:#fff;}
+  .tab-btn{font-family:'VT323'; font-weight:700; font-size:13px; padding:9px 18px; border-radius:0; border:2px solid var(--line); background:var(--panel); cursor:pointer; transition:all 0.2s ease;}
+  .tab-btn.active{background:var(--ink-bg); color:#fff;}
 
   .empty-state{text-align:center; padding:50px 20px; color:var(--ink-soft); font-size:14px;}
-  .stat-num{font-family:'Baloo 2'; font-weight:800; font-size:28px;}
-  .tag{display:inline-block; font-size:11px; font-weight:800; padding:4px 10px; border-radius:999px; color:#fff;}
+  .stat-num{font-family:'VT323'; font-weight:800; font-size:28px;}
+  .tag{display:inline-block; font-size:11px; font-weight:800; padding:4px 10px; border-radius:0; color:#fff;}
   .error-msg{display:none; color:var(--coral-dark); font-size:13px; font-weight:700; margin-top:10px; text-align:center;}
   .error-msg.show{display:block;}
 
@@ -101,7 +90,7 @@
   .demo-note strong{color:var(--ink);}
 
   
-  .bot-msg, .user-msg{ padding:10px 14px; border-radius:14px; margin-bottom:8px; font-size:14px; max-width:85%; }
+  .bot-msg, .user-msg{ padding:10px 14px; border-radius:0; margin-bottom:8px; font-size:14px; max-width:85%; }
   .bot-msg{ background:var(--blue-light); color:var(--ink); border-bottom-left-radius:4px; }
   .user-msg{ background:var(--coral); color:#fff; margin-left:auto; border-bottom-right-radius:4px; text-align:right; }
     
@@ -118,9 +107,9 @@
     align-items:center;
     gap:5px;
     width:40px;height:40px;
-    border:2px solid var(--ink);
-    border-radius:10px;
-    background:#fff;
+    border:2px solid var(--line);
+    border-radius:0;
+    background:var(--panel);
     cursor:pointer;
     padding:0;
     flex-shrink:0;
@@ -128,7 +117,7 @@
   .nav-toggle span{
     display:block;
     width:20px;height:2px;
-    background:var(--ink);
+    background:var(--ink-bg);
     border-radius:2px;
     transition:transform 0.2s ease, opacity 0.2s ease;
   }
@@ -145,8 +134,8 @@
       align-items:flex-start;
       gap:16px;
       background:var(--cream);
-      border:2px solid var(--ink);
-      border-radius:14px;
+      border:2px solid var(--line);
+      border-radius:0;
       padding:20px;
       margin-top:8px;
       z-index:200;
@@ -158,7 +147,7 @@
     background:var(--coral);
     color:#fff !important;
     padding:9px 18px;
-    border-radius:999px;
+    border-radius:0;
     font-size:13px;
     font-weight:800;
     transition:transform 0.2s ease, box-shadow 0.2s ease;
@@ -168,29 +157,30 @@
     box-shadow:0 8px 16px rgba(43,42,40,0.18);
   }
   .join-cta-link::after{display:none !important;}
-  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
+  .back-nav-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Jost',sans-serif;font-size:13px;font-weight:800;color:var(--ink-soft);background:none;border:none;padding:0;margin:18px 0 0;cursor:pointer;text-decoration:none;}
   .back-nav-btn:hover{color:var(--coral-dark);}
 </style>
+<link rel="stylesheet" href="impuls.css">
 </head>
 <body>
 <div class="wrap">
   <nav>
     <a href="index.html" style="text-decoration:none;">
-      <div class="logo">
-        <div class="logo-dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="8" width="14" height="11" rx="4" fill="white"/><rect x="9" y="3" width="2.5" height="6" rx="1.25" fill="white"/><circle cx="10" cy="2.5" r="1.5" fill="white"/><circle cx="9.5" cy="13.5" r="1.8" fill="#FF6B4A"/><circle cx="14.5" cy="13.5" r="1.8" fill="#FF6B4A"/></svg></div>
-        ROcodeFest
-      </div>
+      <a class="logo" href="index.html" aria-label="IMPULS 2027 — acasă">
+      <span class="logo-mark"><img src="assets/impuls-logo.png" alt="" width="50" height="50"></span>
+      <span class="logo-text"><b>IMPULS 2027</b><small>EU CODEZ // PIATRA NEAMȚ</small></span>
     </a>
-    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </a>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Meniu" aria-expanded="false"><span></span><span></span><span></span></button>
     <div class="nav-links">
-      <a href="learn-more.html">About</a>
-      <span class="nav-rules-wrap"><a href="rules.html">Rules</a><span class="rules-badge" id="rules-badge"></span></span>
-      <a href="events.html">Events</a>
-      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Contest Day</a>
+      <a href="learn-more.html">Despre</a>
+      <span class="nav-rules-wrap"><a href="rules.html">Reguli</a><span class="rules-badge" id="rules-badge"></span></span>
+      <a href="events.html">Evenimente</a>
+      <a href="contest-day.html" id="nav-contest-day-link" style="display:none;">Ziua concursului</a>
       <a href="forum.html">Forum</a>
-      <a href="login.html" id="nav-login-link" style="font-size:13px;">Log in</a>
-      <a href="register.html" id="nav-register-link">Register</a>
-      <a href="join-as.html" class="join-cta-link">Get involved</a>
+      <a href="login.html" id="nav-login-link">Autentificare</a>
+      <a href="register.html" id="nav-register-link">Înregistrare</a>
+      <a href="join-as.html" class="join-cta-link">// Participă</a>
     </div>
   </nav>
 <script>
@@ -262,7 +252,7 @@
   if(isContestDay || preview){ contestDayLink.style.display = ''; }
 })();
 </script>
-  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Go back">&larr; Back</button>
+  <button type="button" class="back-nav-btn" onclick="goBack()" aria-label="Înapoi">&larr; Înapoi</button>
 <script>
   // TODO: provisional -- prefers the page that actually linked here
   // (deterministic, avoids bouncing in a back/forward loop); falls back to
@@ -279,31 +269,31 @@
 </script>
 
   <section class="page-hero">
-    <div class="eyebrow">Help</div>
-    <h1>ROcodeFest assistant</h1>
-    <p>Ask me anything about the competition, registration, rules, or events.</p>
+    <div class="eyebrow">Ajutor</div>
+    <h1>Asistentul IMPULS</h1>
+    <p>Întreabă-mă orice despre competiție, înscriere, reguli sau evenimente.</p>
   </section>
 
   
   <div class="card" style="max-width:600px; margin:0 auto;">
     <div id="chat-messages" style="max-height:400px; overflow-y:auto; margin-bottom:16px;">
-      <div class="bot-msg">Hi! I can answer questions about ROcodeFest. Try asking about registration, rules, the city challenge, the final, prizes, or anything else.</div>
+      <div class="bot-msg">Salut! Pot răspunde la întrebări despre IMPULS. Întreabă-mă despre înscriere, reguli, proba orașului, finală, premii sau orice altceva.</div>
     </div>
     <div style="display:flex; gap:8px;">
-      <input type="text" id="chat-input" placeholder="Type your question..." style="flex:1;">
-      <button class="btn btn-primary btn-small" id="chat-send">Send</button>
+      <input type="text" id="chat-input" placeholder="Scrie întrebarea..." style="flex:1;">
+      <button class="btn btn-primary btn-small" id="chat-send">Trimite</button>
     </div>
   </div>
     
 
   <footer>
     <div class="footer-nav">
-      <a href="news.html">News</a> <a href="resources.html">Resources</a>
-      <a href="founding-teams.html">Teams</a> <a href="organizations.html">Clubs</a>
-      <a href="leaderboard.html">Leaderboard</a> <a href="forum.html">Forum</a>
+      <a href="news.html">Noutăți</a> <a href="resources.html">Resurse</a>
+      <a href="founding-teams.html">Echipe</a> <a href="organizations.html">Cluburi</a>
+      <a href="leaderboard.html">Clasament</a> <a href="forum.html">Forum</a>
       <a href="livestream.html">Live</a> <a href="contact.html">Contact</a>
     </div>
-    ROcodeFest · Season 1 · Built by students, for students
+    IMPULS 2027 // EU CODEZ // PIATRA NEAMȚ
   </footer>
 </div>
 
@@ -366,22 +356,22 @@ document.addEventListener('DOMContentLoaded', function(){
 
   
   var faq = [
-    { keys:['register','sign up','join','how to join'], answer:'You can register a club from the Register page. Once registered, add teams from your club profile. Individual members can create a profile via "Join a Team".' },
-    { keys:['rule','rules','regulation'], answer:'Check the Rules page for general and season-challenge rules. You can also download the full rulebook as a PDF.' },
-    { keys:['city challenge','local','first stage','stage 1'], answer:'Every team completes the same mission in their own city. The task, scoring, and deadline are identical everywhere so results are directly comparable.' },
-    { keys:['final','piatra','neamt','stage 2'], answer:'Top teams from the city challenge advance to the live final in Piatra Neamt, where they compete head-to-head.' },
-    { keys:['prize','reward','win','money','voucher'], answer:'Winners receive cash prizes plus vouchers from sponsors. Every founding team gets permanent recognition.' },
-    { keys:['appeal','dispute','challenge score'], answer:'Teams can file up to 3 appeals per event referencing a specific timestamp in the live feed. After 3 rejected appeals, no further appeals are allowed.' },
-    { keys:['score','scoring','rubric','judge','judging'], answer:'Judges score teams on Innovation, Technical Execution, Presentation, and Teamwork (1-10 each, max 40). Multiple judges\x27 scores are averaged.' },
-    { keys:['stream','live','watch'], answer:'The final will be streamed live on the Livestream page. City-challenge streams will also be linked there.' },
-    { keys:['submit','submission','upload','deliverable'], answer:'Log in to the Submissions page with your club account to upload your team\x27s deliverables before the deadline.' },
-    { keys:['certificate','cert'], answer:'Certificates are generated automatically after results are finalized. Download yours from the Certificates page.' },
-    { keys:['forum','discuss','community'], answer:'The Forum has categories for General, Robotics, Programming, Design, and Announcements. Anyone can start threads and reply.' },
-    { keys:['speaker','partner','sponsor'], answer:'Speakers bring real-world problems from their company for teams to solve. Partners/sponsors support the event with funding and resources. Both can apply from the nav buttons.' },
-    { keys:['cost','fee','price','free'], answer:'Registration is kept low-cost, with support available for teams that need it.' },
-    { keys:['team size','how many','member'], answer:'Teams are flexible in size. Each club can have multiple teams across different categories (Robotics, Programming, Design, etc.).' },
-    { keys:['deadline','when','date'], answer:'Check the Events page for current dates. The countdown on the homepage shows time remaining until the Piatra Neamt final.' },
-    { keys:['hello','hi','hey'], answer:'Hey there! Ask me anything about ROcodeFest and I will do my best to help.' },
+    { keys:['inscri','înscri','inregistr','înregistr','cum particip','cum intru','register','sign up','join'], answer:'Poți înregistra un club din pagina Înregistrare. După înregistrare, adaugi echipe din profilul clubului. Membrii individuali își pot crea un profil din „Intră într-o echipă”.' },
+    { keys:['regul','rule','regulation'], answer:'Vezi pagina Reguli pentru regulile generale și cele ale probei de sezon. Poți descărca și regulamentul complet în format PDF.' },
+    { keys:['proba ora','etapa ora','prima etap','etapa 1','local','city challenge','stage 1'], answer:'Fiecare echipă îndeplinește aceeași misiune în orașul ei. Sarcina, punctajul și termenul sunt identice peste tot, deci rezultatele se pot compara direct.' },
+    { keys:['final','piatra','neamt','neamț','etapa 2','stage 2'], answer:'Cele mai bune echipe din proba orașului merg în finala live de la Piatra Neamț, unde concurează față în față.' },
+    { keys:['premi','bani','castig','câștig','voucher','prize','reward','money'], answer:'Câștigătorii primesc premii în bani și vouchere de la sponsori. Fiecare echipă fondatoare primește o recunoaștere permanentă.' },
+    { keys:['contest','apel','appeal','dispute'], answer:'Echipele pot depune cel mult 3 contestații pe eveniment, indicând un moment precis din transmisiunea live. După 3 contestații respinse, nu mai sunt acceptate altele.' },
+    { keys:['punct','scor','gril','arbitr','juriu','score','rubric','judge'], answer:'Arbitrii punctează echipele la Inovație, Execuție tehnică, Prezentare și Lucru în echipă (1-10 fiecare, maximum 40). Punctajele mai multor arbitri se mediază.' },
+    { keys:['transmis','live','urmar','urmăr','stream','watch'], answer:'Finala va fi transmisă live pe pagina Live. Tot acolo vor apărea și transmisiunile din proba orașului.' },
+    { keys:['lucrar','trimit','incarc','încarc','submit','upload'], answer:'Autentifică-te în pagina Lucrări cu contul clubului ca să încarci lucrările echipei înainte de termen.' },
+    { keys:['diplom','certificat','cert'], answer:'Diplomele se generează automat după ce rezultatele devin finale. O descarci din pagina Diplome.' },
+    { keys:['forum','discut','comunitat','community'], answer:'Forumul are categoriile General, Robotică, Programare, Design și Anunțuri. Oricine poate deschide subiecte și poate răspunde.' },
+    { keys:['speaker','partener','sponsor','partner'], answer:'Speakerii aduc probleme reale din companiile lor, pe care echipele le rezolvă. Partenerii și sponsorii susțin evenimentul cu finanțare și resurse. Ambii se pot înscrie din pagina Participă.' },
+    { keys:['cost','tax','pret','preț','gratuit','fee','price','free'], answer:'Taxa de înscriere este mică, iar echipele care au nevoie pot primi sprijin.' },
+    { keys:['cati membri','câți membri','marimea echipei','mărimea echipei','membr','team size','how many'], answer:'Echipele pot avea mărimi diferite. Fiecare club poate avea mai multe echipe, în categorii diferite (Robotică, Programare, Design etc.).' },
+    { keys:['termen','cand','când','data','deadline','when'], answer:'Vezi pagina Evenimente pentru datele actuale. Cronometrul de pe prima pagină arată timpul rămas până la finala de la Piatra Neamț.' },
+    { keys:['salut','buna','bună','hello','hey'], answer:'Salut! Întreabă-mă orice despre IMPULS și o să te ajut cât pot de bine.' },
   ];
 
   function botReply(input){
@@ -391,7 +381,7 @@ document.addEventListener('DOMContentLoaded', function(){
         if(lower.indexOf(faq[i].keys[j]) !== -1) return faq[i].answer;
       }
     }
-    return 'I am not sure about that yet. Try asking about registration, rules, the city challenge, scoring, appeals, or prizes. Or check the FAQ on the homepage!';
+    return 'Încă nu știu să răspund la asta. Întreabă-mă despre înscriere, reguli, proba orașului, punctaj, contestații sau premii. Sau vezi întrebările frecvente de pe prima pagină!';
   }
 
   var msgs = document.getElementById('chat-messages');

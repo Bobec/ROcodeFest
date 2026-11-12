@@ -1,0 +1,280 @@
+/* =====================================================================
+   IMPULS 2027 — the shared theme
+   =====================================================================
+   Every page still carries its own inline <style> for layout. This file
+   is linked AFTER it and owns what the pages have in common: the palette,
+   the two typefaces, the header, buttons, cards, form controls and the
+   background artwork.
+
+   The pages reference colours only through the variables below (their
+   own :root blocks were removed), so the palette lives in one place.
+   The variable NAMES are the old ones on purpose -- renaming them would
+   have meant touching several thousand declarations for no visible gain.
+   What each one means now is noted beside it.
+   ===================================================================== */
+
+/* --- typefaces, hosted locally --------------------------------------
+   VT323 is drawn small inside its em box; size-adjust brings it up to
+   the optical size of the text font so existing font-size values keep
+   working. The weight range stops the browser from smearing a synthetic
+   bold over a pixel font. */
+@font-face{
+  font-family:'VT323'; font-style:normal; font-weight:100 900; font-display:swap; size-adjust:112%;
+  src:url(assets/fonts/vt323-latin-ext.woff2) format('woff2');
+  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+@font-face{
+  font-family:'VT323'; font-style:normal; font-weight:100 900; font-display:swap; size-adjust:112%;
+  src:url(assets/fonts/vt323-latin.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face{
+  font-family:'Jost'; font-style:normal; font-weight:100 900; font-display:swap; size-adjust:93%;
+  src:url(assets/fonts/jost-latin-ext.woff2) format('woff2');
+  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+@font-face{
+  font-family:'Jost'; font-style:normal; font-weight:100 900; font-display:swap; size-adjust:93%;
+  src:url(assets/fonts/jost-latin.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+:root{
+  color-scheme:dark;
+
+  --cream:#1e1e1e;          /* the page background */
+  --ink:#f2efea;            /* text */
+  --ink-soft:#a9a6a0;       /* secondary text */
+  --ink-bg:#2e2e2e;         /* filled neutral surfaces (was a dark fill on a light page) */
+  --line:#35d400;           /* borders around cards, inputs and boxes */
+  --panel:rgba(30,30,30,0.88); /* card and input surfaces (was white) */
+  --hairline:#3a3a3a;       /* quiet dividers */
+
+  --coral:#35d400;          /* the accent: primary buttons, highlights */
+  --coral-dark:#35d400;     /* accent used as text */
+  --green:#35d400;
+  --blue:#35d400;
+  --yellow:#5a5a5a;
+  --purple:#777;
+  --blue-light:#262626;     /* tinted surfaces */
+  --yellow-light:#292929;
+  --green-light:rgba(53,212,0,0.13);
+  --purple-light:#2a2a2a;
+  --danger:#ff5a4d;         /* errors and destructive actions only */
+
+  --radius-lg:0px;
+  --radius-md:0px;
+}
+
+html{ overflow-x:clip; }
+body{
+  background:var(--cream);
+  color:var(--ink);
+  font-family:'Jost', sans-serif;
+  font-weight:400;
+  position:relative;
+}
+::selection{ background:var(--coral); color:#fff; }
+
+/* --- the artwork behind every page ----------------------------------
+   Fixed to the viewport, behind the content. The inner pages get the
+   goat with the folk motif; the home page gets the goat on the mountain
+   (body.home). */
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:url(assets/bg-capra-motiv.png) no-repeat right -230px top 30px / auto 118vh;
+  image-rendering:pixelated;
+  opacity:0.2;
+}
+/* The home artwork is two layers of the same size, placed identically:
+   the goat (::before) and, painted over it, the hill (::after). The hill
+   image is filled with the page colour below its ridge, so the goat can
+   slide down behind it and come back up. Their grey is baked into the
+   files -- an opacity here would make the hill see-through. */
+body.home::before,
+body.home::after{
+  content:"";
+  position:fixed; inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:no-repeat right -120px bottom -90px / min(1250px, 88vw) auto;
+  image-rendering:pixelated;
+  opacity:1;
+}
+body.home::before{
+  --rise:min(215px, 15.5vw);       /* the goat's own height: fully hidden */
+  --bob:min(16px, 1.2vw);
+  background-image:url(assets/bg-capra.png);
+  animation:capra-rise 1.3s cubic-bezier(0.22, 0.8, 0.3, 1) 0.3s both,
+            capra-bob 2.2s ease-in-out 1.6s infinite alternate;
+  will-change:transform;
+}
+body.home::after{ background-image:url(assets/bg-deal.png); }
+/* eased: the rise settles into place, the bob slows at each end */
+@keyframes capra-rise{ from{ transform:translateY(var(--rise)); } to{ transform:translateY(0); } }
+@keyframes capra-bob{ from{ transform:translateY(0); } to{ transform:translateY(var(--bob)); } }
+@media (max-width:860px){
+  body::before{ background-position:right -160px bottom -40px; background-size:auto 70vh; opacity:0.13; }
+  body.home::before,
+  body.home::after{ background-position:center bottom -20px; background-size:170vw auto; opacity:1; }
+  body.home::before{ --rise:30vw; --bob:2.2vw; }
+}
+
+/* --- type ----------------------------------------------------------- */
+h1,h2,h3{
+  font-family:'VT323', monospace;
+  font-weight:400;
+  text-transform:uppercase;
+  letter-spacing:0.03em;
+  line-height:1.05;
+}
+h1::before{ content:"// "; }
+.eyebrow{
+  font-family:'VT323', monospace;
+  font-weight:400;
+  font-size:19px;
+  letter-spacing:0.05em;
+  color:var(--coral);
+}
+.eyebrow::before{ content:">> "; }
+a{ text-underline-offset:3px; }
+
+/* --- header --------------------------------------------------------- */
+nav{
+  background:transparent;
+  padding:12px 0;
+  box-shadow:none;
+}
+nav.scrolled{ box-shadow:none; }
+/* the bar runs edge to edge although the nav sits inside the column */
+nav::before{
+  content:"";
+  position:absolute; top:0; bottom:0; left:50%;
+  width:100vw; transform:translateX(-50%);
+  background:var(--cream);
+  border-bottom:2px solid var(--line);
+  z-index:-1;
+}
+.logo{
+  display:flex; align-items:center; gap:14px;
+  text-decoration:none; color:var(--ink);
+  font-family:'VT323', monospace; font-weight:400;
+  margin-right:auto;        /* stays left whatever else the bar holds */
+}
+.logo-mark{
+  width:56px; height:56px; flex-shrink:0;
+  border:2px solid var(--ink); border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+}
+.logo-mark img{ width:50px; height:50px; image-rendering:pixelated; display:block; }
+.logo-text{ display:flex; flex-direction:column; line-height:1.05; text-transform:uppercase; letter-spacing:0.04em; }
+.logo-text b{ font-weight:400; font-size:24px; }
+.logo-text small{ font-size:15px; color:var(--coral); }
+@media (max-width:480px){
+  .logo-mark{ width:46px; height:46px; } .logo-mark img{ width:40px; height:40px; }
+  .logo-text b{ font-size:20px; } .logo-text small{ font-size:12px; }
+}
+
+.nav-links{
+  font-family:'VT323', monospace; font-weight:400;
+  font-size:16px; text-transform:uppercase; letter-spacing:0.05em;
+  color:var(--ink);
+}
+.nav-links{ gap:18px; }
+.nav-links a{ text-decoration:none; white-space:nowrap; }
+.logo-text b, .logo-text small{ white-space:nowrap; }
+.join-cta-link, .partner-link, .speaker-link{
+  background:transparent; color:var(--coral) !important;
+  border:2px solid var(--line); border-radius:0;
+  font-weight:400; font-size:16px; padding:6px 14px;
+}
+.join-cta-link:hover, .partner-link:hover, .speaker-link:hover{ background:var(--coral); color:#fff !important; box-shadow:none; }
+.nav-toggle{ background:transparent; border-color:var(--line); border-radius:0; }
+.nav-toggle span{ background:var(--ink); }
+.rules-badge{ border-radius:0; }
+/* The wider brand block needs the menu to collapse earlier than the
+   pages' own 860px rule, or the links run out of room on a small laptop. */
+@media (max-width:1080px){
+  .nav-toggle{ display:flex; }
+  .nav-links{
+    display:none;
+    position:absolute; top:100%; left:0; right:0;
+    flex-direction:column; align-items:flex-start; gap:16px;
+    background:var(--cream); border:2px solid var(--line); border-radius:0;
+    padding:20px; margin-top:8px; z-index:200; box-shadow:none;
+  }
+  .nav-links.open{ display:flex; }
+}
+.back-nav-btn{
+  font-family:'VT323', monospace; font-weight:400; font-size:16px;
+  text-transform:uppercase; letter-spacing:0.05em;
+}
+
+/* --- buttons -------------------------------------------------------- */
+.btn{
+  font-family:'VT323', monospace; font-weight:400;
+  text-transform:uppercase; letter-spacing:0.06em;
+  border-radius:6px;
+}
+.btn-primary{ background:var(--coral); color:#fff; }
+.btn-secondary{ background:transparent; color:var(--ink); border:2px solid var(--line); border-radius:0; }
+.btn:hover{ box-shadow:none; filter:brightness(1.1); }
+button, input, select, textarea{ font-family:inherit; }
+button{ color:inherit; }
+
+/* --- form controls -------------------------------------------------- */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+select, textarea{
+  color:var(--ink);
+  caret-color:var(--coral);
+}
+input::placeholder, textarea::placeholder{ color:#77746f; opacity:1; }
+input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible{
+  outline:2px solid var(--ink); outline-offset:2px;
+}
+input[type="checkbox"], input[type="radio"], input[type="range"]{ accent-color:var(--coral); }
+
+/* --- states that must not read as "fine" ---------------------------
+   The accent is green, and green on an error or a delete button says the
+   opposite of what it means. These keep their own colour. */
+.error, .error-msg, .attach-error, .danger, .remove-btn, .btn-danger{ color:var(--danger); }
+.invalid, textarea.invalid, select.invalid, .danger-card, .btn-danger{ border-color:var(--danger); }
+
+/* --- shared blocks -------------------------------------------------- */
+.final-cta{
+  background:var(--panel); color:var(--ink);
+  border:2px solid var(--line);
+}
+.final-cta h2{ color:var(--ink); }
+.final-cta p{ color:var(--ink-soft); }
+.final-cta .btn-secondary{ color:var(--ink); border-color:var(--line); }
+
+footer{
+  border-top:1.5px solid var(--hairline);
+  margin-top:40px; padding-top:28px;
+  font-family:'VT323', monospace; text-transform:uppercase; letter-spacing:0.05em;
+  font-size:15px;
+}
+.footer-nav{ font-weight:400; font-size:16px; flex-wrap:wrap; color:var(--ink); }
+.footer-nav a:hover{ color:var(--coral); }
+
+.fab{
+  font-family:'VT323', monospace; font-weight:400; font-size:16px;
+  text-transform:uppercase; letter-spacing:0.05em;
+  border:2px solid var(--line); border-radius:0;
+  background:var(--cream); color:var(--ink);
+  box-shadow:none;
+}
+.fab:hover{ box-shadow:none; }
+#fab-share{ background:var(--coral); color:#fff; border-color:var(--coral); animation:none; }
+.fab-toast{ border:2px solid var(--line); border-radius:0; background:var(--cream); color:var(--ink); }
+
+/* motion is decoration here; honour the setting that asks for none */
+@media (prefers-reduced-motion:reduce){
+  *, *::before, *::after{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
+  .reveal{ opacity:1; transform:none; }
+  body.home::before{ animation:none; }
+}
