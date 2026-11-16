@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import BackButton from "@/components/BackButton";
 import FabButtons from "@/components/FabButtons";
+import PrizeFireworks from "@/components/PrizeFireworks";
+import PrizeGoat from "@/components/PrizeGoat";
 import RevealOnScroll from "@/components/RevealOnScroll";
 import RulesScript from "./PageScript";
 import SiteFooter from "@/components/SiteFooter";
@@ -118,13 +120,18 @@ export default function RulesPage() {
             </li>
           </ul>
         </section>
-        <section className="section reveal">
+        <section className="section reveal prize-section">
           <h2>Premiile finalei</h2>
           <div className="prize-row">
-            <div className="prize"><span>🏆</span><p>Premiu în bani pentru locul 1</p></div>
+            <div className="prize prize-first" data-fireworks-trigger title="Încă o dată!">
+              <PrizeGoat />
+              <div className="prize-place">Locul 1</div>
+              <p>Premiu în bani pentru locul 1</p>
+            </div>
             <div className="prize"><span>🎟️</span><p>Vouchere de la sponsori pentru cele mai bune echipe</p></div>
             <div className="prize"><span>🥇</span><p>Recunoaștere de echipă fondatoare pentru toți</p></div>
           </div>
+          <PrizeFireworks />
         </section>
         <section className="section reveal" style={{ textAlign: "center" }}>
           <h2>Alte pagini ale competiției</h2>
