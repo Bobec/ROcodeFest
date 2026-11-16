@@ -10,7 +10,9 @@ const COLORS = ["#35d400", "#7dff4f", "#b6ff9e", "#f2efea", "#ffd84a"];
 const COOLDOWN = 8000;
 const PX = 4; // the size of one "pixel" of the explosion, in CSS px
 
-type Rocket = { x: number; y: number; vy: number; ty: number; color: string };
+// A rocket flies from y0 to ty in `dur` seconds on a fixed curve, so it
+// always arrives and bursts, whatever the screen's refresh rate.
+type Rocket = { x: number; y0: number; ty: number; t: number; dur: number; color: string };
 type Spark = { x: number; y: number; vx: number; vy: number; life: number; max: number; color: string };
 
 export default function PrizeFireworks() {
@@ -43,9 +45,10 @@ export default function PrizeFireworks() {
     const launch = () => {
       rockets.push({
         x: w * (0.15 + Math.random() * 0.7),
-        y: h,
-        vy: -(h * 1.3 + Math.random() * h * 0.4),
+        y0: h,
         ty: h * (0.08 + Math.random() * 0.3),
+        t: 0,
+        dur: 0.8 + Math.random() * 0.35,
         color: pick(),
       });
       if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); }
@@ -57,7 +60,7 @@ export default function PrizeFireworks() {
       for (let i = 0; i < n; i++) {
         const a = (i / n) * Math.PI * 2 + Math.random() * 0.2;
         const s = speed * (0.35 + Math.random() * 0.65);
-        const max = 1.1 + Math.random() * 0.8;
+        const max = 0.9 + Math.random() * 0.6;
         sparks.push({
           x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: max, max,
           color: Math.random() < 0.25 ? "#f2efea" : color,
@@ -74,14 +77,15 @@ export default function PrizeFireworks() {
 
       for (let i = rockets.length - 1; i >= 0; i--) {
         const r = rockets[i];
-        r.y += r.vy * dt;
-        r.vy *= 0.985;
+        r.t += dt;
+        const p = Math.min(r.t / r.dur, 1);
+        const y = r.y0 + (r.ty - r.y0) * (1 - Math.pow(1 - p, 3)); // eases out at the top
+        if (p >= 1) { burst(r.x, y, r.color); rockets.splice(i, 1); continue; }
         ctx.fillStyle = r.color;
-        ctx.fillRect(snap(r.x), snap(r.y), PX, PX * 2);
+        ctx.fillRect(snap(r.x), snap(y), PX, PX * 2);
         ctx.globalAlpha = 0.4;
-        ctx.fillRect(snap(r.x), snap(r.y) + PX * 3, PX, PX);
+        ctx.fillRect(snap(r.x), snap(y) + PX * 3, PX, PX);
         ctx.globalAlpha = 1;
-        if (r.y <= r.ty) { burst(r.x, r.y, r.color); rockets.splice(i, 1); }
       }
 
       for (let i = sparks.length - 1; i >= 0; i--) {
