@@ -7,6 +7,8 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import "./page.css";
 import "@/styles/impuls.css";
+import Icon from "@/components/Icon";
+import { SOCIAL } from "@/lib/social";
 
 export const metadata: Metadata = { title: "Contact — IMPULS 2027" };
 
@@ -24,9 +26,19 @@ export default function ContactPage() {
         <section className="section reveal">
           <div className="contact-grid">
             <div className="contact-card">
-              <h3>Întrebări generale</h3>
-              <p>Echipe, înscriere și logistica evenimentului.</p>
-              <a className="email" href="mailto:hello@rocodefest.example">hello@rocodefest.example</a>
+              <h3>Social media</h3>
+              <p>Noutăți, culise și momentele de la fiecare etapă.</p>
+              <ul className="social-list">
+                {SOCIAL.map((s) => (
+                  <li key={s.name}>
+                    {s.url ? (
+                      <a href={s.url} target="_blank" rel="noopener"><Icon name={s.icon} /> {s.name}</a>
+                    ) : (
+                      <span className="social-soon"><Icon name={s.icon} /> {s.name} <small>în curând</small></span>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </div>
             <div className="contact-card">
               <h3>Presă și media</h3>
@@ -34,7 +46,7 @@ export default function ContactPage() {
               <a className="email" href="mailto:press@rocodefest.example">press@rocodefest.example</a>
             </div>
             <div className="contact-card">
-              <h3>📍 Locul finalei</h3>
+              <h3><Icon name="mapPin" /> Locul finalei</h3>
               <p>Rubik Hub, Aleea Tineretului, Piatra Neamț.</p>
               <a className="email" href="https://www.google.com/maps/search/?api=1&query=Rubik+Hub%2C+Aleea+Tineretului%2C+Piatra+Neam%C8%9B" target="_blank" rel="noopener">Deschide în Google Maps →</a>
             </div>

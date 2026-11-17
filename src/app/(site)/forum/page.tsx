@@ -6,6 +6,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import "./page.css";
 import "@/styles/impuls.css";
+import Icon from "@/components/Icon";
 
 export const metadata: Metadata = { title: "Forum — IMPULS 2027" };
 
@@ -22,7 +23,7 @@ export default function ForumPage() {
         </section>
         <div className="announcements-panel" id="announcements-panel">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px", gap: "10px", flexWrap: "wrap" }}>
-            <h2 style={{ margin: "0" }}>📌 Anunțuri</h2>
+            <h2 style={{ margin: "0" }}><Icon name="bookmark" /> Anunțuri</h2>
             <button className="btn btn-secondary btn-small" id="new-announcement-toggle">+ Anunț nou</button>
           </div>
           <div id="announcement-form" style={{ display: "none", marginBottom: "14px" }}>
@@ -33,7 +34,7 @@ export default function ForumPage() {
           <div id="announcements-list"></div>
         </div>
         <div className="forum-cats">
-          <div className="cat-parent">📁 General</div>
+          <div className="cat-parent"><Icon name="folder" /> General</div>
           <div className="tab-row cat-sub-row" id="forum-tabs">
             <button className="tab-btn active" data-cat="general">Toate</button>
             {" "}
@@ -66,7 +67,7 @@ export default function ForumPage() {
                    cannot happen. */}
           <div className="file-row">
             {/* TODO: placeholder — mock button only, not wired to the regulations yet */}
-            <button type="button" className="rules-ref-btn" title="Doar machetă — va deschide regulamentul oficial după conectarea la server">📖 Vezi regulile</button>
+            <button type="button" className="rules-ref-btn" title="Doar machetă — va deschide regulamentul oficial după conectarea la server"><Icon name="bookOpen" /> Vezi regulile</button>
           </div>
         </div>
         <div id="threads-list"></div>

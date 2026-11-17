@@ -4,6 +4,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import "./page.css";
 import "@/styles/impuls.css";
+import Icon from "@/components/Icon";
 
 export const metadata: Metadata = { title: "Live — IMPULS 2027" };
 
@@ -22,7 +23,7 @@ export default function LivestreamPage() {
         </section>
         <div className="card" style={{ textAlign: "center" }}>
           <div style={{ background: "var(--ink-bg)", borderRadius: "var(--radius-md)", padding: "80px 20px", color: "#fff", position: "relative", overflow: "hidden" }}>
-            <div style={{ fontSize: "48px", marginBottom: "10px" }}>📺</div>
+            <div style={{ fontSize: "48px", marginBottom: "10px" }}><Icon name="tv" /></div>
             <h2 style={{ color: "#fff", fontSize: "22px" }}>Transmisiunea începe în ziua evenimentului</h2>
             <p style={{ color: "#999", fontSize: "14px" }}>
               Transmisiunea va apărea aici când începe evenimentul. Canalele oglindă (YouTube/Twitch) vor fi adăugate aici după confirmare.

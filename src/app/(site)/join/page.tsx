@@ -5,6 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import "./page.css";
 import "@/styles/impuls.css";
+import Icon from "@/components/Icon";
 
 export const metadata: Metadata = { title: "Intră într-o echipă — IMPULS 2027" };
 
@@ -62,7 +63,7 @@ export default function JoinPage() {
             </p>
           </form>
           <div id="success-panel" className="success-panel">
-            <div className="success-badge">🙌</div>
+            <div className="success-badge"><Icon name="armsUp" /></div>
             <h2 id="success-heading">Profil creat!</h2>
             <p id="success-detail">Acum răsfoiește echipele fondatoare și cere să te alături uneia.</p>
             <a className="btn btn-secondary" href="/founding-teams">Vezi echipele →</a>

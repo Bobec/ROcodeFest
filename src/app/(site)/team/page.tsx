@@ -4,6 +4,7 @@ import SiteHeader from "@/components/SiteHeader";
 import TeamScript from "./PageScript";
 import "./page.css";
 import "@/styles/impuls.css";
+import Icon from "@/components/Icon";
 
 export const metadata: Metadata = { title: "Echipă — IMPULS 2027" };
 
@@ -68,7 +69,7 @@ export default function TeamPage() {
                 <p>
                   Ștergerea echipei o elimină din IMPULS împreună cu componența ei. Istoricul lucrărilor și al contestațiilor se păstrează. Acțiunea nu poate fi anulată.
                 </p>
-                <button className="btn btn-secondary btn-small btn-danger" id="delete-team-btn">🗑 Șterge echipa</button>
+                <button className="btn btn-secondary btn-small btn-danger" id="delete-team-btn"><Icon name="trash" /> Șterge echipa</button>
               </div>
             </div>
           </div>

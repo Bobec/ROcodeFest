@@ -6,6 +6,7 @@
 // It is the next thing to rewrite as React state, one page at a time;
 // until then it keeps the page doing exactly what it did before.
 import { useEffect } from "react";
+import { iconSvg } from "@/lib/icons";
 
 let started = false;
 
@@ -58,7 +59,7 @@ onReady(function(){
     var hint = document.querySelector('.rule-hint');
     if(!hint) return;
     if(!hint.getAttribute('data-original')){ hint.setAttribute('data-original', hint.textContent); }
-    hint.textContent = '📖 Doar machetă deocamdată — va deschide regulamentul oficial după conectarea la server.';
+    hint.innerHTML = iconSvg('bookOpen') + ' Doar machetă deocamdată — va deschide regulamentul oficial după conectarea la server.';
     hint.style.color = 'var(--coral-dark)';
     hint.style.fontWeight = '700';
     clearTimeout(ruleHintTimer);

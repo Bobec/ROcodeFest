@@ -42,6 +42,10 @@
     background:var(--ink-bg); color:#fff; padding:2px 8px; border-radius:0; margin-right:8px; vertical-align:1px;
   }
 
+  .rule-link{color:var(--green); font-weight:700; text-decoration:none; white-space:nowrap;}
+  .rule-link:hover{text-decoration:underline;}
+  .prize .px-icon{width:34px; height:34px; margin:0 auto 4px;}
+
   .prize-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
   @media (max-width:700px){ .prize-row{grid-template-columns:1fr;} }
   .prize{background:var(--green-light); border-radius:var(--radius-md); padding:22px; text-align:center;}

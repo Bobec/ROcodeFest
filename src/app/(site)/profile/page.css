@@ -193,6 +193,7 @@
     background:var(--panel); cursor:pointer; transition:all 0.2s ease;
   }
   .cat-chip:hover{transform:translateY(-2px);}
+  .cat-chip.selected .px-icon{color:#fff;}
   .cat-chip.selected{
     color:#fff; border-color:transparent;
     box-shadow:0 6px 14px rgba(43,42,40,0.18);

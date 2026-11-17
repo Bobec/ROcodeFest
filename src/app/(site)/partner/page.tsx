@@ -5,6 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import "./page.css";
 import "@/styles/impuls.css";
+import Icon from "@/components/Icon";
 
 export const metadata: Metadata = { title: "Devino partener — IMPULS 2027" };
 
@@ -22,9 +23,9 @@ export default function PartnerPage() {
           </p>
         </section>
         <div className="perks-row">
-          <div className="perk"><div className="emoji-circle">🏷️</div><p>Logo pe site și în ziua evenimentului</p></div>
-          <div className="perk"><div className="emoji-circle">📣</div><p>Prezență în materialele de presă</p></div>
-          <div className="perk"><div className="emoji-circle">🤝</div><p>Acces direct la echipele fondatoare</p></div>
+          <div className="perk"><div className="emoji-circle"><Icon name="label" /></div><p>Logo pe site și în ziua evenimentului</p></div>
+          <div className="perk"><div className="emoji-circle"><Icon name="megaphone" /></div><p>Prezență în materialele de presă</p></div>
+          <div className="perk"><div className="emoji-circle"><Icon name="users" /></div><p>Acces direct la echipele fondatoare</p></div>
         </div>
         <div className="form-card">
           <form id="partner-form" noValidate>
@@ -80,7 +81,7 @@ export default function PartnerPage() {
             </p>
           </form>
           <div id="success-panel" className="success-panel">
-            <div className="success-badge">🤝</div>
+            <div className="success-badge"><Icon name="heart" /></div>
             <h2 id="success-heading">Mulțumim că ne-ai scris!</h2>
             <p id="success-detail">Te contactăm în curând.</p>
             <a className="btn btn-primary" href="/partner-dashboard">Mergi la panoul tău →</a>

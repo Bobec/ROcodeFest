@@ -5,6 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import "./page.css";
 import "@/styles/impuls.css";
+import Icon from "@/components/Icon";
 
 export const metadata: Metadata = { title: "Devino arbitru — IMPULS 2027" };
 
@@ -44,7 +45,7 @@ export default function JudgeRegisterPage() {
             <p className="error-msg" id="j-error">Completează numele și emailul.</p>
           </form>
           <div id="j-success" style={{ display: "none", textAlign: "center", padding: "20px 0" }}>
-            <p style={{ fontSize: "32px" }}>⚖</p>
+            <p style={{ fontSize: "32px" }}><Icon name="checkDouble" /></p>
             <h2 id="j-success-msg">Cerere primită!</h2>
             <p style={{ color: "var(--ink-soft)" }}>Acum te poți autentifica ca arbitru.</p>
             <a className="btn btn-secondary" href="/judge-scoring">Mergi la panoul de punctare →</a>

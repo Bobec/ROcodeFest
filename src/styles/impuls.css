@@ -299,6 +299,17 @@ button.join-cta-link{
 button, input, select, textarea{ font-family:inherit; }
 button{ color:inherit; }
 
+/* --- pixel icons (components/Icon.tsx, lib/icons.ts) ----------------
+   In place of the colour emoji: one colour, the accent, on the pixel
+   grid. Sized in em, so an icon follows the text it sits in -- a heading,
+   a button, or a 44px badge. On a filled surface or a danger button it
+   takes the text colour instead, or it would vanish into the fill. */
+.px-icon{
+  display:inline-block; width:1.15em; height:1.15em; vertical-align:-0.2em;
+  color:var(--green); flex-shrink:0; shape-rendering:crispEdges;
+}
+.btn-primary .px-icon, .btn-danger .px-icon, .danger .px-icon{ color:currentColor; }
+
 /* --- form controls -------------------------------------------------- */
 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
 select, textarea{

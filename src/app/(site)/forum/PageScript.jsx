@@ -6,6 +6,7 @@
 // It is the next thing to rewrite as React state, one page at a time;
 // until then it keeps the page doing exactly what it did before.
 import { useEffect } from "react";
+import { iconSvg } from "@/lib/icons";
 
 let started = false;
 
@@ -395,7 +396,7 @@ onReady(function(){
     if(!btn) return;
     var toast = document.getElementById('fab-toast');
     if(!toast) return;
-    toast.textContent = '📖 Doar machetă — va deschide regulamentul oficial după conectare';
+    toast.innerHTML = iconSvg('bookOpen') + ' Doar machetă — va deschide regulamentul oficial după conectare';
     toast.classList.add('show');
     clearTimeout(rulesToastTimer);
     rulesToastTimer = setTimeout(function(){

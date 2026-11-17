@@ -10,6 +10,7 @@ import SiteHeader from "@/components/SiteHeader";
 import HideForClub from "@/components/HideForClub";
 import "./page.css";
 import "@/styles/impuls.css";
+import Icon from "@/components/Icon";
 
 export const metadata: Metadata = { title: "Reguli și joc — IMPULS 2027" };
 
@@ -45,8 +46,8 @@ export default function RulesPage() {
         </section>
         <section className="section reveal">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px", marginBottom: "16px" }}>
-            <h2 style={{ margin: "0" }}>📋 Reguli generale</h2>
-            <a className="btn btn-secondary btn-small" href="/rocodefest-rules.pdf" download="">📄 Descarcă regulamentul complet (PDF)</a>
+            <h2 style={{ margin: "0" }}><Icon name="clipboard" /> Reguli generale</h2>
+            <a className="btn btn-secondary btn-small" href="/rocodefest-rules.pdf" download=""><Icon name="fileText" /> Descarcă regulamentul complet (PDF)</a>
           </div>
           {/* TODO: placeholder — rule codes (G1-G6 below, S1-S6 further down) are a
                       mock taxonomy so the Appeal/Forum "Reference Rules" selectors have
@@ -82,11 +83,12 @@ export default function RulesPage() {
               <span className="rule-code">A21</span>
               <strong>Contestații.</strong>
               {" "}Fiecare echipă poate depune cel mult 3 contestații pe zi de eveniment, indicând un moment precis din transmisiunea live. După 3 contestații respinse, nu mai sunt acceptate altele.
+              {" "}<a className="rule-link" href="/appeals">Depune o contestație →</a>
             </li>
           </ul>
         </section>
         <section className="section reveal">
-          <h2>🏆 Regulile probei de sezon</h2>
+          <h2><Icon name="trophy" /> Regulile probei de sezon</h2>
           <ul className="rule-list">
             <li id="rule-S1">
               <span className="rule-code">S1</span>
@@ -117,6 +119,7 @@ export default function RulesPage() {
               <span className="rule-code">S6</span>
               <strong>Diplome.</strong>
               {" "}Se generează automat după ce rezultatele devin finale și pot fi descărcate din profilul fiecărui club.
+              {" "}<a className="rule-link" href="/certificates">Vezi diplomele →</a>
             </li>
           </ul>
         </section>
@@ -128,22 +131,10 @@ export default function RulesPage() {
               <div className="prize-place">Locul 1</div>
               <p>Premiu în bani pentru locul 1</p>
             </div>
-            <div className="prize"><span>🎟️</span><p>Vouchere de la sponsori pentru cele mai bune echipe</p></div>
-            <div className="prize"><span>🥇</span><p>Recunoaștere de echipă fondatoare pentru toți</p></div>
+            <div className="prize"><span><Icon name="gift" /></span><p>Vouchere de la sponsori pentru cele mai bune echipe</p></div>
+            <div className="prize"><span><Icon name="star" /></span><p>Recunoaștere de echipă fondatoare pentru toți</p></div>
           </div>
           <PrizeFireworks />
-        </section>
-        <section className="section reveal" style={{ textAlign: "center" }}>
-          <h2>Alte pagini ale competiției</h2>
-          <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap", marginTop: "10px" }}>
-            <a className="btn btn-secondary btn-small" href="/submissions">Lucrări</a>
-            {" "}
-            <a className="btn btn-secondary btn-small" href="/leaderboard">Clasament</a>
-            {" "}
-            <a className="btn btn-secondary btn-small" href="/appeals">Contestații</a>
-            {" "}
-            <a className="btn btn-secondary btn-small" href="/certificates">Diplome</a>
-          </div>
         </section>
         <HideForClub>
           <div className="final-cta reveal" id="final-cta">

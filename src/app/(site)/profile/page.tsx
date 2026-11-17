@@ -6,6 +6,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import "./page.css";
 import "@/styles/impuls.css";
+import Icon from "@/components/Icon";
 
 export const metadata: Metadata = { title: "Clubul meu — IMPULS 2027" };
 
@@ -26,7 +27,7 @@ export default function ProfilePage() {
           <div className="profile-hero">
             <div className="avatar-wrap">
               <div className="big-avatar" id="p-avatar">?</div>
-              <div className="avatar-edit-btn" id="avatar-edit-btn" title="Schimbă fotografia clubului">📷</div>
+              <div className="avatar-edit-btn" id="avatar-edit-btn" title="Schimbă fotografia clubului"><Icon name="camera" /></div>
               <input type="file" id="avatar-file-input" accept="image/*" style={{ display: "none" }} />
             </div>
             <div><h1 id="p-team-name">Numele clubului</h1><div className="sub" id="p-org-city">Oraș</div></div>
@@ -34,10 +35,10 @@ export default function ProfilePage() {
           <h2 className="section-title">Echipele tale</h2>
           <div id="teams-list"></div>
           <div className="add-team-card">
-            <p className="add-team-title">✨ Adaugă o echipă nouă</p>
+            <p className="add-team-title"><Icon name="sparkles" /> Adaugă o echipă nouă</p>
             <p className="field-label">Numele echipei</p>
             <div className="icon-input">
-              <span className="icon-input-glyph">🏷️</span>
+              <span className="icon-input-glyph"><Icon name="label" /></span>
               {" "}
               <input type="text" id="new-team-name" placeholder="ex. Circuit Breakers" />
             </div>

@@ -5,6 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SpeakerScript from "./PageScript";
 import "./page.css";
 import "@/styles/impuls.css";
+import Icon from "@/components/Icon";
 
 export const metadata: Metadata = { title: "Devino speaker — IMPULS 2027" };
 
@@ -28,9 +29,9 @@ export default function SpeakerPage() {
           </p>
         </div>
         <div className="perks-row">
-          <div className="perk"><div className="emoji-circle">💡</div><p>Primești idei noi pentru o problemă reală</p></div>
-          <div className="perk"><div className="emoji-circle">🎤</div><p>Recunoaștere ca speaker</p></div>
-          <div className="perk"><div className="emoji-circle">🧑‍🎓</div><p>Acces direct la viitoarele talente</p></div>
+          <div className="perk"><div className="emoji-circle"><Icon name="lightbulb" /></div><p>Primești idei noi pentru o problemă reală</p></div>
+          <div className="perk"><div className="emoji-circle"><Icon name="mic" /></div><p>Recunoaștere ca speaker</p></div>
+          <div className="perk"><div className="emoji-circle"><Icon name="user" /></div><p>Acces direct la viitoarele talente</p></div>
         </div>
         <div className="form-card">
           <form id="speaker-form" noValidate>
@@ -95,7 +96,7 @@ export default function SpeakerPage() {
             </p>
           </form>
           <div id="success-panel" className="success-panel">
-            <div className="success-badge">🎤</div>
+            <div className="success-badge"><Icon name="mic" /></div>
             <h2 id="success-heading">Mulțumim că te-ai oferit să fii speaker!</h2>
             <p id="success-detail">Te contactăm în curând.</p>
             <a className="btn btn-secondary" href="/contact">Înapoi la contact →</a>

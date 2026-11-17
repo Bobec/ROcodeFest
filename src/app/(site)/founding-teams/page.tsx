@@ -37,7 +37,9 @@ export default function FoundingTeamsPage() {
           <div id="empty-state" className="empty-state">
             <h3 style={{ fontSize: "20px" }}>Nicio echipă încă — fii prima</h3>
             <p>Peretele se umple pe măsură ce echipele se înscriu. A ta ar putea fi nr. 1.</p>
-            <a className="btn btn-primary" href="/register">Înscrie-ți clubul →</a>
+            {/* /join-as rather than /register: a competitor joins a team as a
+                member there, and a club is pointed on to /register from it */}
+            <a className="btn btn-primary" href="/join-as">Înscrie-ți echipa →</a>
           </div>
         </section>
 

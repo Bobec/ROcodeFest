@@ -5,6 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import "./page.css";
 import "@/styles/impuls.css";
+import Icon from "@/components/Icon";
 
 export const metadata: Metadata = { title: "Contestații — IMPULS 2027" };
 
@@ -46,7 +47,7 @@ export default function AppealsPage() {
                   {" "}
                   <input type="number" id="ap-ts-s" className="ts-input" min="0" max="59" placeholder="SS" />
                 </div>
-                <a href="/livestream" target="_blank" rel="noopener" className="btn btn-secondary btn-small">▶ Deschide transmisiunea live</a>
+                <a href="/livestream" target="_blank" rel="noopener" className="btn btn-secondary btn-small"><Icon name="play" /> Deschide transmisiunea live</a>
               </div>
             </div>
             <div className="field">
@@ -64,7 +65,7 @@ export default function AppealsPage() {
                 {" "}
                 <select id="ap-rule-code"><option value="">— Nu sunt sigur / altceva —</option></select>
               </div>
-              <button type="button" className="btn btn-secondary btn-small" id="ap-ref-rules-btn" title="Doar machetă — va deschide regulamentul oficial după conectarea la server">📖 Vezi regulile</button>
+              <button type="button" className="btn btn-secondary btn-small" id="ap-ref-rules-btn" title="Doar machetă — va deschide regulamentul oficial după conectarea la server"><Icon name="bookOpen" /> Vezi regulile</button>
             </div>
             <p className="rule-hint">
               Selector de probă deocamdată — va indica regula exactă (ex. G4, A21, E2…) când regulamentul va veni de pe server.

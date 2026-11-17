@@ -7,6 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import "./page.css";
 import "@/styles/impuls.css";
+import Icon from "@/components/Icon";
 
 export const metadata: Metadata = { title: "Înregistrare — IMPULS 2027" };
 
@@ -28,7 +29,7 @@ export default function RegisterPage() {
           </p>
         </section>
         <div id="welcome-back-panel" className="form-card" style={{ display: "none", textAlign: "center" }}>
-          <div className="success-badge">👋</div>
+          <div className="success-badge"><Icon name="hand" /></div>
           <h2 id="wb-heading">Bine ai revenit!</h2>
           <p id="wb-detail" style={{ color: "var(--ink-soft)", marginBottom: "20px" }}></p>
           <a className="btn btn-primary" href="/profile">Mergi la profilul clubului →</a>
@@ -86,7 +87,7 @@ export default function RegisterPage() {
             </p>
           </form>
           <div id="success-panel" className="success-panel">
-            <div className="success-badge">🎉</div>
+            <div className="success-badge"><Icon name="party" /></div>
             <h2 id="success-heading">Ești înscris!</h2>
             <p id="success-detail">Bine ai venit, club fondator.</p>
             <a className="btn btn-secondary" href="/profile">Adaugă-ți echipele →</a>

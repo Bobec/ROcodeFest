@@ -6,6 +6,7 @@
 // It is the next thing to rewrite as React state, one page at a time;
 // until then it keeps the page doing exactly what it did before.
 import { useEffect } from "react";
+import { iconSvg } from "@/lib/icons";
 
 let started = false;
 
@@ -187,24 +188,26 @@ onReady(function(){
   var selectedCategoryId = null;
 
   // Drawn from the table, so a chip always names a category that exists
-  // and always carries its real id. The colours and glyphs stay here:
+  // and always carries its real id. The colours and icons stay here:
   // they are presentation, and the table has no opinion about them.
   var CAT_STYLE = {
-    ROBOTICS:    { color: 'var(--blue)',   glyph: '🤖' },
-    PROGRAMMING: { color: 'var(--green)',  glyph: '💻' },
-    DESIGN:      { color: 'var(--purple)', glyph: '🎨' },
-    OTHER:       { color: 'var(--yellow)', glyph: '✦' }
+    ROBOTICS:    { color: 'var(--blue)',   icon: 'robot' },
+    PROGRAMMING: { color: 'var(--green)',  icon: 'laptop' },
+    DESIGN:      { color: 'var(--purple)', icon: 'brush' },
+    OTHER:       { color: 'var(--yellow)', icon: 'star' }
   };
 
   function renderCategoryPicker(){
     var picker = document.getElementById('cat-picker');
     picker.innerHTML = '';
     categories.forEach(function(cat, i){
-      var style = CAT_STYLE[cat.code] || { color: 'var(--ink-soft)', glyph: '•' };
+      var style = CAT_STYLE[cat.code] || { color: 'var(--ink-soft)', icon: null };
       var chip = document.createElement('button');
       chip.type = 'button';
       chip.className = 'cat-chip';
-      chip.textContent = style.glyph + ' ' + cat.label;
+      // the label is the server's text, so it goes in as text, after the icon
+      chip.innerHTML = style.icon ? iconSvg(style.icon) + ' ' : '';
+      chip.appendChild(document.createTextNode(cat.label));
       chip.addEventListener('click', function(){
         picker.querySelectorAll('.cat-chip').forEach(function(c){
           c.classList.remove('selected');

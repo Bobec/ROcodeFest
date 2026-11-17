@@ -8,6 +8,7 @@ import SiteHeader from "@/components/SiteHeader";
 import HideForClub from "@/components/HideForClub";
 import "./page.css";
 import "@/styles/impuls.css";
+import Icon from "@/components/Icon";
 
 export const metadata: Metadata = { title: "IMPULS 2027 — Eu Codez // Piatra Neamț" };
 
@@ -97,10 +98,10 @@ export default function IndexPage() {
           <h2>Nu ești singur</h2>
           <div className="eyebrow">Sprijin din prima zi.</div>
           <div className="support-grid">
-            <div className="support-item"><div className="emoji-circle">🧰</div><p>Kituri de început</p></div>
-            <div className="support-item"><div className="emoji-circle">🧑‍🏫</div><p>Rețea de mentori</p></div>
-            <div className="support-item"><div className="emoji-circle">📘</div><p>Ghiduri pentru începători</p></div>
-            <div className="support-item"><div className="emoji-circle">💬</div><p>Chat de comunitate</p></div>
+            <div className="support-item"><div className="emoji-circle"><Icon name="toolCase" /></div><p>Kituri de început</p></div>
+            <div className="support-item"><div className="emoji-circle"><Icon name="users" /></div><p>Rețea de mentori</p></div>
+            <div className="support-item"><div className="emoji-circle"><Icon name="bookOpen" /></div><p>Ghiduri pentru începători</p></div>
+            <div className="support-item"><div className="emoji-circle"><Icon name="message" /></div><p>Chat de comunitate</p></div>
           </div>
         </section>
         <section className="section reveal">

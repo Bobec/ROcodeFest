@@ -27,6 +27,15 @@
     font-weight:800; color:var(--coral-dark); text-decoration:none; font-size:15px;
   }
 
+  /* social media (lib/social.ts): a network without an address yet is
+     shown, muted, as "în curând" instead of a link */
+  .social-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px;}
+  .social-list a, .social-soon{display:inline-flex; align-items:center; gap:8px; font-weight:800; font-size:15px; text-decoration:none;}
+  .social-list a{color:var(--coral-dark);}
+  .social-list a:hover{text-decoration:underline;}
+  .social-soon{color:var(--ink-soft);}
+  .social-soon small{font-weight:400; font-size:12px; opacity:0.8;}
+
   /* the message form (ContactForm.tsx) */
   .contact-form-title{font-size:22px; margin-bottom:6px;}
   .contact-form-lead{color:var(--ink-soft); font-size:14px; margin:0 0 18px;}

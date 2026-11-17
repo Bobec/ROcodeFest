@@ -5,6 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import "./page.css";
 import "@/styles/impuls.css";
+import Icon from "@/components/Icon";
 
 export const metadata: Metadata = { title: "Ziua concursului — IMPULS 2027" };
 
@@ -26,7 +27,7 @@ export default function ContestDayPage() {
             <p style={{ fontSize: "15px", color: "var(--ink-soft)", margin: "0 0 18px" }}>
               Programul minut cu minut al zilei de concurs nu este încă disponibil. Se va debloca aici automat când începe finala.
             </p>
-            <a className="btn btn-secondary btn-small" href="/events">📅 Vezi calendarul sezonului</a>
+            <a className="btn btn-secondary btn-small" href="/events"><Icon name="calendar" /> Vezi calendarul sezonului</a>
           </div>
         </div>
         <div id="contest-day-content" style={{ display: "none" }}>
@@ -38,7 +39,7 @@ export default function ContestDayPage() {
           <p className="demo-note" id="agenda-season-line" style={{ fontSize: "13px" }}></p>
           <div className="agenda-track" id="agenda-track"></div>
           <div className="card venue-card">
-            <div className="venue-icon">📍</div>
+            <div className="venue-icon"><Icon name="mapPin" /></div>
             <div>
               <h3 style={{ fontSize: "17px", marginBottom: "4px" }}>Rubik Hub, Piatra Neamț</h3>
               <p style={{ fontSize: "14px", color: "var(--ink-soft)", margin: "0 0 8px" }}>Aleea Tineretului, Piatra Neamț — porțile se deschid la 07:30.</p>
@@ -46,13 +47,13 @@ export default function ContestDayPage() {
             </div>
           </div>
           <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap", margin: "24px 0 50px" }}>
-            <a className="btn btn-secondary btn-small" href="/livestream">▶ Urmărește live</a>
+            <a className="btn btn-secondary btn-small" href="/livestream"><Icon name="play" /> Urmărește live</a>
             {" "}
-            <a className="btn btn-secondary btn-small" href="/leaderboard">🏆 Clasament</a>
+            <a className="btn btn-secondary btn-small" href="/leaderboard"><Icon name="trophy" /> Clasament</a>
             {" "}
-            <a className="btn btn-secondary btn-small" href="/rules">📋 Reguli</a>
+            <a className="btn btn-secondary btn-small" href="/rules"><Icon name="clipboard" /> Reguli</a>
             {" "}
-            <a className="btn btn-secondary btn-small" href="/events">📅 Calendarul sezonului</a>
+            <a className="btn btn-secondary btn-small" href="/events"><Icon name="calendar" /> Calendarul sezonului</a>
           </div>
         </div>
         <SiteFooter />
