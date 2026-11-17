@@ -248,6 +248,18 @@
   }
   .support-item p{font-weight:700;font-size:14px;margin:0;}
 
+  /* SPONSORS -- placeholders until the logos arrive */
+  .sponsor-logos{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:22px;
+  }
+  @media (max-width:800px){ .sponsor-logos{grid-template-columns:repeat(2,1fr);} }
+  .sponsor-slot{
+    height:92px; background:var(--panel);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'VT323',monospace; font-size:18px; letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--ink-soft); border:2px dashed var(--line);
+  }
+
   /* ORGANIZERS */
   .organizer-card{
     background:var(--panel);

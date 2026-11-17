@@ -429,4 +429,43 @@ router.get('/judges', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+// ---------------------------------------------------------------------
+// Contact messages
+// ---------------------------------------------------------------------
+// Written by anyone through /contact (routes/contact.js), read here.
+// Unhandled first, then newest first: the inbox is a to-do list.
+router.get('/contact-messages', async (req, res, next) => {
+  try {
+    const r = await db.query(
+      `SELECT message_id AS id, sender_name AS name, sender_email AS email,
+              body, created_at AS "createdAt", handled_at AS "handledAt"
+         FROM contact_messages
+        ORDER BY (handled_at IS NOT NULL), created_at DESC
+        LIMIT 200`
+    );
+    res.json({ messages: r.rows });
+  } catch (e) { next(e); }
+});
+
+// { handled: true } marks it dealt with, { handled: false } puts it back.
+router.patch('/contact-messages/:id', async (req, res, next) => {
+  const { handled } = req.body || {};
+  if (typeof handled !== 'boolean') return res.status(400).json({ error: 'Trimite handled: true sau false.' });
+  try {
+    const r = await db.query(
+      `UPDATE contact_messages
+          SET handled_at = CASE WHEN $2 THEN COALESCE(handled_at, now()) END
+        WHERE message_id = $1
+        RETURNING message_id AS id, handled_at AS "handledAt"`,
+      [req.params.id, handled]
+    );
+    if (!r.rows[0]) return res.status(404).json({ error: 'Mesajul nu a fost găsit.' });
+    res.json({ message: r.rows[0] });
+  } catch (e) {
+    const t = db.translate(e);
+    if (t) return res.status(t.status).json({ error: t.message });
+    next(e);
+  }
+});
+
 module.exports = router;

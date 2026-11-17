@@ -27,20 +27,30 @@
     font-weight:800; color:var(--coral-dark); text-decoration:none; font-size:15px;
   }
 
-  .sponsor-band{
-    background:var(--blue-light); border-radius:var(--radius-lg); padding:36px; text-align:center; margin-top:10px;
+  /* the message form (ContactForm.tsx) */
+  .contact-form-title{font-size:22px; margin-bottom:6px;}
+  .contact-form-lead{color:var(--ink-soft); font-size:14px; margin:0 0 18px;}
+  .contact-form{
+    background:var(--panel); border:2px solid var(--line); padding:28px;
+    display:flex; flex-direction:column; gap:16px;
   }
-  .sponsor-band h2{font-size:22px; margin-bottom:6px;}
-  .sponsor-band p{color:var(--ink-soft); font-size:14px; max-width:480px; margin:0 auto 20px;}
-  .sponsor-logos{
-    display:flex; justify-content:center; gap:16px; flex-wrap:wrap;
+  .contact-form-row{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:560px){ .contact-form-row{grid-template-columns:1fr;} }
+  .contact-form label{display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:var(--ink-soft);}
+  .contact-form input, .contact-form textarea{
+    width:100%; background:var(--cream); border:2px solid var(--hairline); border-radius:0;
+    padding:11px 12px; font-size:15px; font-family:'Jost',sans-serif;
   }
-  .sponsor-slot{
-    width:90px; height:56px; background:var(--panel); border-radius:0;
-    display:flex; align-items:center; justify-content:center;
-    font-size:11px; color:var(--ink-soft); font-weight:700;
-    border:1.5px dashed var(--blue);
-  }
+  .contact-form textarea{resize:vertical; min-height:130px;}
+  .contact-form input:focus, .contact-form textarea:focus{border-color:var(--line); outline:none;}
+  .contact-form .btn{align-self:flex-start;}
+  .contact-form .btn:disabled{opacity:0.6; cursor:default; transform:none;}
+  .contact-hp{position:absolute !important; left:-9999px; width:1px; height:1px; overflow:hidden;}
+  .contact-error{color:var(--danger); font-size:14px; margin:0;}
+  .contact-sent{align-items:flex-start;}
+  .contact-sent h3{font-size:22px; color:var(--green);}
+  .contact-sent p{color:var(--ink-soft); margin:0;}
+  .btn-small{font-size:13px; padding:9px 16px;}
 
   .btn{font-family:'VT323',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:0;border:none;cursor:pointer;text-decoration:none;display:inline-block;}
   .btn-primary{background:var(--coral);color:#fff;}

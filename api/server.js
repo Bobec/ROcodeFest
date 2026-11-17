@@ -82,6 +82,7 @@ app.use('/api/leaderboard',   require('./routes/leaderboard'));
 app.use('/api/news',          require('./routes/news'));
 app.use('/api/schedule',      require('./routes/schedule'));
 app.use('/api/certificates',  require('./routes/certificates'));
+app.use('/api/contact',       require('./routes/contact'));
 // Everything an organiser runs the festival with. The role guard is
 // applied once inside the router, at its mount, rather than per route.
 app.use('/api/admin',         require('./routes/admin'));

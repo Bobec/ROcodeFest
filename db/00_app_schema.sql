@@ -100,5 +100,6 @@ COMMENT ON TABLE app.session IS
 -- line here -- and qa_migrations.sql fails the build if the two lists
 -- disagree, so forgetting is loud rather than silent.
 INSERT INTO app.schema_migrations (version, checksum) VALUES
-  ('0001_session_store', NULL)
+  ('0001_session_store', NULL),
+  ('0002_contact_messages', NULL)
 ON CONFLICT (version) DO NOTHING;

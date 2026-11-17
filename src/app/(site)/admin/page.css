@@ -87,6 +87,10 @@
      si chipsurile pentru echipe si arbitri. */
   .adm-row{ display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
   .adm-meta{ font-size:12px; color:var(--ink-soft); }
+  /* contact messages: the text as written, line breaks kept; handled ones fade */
+  .msg-body{ margin:12px 0 0; font-size:14px; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .msg-done{ opacity:0.6; }
+  .adm-meta a{ color:var(--coral-dark); }
   .adm-sub{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 0; border-top:1px dashed #3A3A3A; }
   .adm-label{ font-size:12px; font-weight:800; color:var(--ink-soft); min-width:64px; }
   .adm-add select{ font-size:12px; padding:6px 10px; }

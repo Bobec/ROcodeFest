@@ -421,6 +421,11 @@ INSERT INTO expected_columns(tbl,col,origin) VALUES
   ('news_posts','title','R9_news'),('news_posts','summary','R9_news'),
   ('news_posts','body','R9_news'),('news_posts','published_at','R9_news'),
   ('news_posts','created_at','R9_news'),('news_posts','updated_at','R9_news'),
+  -- the form on /contact. No account behind a sender, so a name and an
+  -- address as typed; handled_at NULL means nobody has dealt with it.
+  ('contact_messages','message_id','contact_form'),('contact_messages','sender_name','contact_form'),
+  ('contact_messages','sender_email','contact_form'),('contact_messages','body','contact_form'),
+  ('contact_messages','created_at','contact_form'),('contact_messages','handled_at','contact_form'),
   ('teams','team_name','profile'),('team_categories','code','profile'),('team_categories','label','profile'),
   ('seasons','season_id','profile'),('seasons','name','profile'),('seasons','start_date','profile'),
   ('seasons','end_date','profile'),('seasons','is_active','lifecycle'),

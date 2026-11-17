@@ -116,6 +116,17 @@ export default function IndexPage() {
             </div>
           </div>
         </section>
+        <section className="section reveal" id="sponsori">
+          <h2>Sponsorii noștri fondatori</h2>
+          <div className="eyebrow">Primul sezon IMPULS este posibil datorită lor.</div>
+          <div className="sponsor-logos">
+            <div className="sponsor-slot">Sponsor 1</div>
+            <div className="sponsor-slot">Sponsor 2</div>
+            <div className="sponsor-slot">Sponsor 3</div>
+            <div className="sponsor-slot">Sponsor 4</div>
+          </div>
+          <div className="cta-row"><a className="btn btn-secondary" href="/partner">{"// Devino sponsor"}</a></div>
+        </section>
         <section className="section reveal">
           <h2>Întrebări frecvente</h2>
           <div className="eyebrow">Încă nu te-ai hotărât?</div>

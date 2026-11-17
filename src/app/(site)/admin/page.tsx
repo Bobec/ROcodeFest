@@ -45,6 +45,8 @@ export default function AdminPage() {
             {" "}
             <button className="tab-btn" data-panel="news">Știri</button>
             {" "}
+            <button className="tab-btn" data-panel="messages">Mesaje <span id="messages-count"></span></button>
+            {" "}
             <button className="tab-btn" data-panel="organizers">Organizatori</button>
           </div>
           {/* ============================ SEZOANE ============================ */}
@@ -180,6 +182,12 @@ export default function AdminPage() {
               <p className="error-msg" id="nw-error"></p>
             </div>
             <div id="news-list"></div>
+          </div>
+          {/* ============================= MESAJE ============================= */}
+          {/* What visitors left through the form on /contact. Unhandled first;
+              "Rezolvat" moves one to the end of the list, and back. */}
+          <div className="admin-panel" id="panel-messages" style={{ display: "none" }}>
+            <div id="messages-list"></div>
           </div>
           {/* ========================== ORGANIZATORI ========================== */}
           <div className="admin-panel" id="panel-organizers" style={{ display: "none" }}>

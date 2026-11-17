@@ -937,6 +937,36 @@ CREATE TABLE news_posts (
 );
 CREATE INDEX ix_news_posts_published ON news_posts(published_at DESC NULLS LAST);
 
+-- --- contact messages --------------------------------------------------
+-- What a visitor leaves through the form on /contact. No account is
+-- needed to write one, so nothing here references accounts: the sender
+-- is a name and an address, as typed. Organisers read them in /admin.
+--
+-- handled_at is nullable for the same reason news_posts.published_at
+-- is: "not yet dealt with" is a row without a date, not a status column
+-- with transition rules of its own.
+--
+-- MIGRATION: db/migrations/0002_contact_messages.sql
+CREATE TABLE contact_messages (
+  message_id    BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  sender_name   VARCHAR(120) NOT NULL,
+  sender_email  CITEXT NOT NULL,
+  body          TEXT NOT NULL,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  handled_at    TIMESTAMPTZ,
+  CONSTRAINT ck_contact_messages_name_present CHECK (btrim(sender_name) <> ''),
+  -- the shape only: an address can look right and still bounce, and no
+  -- pattern can tell. The point is to refuse "asdf", not to validate.
+  CONSTRAINT ck_contact_messages_email_shape
+    CHECK (sender_email ~ '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$'),
+  CONSTRAINT ck_contact_messages_body_length
+    CHECK (char_length(btrim(body)) BETWEEN 1 AND 5000)
+);
+-- the inbox, newest first
+CREATE INDEX ix_contact_messages_created ON contact_messages(created_at DESC);
+-- the API's "how many from this address in the last hour" check
+CREATE INDEX ix_contact_messages_sender ON contact_messages(sender_email, created_at);
+
 CREATE TABLE certificates (
   certificate_id    BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   team_id           BIGINT NOT NULL REFERENCES teams(team_id) ON DELETE CASCADE,

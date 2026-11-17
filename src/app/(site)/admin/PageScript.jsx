@@ -38,7 +38,8 @@ onReady(function(){
 
   var me = null;
   var seasons = [], challenges = [], matches = [], judges = [],
-      teams = [], categories = [], scheduleItems = [], news = [], organizers = [];
+      teams = [], categories = [], scheduleItems = [], news = [], organizers = [],
+      messages = [];
 
   function api(path, options){
     var opts = options || {};
@@ -96,13 +97,14 @@ onReady(function(){
       api('/api/teams').then(function(r){ teams = (r.d && r.d.teams) || []; }),
       api('/api/teams/categories').then(function(r){ categories = (r.d && r.d.categories) || []; }),
       api('/api/schedule').then(function(r){ scheduleItems = (r.d && r.d.items) || []; }),
-      api('/api/news').then(function(r){ news = (r.d && r.d.news) || []; })
+      api('/api/news').then(function(r){ news = (r.d && r.d.news) || []; }),
+      api('/api/admin/contact-messages').then(function(r){ messages = (r.d && r.d.messages) || []; })
     ]);
   }
 
   function renderAll(){
     renderSeasons(); renderChallenges(); renderMatches();
-    renderSchedule(); renderNews(); renderOrganizers();
+    renderSchedule(); renderNews(); renderMessages(); renderOrganizers();
     fillPickers();
   }
 
@@ -438,6 +440,48 @@ onReady(function(){
       return loadAll().then(renderAll);
     });
   });
+
+  // ---------------------------------------------------------------
+  // Contact messages
+  // ---------------------------------------------------------------
+  // Written by anyone through /contact, so every field is a stranger's
+  // text: escaped for the page, and the address escaped for an attribute
+  // too, since it goes into a mailto: link.
+  function escAttr(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function renderMessages(){
+    var open = messages.filter(function(m){ return !m.handledAt; }).length;
+    document.getElementById('messages-count').textContent = open ? '(' + open + ')' : '';
+
+    var wrap = document.getElementById('messages-list');
+    if(messages.length === 0){ wrap.innerHTML = '<div class="empty-state">Niciun mesaj încă.</div>'; return; }
+    wrap.innerHTML = messages.map(function(m){
+      return '<div class="card-light msg-row' + (m.handledAt ? ' msg-done' : '') + '">' +
+        '<div class="adm-row" style="padding:0; border:none; background:none;">' +
+          '<div><strong>' + esc(m.name) + '</strong>' +
+            (m.handledAt ? ' <span class="tag" style="background:var(--green);">rezolvat</span>' : '') +
+            '<br><span class="adm-meta"><a href="mailto:' + escAttr(m.email) + '">' + esc(m.email) + '</a> · ' + when(m.createdAt) + '</span></div>' +
+          '<button class="btn btn-secondary btn-small" data-handle-msg="' + m.id + '" data-handled="' + (m.handledAt ? '1' : '0') + '">' +
+            (m.handledAt ? 'Redeschide' : 'Rezolvat') + '</button>' +
+        '</div>' +
+        '<p class="msg-body">' + esc(m.body) + '</p>' +
+      '</div>';
+    }).join('');
+
+    wrap.querySelectorAll('[data-handle-msg]').forEach(function(b){
+      b.addEventListener('click', function(){
+        api('/api/admin/contact-messages/' + b.getAttribute('data-handle-msg'), {
+          method: 'PATCH', body: { handled: b.getAttribute('data-handled') !== '1' }
+        }).then(function(r){
+          if(!r.ok){ alert(r.d.error || 'Nu s-a putut schimba.'); return; }
+          return loadAll().then(renderAll);
+        });
+      });
+    });
+  }
 
   // ---------------------------------------------------------------
   // Organisers

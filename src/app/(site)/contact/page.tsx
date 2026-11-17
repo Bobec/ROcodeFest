@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import BackButton from "@/components/BackButton";
+import ContactForm from "./ContactForm";
 import FabButtons from "@/components/FabButtons";
 import RevealOnScroll from "@/components/RevealOnScroll";
 import SiteFooter from "@/components/SiteFooter";
@@ -7,7 +8,7 @@ import SiteHeader from "@/components/SiteHeader";
 import "./page.css";
 import "@/styles/impuls.css";
 
-export const metadata: Metadata = { title: "Contact și sponsori — IMPULS 2027" };
+export const metadata: Metadata = { title: "Contact — IMPULS 2027" };
 
 export default function ContactPage() {
   return (
@@ -16,7 +17,7 @@ export default function ContactPage() {
         <SiteHeader />
         <BackButton />
         <section className="page-hero">
-          <div className="eyebrow">Contact și sponsori</div>
+          <div className="eyebrow">Contact</div>
           <h1>Ia legătura cu noi</h1>
           <p>Întrebări despre echipe, evenimente, presă sau parteneriate — ne bucurăm să te auzim.</p>
         </section>
@@ -38,23 +39,11 @@ export default function ContactPage() {
               <a className="email" href="https://www.google.com/maps/search/?api=1&query=Rubik+Hub%2C+Aleea+Tineretului%2C+Piatra+Neam%C8%9B" target="_blank" rel="noopener">Deschide în Google Maps →</a>
             </div>
           </div>
-          <div className="sponsor-band reveal" id="sponsors">
-            <h2>Sponsorii noștri fondatori</h2>
-            <p>Primul sezon IMPULS este posibil datorită sprijinului partenerilor noștri sponsori.</p>
-            <div className="sponsor-logos">
-              <div className="sponsor-slot">Sponsor 1</div>
-              <div className="sponsor-slot">Sponsor 2</div>
-              <div className="sponsor-slot">Sponsor 3</div>
-              <div className="sponsor-slot">Sponsor 4</div>
-            </div>
-          </div>
         </section>
-        <section className="section reveal" style={{ textAlign: "center" }}>
-          <h2 style={{ fontSize: "22px", marginBottom: "10px" }}>Vrei să devii sponsor?</h2>
-          <p style={{ color: "var(--ink-soft)", maxWidth: "480px", margin: "0 auto 20px" }}>
-            Ajută-ne să finanțăm premiile, kiturile de început și mentoratul pentru echipele fondatoare.
-          </p>
-          <a className="btn btn-primary" href="/partner">Devino sponsor →</a>
+        <section className="section reveal" id="mesaj">
+          <h2 className="contact-form-title">Lasă-ne un mesaj</h2>
+          <p className="contact-form-lead">Scrie-ne aici și îți răspundem pe email.</p>
+          <ContactForm />
         </section>
         <SiteFooter />
       </div>
