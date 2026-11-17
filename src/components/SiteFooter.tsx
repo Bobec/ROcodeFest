@@ -1,10 +1,10 @@
+// Forum is not repeated here: it is already in the navigation bar.
+// Teams and clubs are one page (/founding-teams), so one link.
 const LINKS: [href: string, label: string][] = [
   ["/news", "Noutăți"],
   ["/resources", "Resurse"],
-  ["/founding-teams", "Echipe"],
-  ["/organizations", "Cluburi"],
+  ["/founding-teams", "Echipe și cluburi"],
   ["/leaderboard", "Clasament"],
-  ["/forum", "Forum"],
   ["/livestream", "Live"],
   ["/contact", "Contact"],
 ];

@@ -18,6 +18,10 @@ const nextConfig: NextConfig = {
   async redirects() {
     // Links to the old static pages (x.html) keep working.
     return [
+      // Clubs are a section of the teams page now, not a page of their own.
+      // Before the .html rule, so /organizations.html lands here in one hop.
+      { source: "/organizations", destination: "/founding-teams#cluburi", permanent: false },
+      { source: "/organizations.html", destination: "/founding-teams#cluburi", permanent: false },
       { source: "/index.html", destination: "/", permanent: true },
       { source: "/:page([a-z-]+)\\.html", destination: "/:page", permanent: true },
     ];

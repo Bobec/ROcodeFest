@@ -1,4 +1,8 @@
 "use client";
+// The clubs half of /founding-teams. It was the script of a page of its
+// own, /organizations, until the two pages became one; its ids are
+// prefixed org- so they cannot collide with the teams half (PageScript).
+//
 // The behaviour this page carried as inline <script> blocks, moved here
 // unchanged apart from the links (x.html -> /x). It runs once, after
 // React has hydrated the markup in page.tsx, and works on that DOM by id.
@@ -9,7 +13,7 @@ import { useEffect } from "react";
 
 let started = false;
 
-export default function OrganizationsScript() {
+export default function ClubsScript() {
   useEffect(() => {
     if (started) return;
     started = true;
@@ -30,7 +34,7 @@ onReady(function(){
 
 
   var listEl = document.getElementById('org-list');
-  var emptyEl = document.getElementById('empty-state');
+  var emptyEl = document.getElementById('org-empty-state');
 
   // Both lists were localStorage arrays, so this page showed a visitor
   // the clubs their own browser happened to have stored -- which for
@@ -69,7 +73,7 @@ onReady(function(){
 
     card.innerHTML =
       '<h2>' + club.clubName.replace(/</g,'&lt;') + '</h2>' +
-      '<div class="org-meta">' + (club.city || '—').replace(/</g,'&lt;') + ' · ' + clubTeams.length + ' team' + (clubTeams.length !== 1 ? 's' : '') + '</div>' +
+      '<div class="org-meta">' + (club.city || '—').replace(/</g,'&lt;') + ' · ' + clubTeams.length + (clubTeams.length === 1 ? ' echipă' : ' echipe') + '</div>' +
       '<div class="team-chip-row">' + chips + '</div>';
 
     listEl.appendChild(card);

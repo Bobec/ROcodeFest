@@ -67,12 +67,36 @@
   .btn{font-family:'VT323',sans-serif;font-weight:700;font-size:16px;padding:14px 28px;border-radius:0;border:none;cursor:pointer;text-decoration:none;display:inline-block;}
   .btn-primary{background:var(--coral);color:#fff;}
 
-  .demo-note{
-    max-width:640px; margin:0 auto 40px; background:var(--yellow-light);
-    border-radius:var(--radius-md); padding:20px 24px;
+  /* teams and clubs share the page: a jump row under the title, then
+     one section each */
+  .jump-row{display:flex; justify-content:center; gap:12px; margin-top:22px; flex-wrap:wrap;}
+  .btn-small{font-size:13px; padding:9px 16px;}
+  .list-section{scroll-margin-top:100px; margin-bottom:30px;}
+  .list-title{font-size:26px; margin-bottom:6px;}
+  .list-lead{color:var(--ink-soft); font-size:15px; margin:0 0 20px;}
+
+  /* the clubs, each with its teams as chips (ClubsScript.jsx) */
+  .org-card{
+    background:var(--panel); border:2px solid var(--line); border-radius:var(--radius-lg);
+    padding:26px 28px; margin-bottom:20px;
   }
-  .demo-note p{font-size:13px; color:var(--ink-soft); margin:0;}
-  .demo-note strong{color:var(--ink);}
+  .org-card h2{font-size:20px; margin-bottom:4px;}
+  .org-card .org-meta{font-size:13px; color:var(--ink-soft); margin-bottom:16px;}
+  .team-chip-row{display:flex; gap:10px; flex-wrap:wrap;}
+  .team-chip{
+    display:flex; align-items:center; gap:8px;
+    background:var(--cream); border:2px solid #3A3A3A; border-radius:0;
+    padding:8px 14px 8px 8px; font-size:13px; font-weight:700;
+  }
+  .cat-dot{width:10px; height:10px; border-radius:50%; flex-shrink:0;}
+  .cat-Robotics{background:var(--blue);}
+  .cat-Programming{background:var(--green);}
+  .cat-Design{background:var(--purple);}
+  .cat-Other{background:var(--yellow);}
+  .cat-label{
+    font-size:10px; text-transform:uppercase; letter-spacing:0.03em;
+    color:var(--ink-soft); font-weight:800; margin-left:4px;
+  }
 
   footer{padding:24px 0 40px;text-align:center;font-size:13px;color:var(--ink-soft);}
   .footer-nav{display:flex;justify-content:center;gap:22px;font-size:13px;font-weight:700;color:var(--ink-soft);margin-bottom:10px;}
