@@ -5,13 +5,26 @@ const { Pool } = require('pg');
 // search_path is pinned on the connection so unqualified names resolve to
 // oltp -- the same class of defect R4 fixed inside the database, arriving
 // here from the other direction.
+//
+// Hosted (Vercel + Neon): the connection comes as one URL. The UNPOOLED
+// one is preferred on purpose -- Neon's pooler (PgBouncer) refuses the
+// `options` startup parameter below, which is what pins search_path.
+// Locally and in CI there is no URL, and the PG* variables apply as before.
+const url = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
 const pool = new Pool({
-  host:     process.env.PGHOST     || 'localhost',
-  port:     Number(process.env.PGPORT || 5432),
-  user:     process.env.PGUSER     || 'postgres',
-  password: process.env.PGPASSWORD,
-  database: process.env.PGDATABASE || 'rocodefest',
-  max: 10,
+  ...(url
+    ? { connectionString: url }
+    : {
+        host:     process.env.PGHOST     || 'localhost',
+        port:     Number(process.env.PGPORT || 5432),
+        user:     process.env.PGUSER     || 'postgres',
+        password: process.env.PGPASSWORD,
+        database: process.env.PGDATABASE || 'rocodefest',
+      }),
+  // A serverless function is one instance per concurrent request burst,
+  // each with its own pool; ten connections apiece would exhaust a small
+  // hosted database quickly.
+  max: process.env.VERCEL ? 3 : 10,
   // The search_path is set as a CONNECTION PARAMETER, not by a query on
   // the connect event. It used to be the latter:
   //
