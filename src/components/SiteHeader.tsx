@@ -50,8 +50,10 @@ export default function SiteHeader({ hideLogin = false }: { hideLogin?: boolean 
   const account = useAccount() ?? null;
   const [rulesUnseen, setRulesUnseen] = useState(false);
   const [contestDay, setContestDay] = useState(false);
+  const [joinOpen, setJoinOpen] = useState(false);
   const linksRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const joinRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -86,8 +88,25 @@ export default function SiteHeader({ hideLogin = false }: { hideLogin?: boolean 
     return () => document.removeEventListener("click", onDoc);
   }, [open]);
 
+  // the "Participă" menu closes on a click outside it and on Escape
+  useEffect(() => {
+    if (!joinOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!joinRef.current?.contains(e.target as Node)) setJoinOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setJoinOpen(false);
+    };
+    document.addEventListener("click", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("click", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [joinOpen]);
+
   const dest = account ? destinationFor(account) : null;
-  const close = () => setOpen(false);
+  const close = () => { setOpen(false); setJoinOpen(false); };
 
   return (
     <nav className={scrolled ? "scrolled" : undefined}>
@@ -115,8 +134,7 @@ export default function SiteHeader({ hideLogin = false }: { hideLogin?: boolean 
         <a href="/events">Evenimente</a>
         <a href="/contest-day" id="nav-contest-day-link" style={contestDay ? undefined : { display: "none" }}>Ziua concursului</a>
         <a href="/forum">Forum</a>
-        {!hideLogin && !account && <a href="/login" id="nav-login-link">Autentificare</a>}
-        {dest ? (
+        {dest && (
           <a
             href={dest.href}
             id="nav-register-link"
@@ -126,10 +144,29 @@ export default function SiteHeader({ hideLogin = false }: { hideLogin?: boolean 
           >
             {account!.avatar ? "" : (dest.label || "?").trim().charAt(0).toUpperCase()}
           </a>
-        ) : (
-          !account && <a href="/register" id="nav-register-link">Înregistrare</a>
         )}
-        <a href="/join-as" className="join-cta-link">// Participă</a>
+        {account ? (
+          <a href="/join-as" className="join-cta-link">// Participă</a>
+        ) : (
+          // Signed out, "Participă" is a menu: the ways to take part, and
+          // the two account links that used to stand in the bar beside it.
+          <div ref={joinRef} className={"nav-join" + (joinOpen ? " open" : "")}>
+            <button
+              type="button"
+              className="join-cta-link"
+              aria-expanded={joinOpen}
+              aria-controls="nav-join-menu"
+              onClick={() => setJoinOpen((o) => !o)}
+            >
+              // Participă <span className="nav-join-caret" aria-hidden="true">▾</span>
+            </button>
+            <div className="nav-join-menu" id="nav-join-menu">
+              <a href="/join-as">Alege cum participi</a>
+              <a href="/register" id="nav-register-link">Înregistrare</a>
+              {!hideLogin && <a href="/login" id="nav-login-link">Autentificare</a>}
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

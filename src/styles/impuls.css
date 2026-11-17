@@ -242,6 +242,28 @@ nav::before{
   font-weight:400; font-size:16px; padding:6px 14px;
 }
 .join-cta-link:hover, .partner-link:hover, .speaker-link:hover{ background:var(--coral); color:#fff !important; box-shadow:none; }
+/* "Participă" as a menu (signed out): the button opens a panel holding
+   the ways to take part and the sign-in / registration links. A button
+   does not inherit type settings the way a link does, so they are set. */
+.nav-join{ position:relative; }
+button.join-cta-link{
+  font-family:inherit; text-transform:inherit; letter-spacing:inherit; line-height:inherit;
+  cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+}
+.nav-join.open button.join-cta-link{ background:var(--coral); color:#fff !important; }
+.nav-join-caret{ display:inline-block; transition:transform 0.2s ease; }
+.nav-join.open .nav-join-caret{ transform:rotate(180deg); }
+.nav-join-menu{
+  display:none;
+  position:absolute; top:calc(100% + 8px); right:0; min-width:220px; z-index:210;
+  flex-direction:column;
+  background:var(--cream); border:2px solid var(--line);
+}
+.nav-join.open .nav-join-menu{ display:flex; }
+.nav-join-menu a{ padding:11px 16px; color:var(--ink); }
+.nav-join-menu a + a{ border-top:1px solid var(--hairline); }
+.nav-join-menu a:hover{ background:var(--coral); color:#fff; }
+.nav-join-menu a::after{ display:none !important; }
 .nav-toggle{ background:transparent; border-color:var(--line); border-radius:0; }
 .nav-toggle span{ background:var(--ink); }
 .rules-badge{ border-radius:0; }
@@ -257,6 +279,8 @@ nav::before{
     padding:20px; margin-top:8px; z-index:200; box-shadow:none;
   }
   .nav-links.open{ display:flex; }
+  /* in the collapsed menu the panel opens in place, under its button */
+  .nav-join-menu{ position:static; margin-top:10px; min-width:0; }
 }
 .back-nav-btn{
   font-family:'VT323', monospace; font-weight:400; font-size:16px;
